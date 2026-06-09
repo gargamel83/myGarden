@@ -37,22 +37,16 @@ docker compose up --build # Docker prod (fallback data-docker-v0.0.0)
 
 ## Itérations
 
-### Itération 1 (semaine 1-2) — FAIT
+### Itération 1 — FAIT
 - Auth mono-utilisateur (`.env` password)
-- Organisation du jardin : upload photo satellite + dessin bandes de culture (polygones)
-- Gestion des plantations : CRUD, cycles (semis → repiquage → récolte), calendrier
-- Dockerfile + docker-compose
-
-### Itération 2 (semaine 3-4) — FAIT
-- Base de connaissance plantes (58 fiches pré-remplies : familles, périodes, sol, compagnonnage, photos)
-- Moteur de rotation des cultures (suggestions, alertes, historique par bande)
-- Page liste plantes avec recherche et filtres
-- Page détail plante avec compagnons/antagonistes et périodes visuelles
-
-### Itération 3 (semaine 5-6) — FAIT
-- Dashboard + statistiques
-- Carte OSM interactive (Leaflet)
-- Améliorations UX + déploiement
+- Organisation du jardin : upload photo satellite + carte OSM interactive (Leaflet) ; dessin de polygones (bandes) ; géolocalisation, géocodage Nominatim ; chaque bande a : nom, dimensions, orientation, type de sol, exposition
+- Gestion des plantations : CRUD, cycles semis → repiquage → récolte, calendrier/timeline, statut auto-déduit des dates, historique par bande, plantations affichées dans les polygones de la carte
+- Dashboard : vue d'ensemble saison, alertes semis/récolte/rotation, statistiques, plantations actives
+- Base de connaissance : 58 fiches pré-remplies (périodes, exposition, sol, compagnonnage, photos Wikimedia) ; recherche et filtres ; page détail avec galerie photos réordonnable
+- Moteur de rotation : suggestions basées sur l'historique des bandes, familles botaniques, alertes si rotation trop courte
+- UX : toast notifications, dialogues de confirmation, navigation responsive avec hamburger, animations de fondu, resetForm/closeForm
+- Logger applicatif : TRACE/DEBUG/INFO/WARN/ERROR, console en dev, fichiers persistants en Docker
+- Docker : multi-stage, migration auto avec réconciliation, data directory versionné (scripts/docker-up.sh)
 
 ## Règles pour l'agent
 - Lire `SPECS.md` pour le cahier des charges détaillé
