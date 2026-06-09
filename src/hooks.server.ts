@@ -1,0 +1,27 @@
+import type { Handle } from '@sveltejs/kit';
+import { building } from '$app/environment';
+
+const PASSWORD = building ? '' : process.env.LOGIN_PASSWORD;
+
+function hash(s: string): string {
+	let h = 0;
+	for (let i = 0; i < s.length; i++) {
+		h = ((h << 5) - h) + s.charCodeAt(i);
+		h = h & h;
+	}
+	return h.toString(36);
+}
+
+export const handle: Handle = async ({ event, resolve }) => {
+	const token = event.cookies.get('session');
+	const expected = PASSWORD ? hash('monjardin-' + PASSWORD) : '';
+
+	if (expected && token !== expected && !event.url.pathname.startsWith('/login')) {
+		return new Response(null, {
+			status: 302,
+			headers: { location: '/login' }
+		});
+	}
+
+	return resolve(event);
+};

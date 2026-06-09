@@ -1,0 +1,12 @@
+services:
+  monjardin:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./${DATA_DIR:-data-docker-v0.0.0}:/app/data
+      - ./static/uploads:/app/static/uploads
+    environment:
+      - LOGIN_PASSWORD=${LOGIN_PASSWORD:-change_me}
+      - ORIGIN=http://localhost:3000
+      - LOG_DIR=/app/data/logs
