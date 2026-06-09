@@ -48,6 +48,16 @@ docker compose up --build # Docker prod (fallback data-docker-v0.0.0)
 - Logger applicatif : TRACE/DEBUG/INFO/WARN/ERROR, console en dev, fichiers persistants en Docker
 - Docker : multi-stage, migration auto avec réconciliation, data directory versionné (scripts/docker-up.sh)
 
+## Conventional Commits
+Tous les messages de commit suivent le format :
+```
+<type>(<scope>): <description>
+```
+Types : `feat`, `fix`, `docs`, `refactor`, `style`, `chore`, `perf`, `test`
+- Le scope est optionnel mais encouragé (ex: `plantations`, `docker`, `carte`, `auth`)
+- Description en français, impératif présent, pas de majuscule, pas de point final
+- Pas de breaking change sans discussion explicite
+
 ## Règles pour l'agent
 - Lire `SPECS.md` pour le cahier des charges détaillé
 - Toujours lancer `npx drizzle-kit push` après une modification de schéma
