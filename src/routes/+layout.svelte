@@ -18,9 +18,9 @@
 
 	const links = [
 		{ href: '/', label: 'Dashboard' },
-		{ href: '/garden', label: 'Jardin' },
-		{ href: '/plantations', label: 'Plantations' },
-		{ href: '/plants', label: 'Plantes' }
+		{ href: '/garden', label: 'Garden' },
+		{ href: '/plantations', label: 'Plantings' },
+		{ href: '/plants', label: 'Plants' }
 	];
 </script>
 

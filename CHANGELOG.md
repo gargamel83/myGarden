@@ -1,24 +1,42 @@
 # Changelog
 
-## Unreleased
+## v0.1.0 (iteration-2 branch)
+
+### Added
+- Personalized bed advice: `getBedAdvice()` based on soil and exposure
+- Advanced dashboard stats: total cultivated area, top 5 crops, monthly occupancy
+- Photo lightbox with keyboard navigation (←/→/Esc), counter, dark overlay
+- Shared types: `$lib/types.ts` with `PlantStatus`, `SunExposure`, centralized labels
+
+### Changed
+- **No more full page reload**: replaced `fetch() + window.location.reload()` with `<form method="POST">` + `use:enhance` + `invalidate()` on all pages
+- Improved calendar: bed filter, month navigation (◀/▶/Today), tooltips, current month highlighted
+- Accessibility: Escape to close modals, `role="dialog"` + `aria-modal`, `tabindex` on dialogs, `e.target === e.currentTarget` pattern
+- Validation: `required` fields on forms, server errors displayed via toasts
+- Removed `as any` in garden (replaced with fully typed objects)
+- **Full English translation**: all UI text, comments, error messages, and documentation translated from French to English
+- Fixed FK deletion error: bed delete returns friendly message instead of crash
+- Logger integrated into hooks: requests logged to stdout and file (`/app/data/logs/app.log`)
+
+## v0.0.1 (main branch)
 
 ### Added
 
-- Authentification mono-utilisateur (mot de passe `.env`, cookie session)
-- Upload photo satellite + dessin de polygones (bandes de culture)
-- CRUD bandes : nom, couleur, type de sol, exposition, dimensions, orientation
-- CRUD plantations liées à une bande, cycles semis → repiquage → récolte
-- Carte OSM interactive (Leaflet) : dessin polygones, géocodage Nominatim, géolocalisation avec fallback précision
-- Dashboard : stats, plantations actives, alertes semis/récolte/rotation
-- Base de connaissance : 58 fiches plantes pré-remplies (périodes, sol, compagnonnage, photos Wikimedia)
-- Moteur de rotation : suggestions, alertes, historique par bande
-- Page liste plantes : recherche, filtres, barre repiquage, miniatures photos
-- Page détail plante : compagnons/antagonistes, périodes visuelles, galerie photos réordonnable
-- Vue calendrier/timeline des plantations
-- Statut auto-déduit des dates (sans écraser les existantes), bouton Modifier
-- Toast notifications, dialogues de confirmation, animation de fondu
-- Navigation responsive avec menu hamburger, persistance onglet jardin
-- Logger applicatif (console dev, fichiers persistants Docker)
-- Migration automatique au démarrage Docker, réconciliation si tables existantes
-- Dockerfile + docker-compose, data directory versionné
+- Single-user authentication (`.env` password, session cookie)
+- Satellite photo upload + polygon drawing (cultivation beds)
+- Bed CRUD: name, color, soil type, exposure, dimensions, orientation
+- Planting CRUD linked to a bed, sowing → transplanting → harvesting cycles
+- Interactive OSM map (Leaflet): polygon drawing, Nominatim geocoding, geolocation with precision fallback
+- Dashboard: stats, active plantings, sowing/harvest/rotation alerts
+- Knowledge base: 58 pre-filled plant sheets (periods, soil, companion planting, Wikimedia photos)
+- Rotation engine: suggestions, alerts, per-bed history
+- Plant list page: search, filters, transplanting bar, photo thumbnails
+- Plant detail page: companions/antagonists, visual periods, reorderable photo gallery
+- Calendar/timeline view of plantings
+- Auto-deduced status from dates (without overwriting existing ones), Edit button
+- Toast notifications, confirmation dialogs, fade animation
+- Responsive navigation with hamburger menu, garden tab persistence
+- Application logger (console dev, persistent files in Docker)
+- Automatic migration at Docker startup, reconciliation if tables exist
+- Dockerfile + docker-compose, versioned data directory
 - README, CHANGELOG, SPECS, AGENTS

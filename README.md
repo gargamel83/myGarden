@@ -1,121 +1,121 @@
 # MonJardin
 
-Application web de gestion de jardin potager — bandes de culture, plantations, rotation des cultures, base de connaissance plantes.
+Web application for managing a vegetable garden — cultivation beds, plantings, crop rotation, plant knowledge base.
 
 ---
 
-## Cahier des charges
+## Specifications
 
 ### Modules
 
 | Module | Description |
 |---|---|
-| **Organisation du jardin** | Upload photo satellite ou carte OSM interactive ; dessin de polygones (bandes) ; chaque bande a : nom, dimensions, orientation, type de sol, exposition |
-| **Gestion des plantations** | CRUD lié à une bande ; cycles semis → repiquage → récolte ; calendrier visuel ; historique par bande |
-| **Base de connaissance plantes** | 58 fiches pré-remplies (périodes, exposition, sol, compagnonnage, photos) ; recherche et filtres ; pages détail avec conseils |
-| **Rotation des cultures** | Suggestions basées sur l'historique des bandes ; familles botaniques ; alertes si rotation trop courte |
-| **Dashboard** | Vue d'ensemble saison ; alertes semis/récolte ; statistiques (bandes, plantations, fiches) |
+| **Garden organization** | Upload satellite photo or interactive OSM map ; polygon drawing (beds) ; each bed has: name, dimensions, orientation, soil type, exposure |
+| **Planting management** | CRUD linked to a bed ; sowing → transplanting → harvesting cycles ; visual calendar ; per-bed history |
+| **Plant knowledge base** | 58 pre-filled sheets (periods, exposure, soil, companion planting, photos) ; search and filters ; detail pages with advice |
+| **Crop rotation** | Suggestions based on bed history ; botanical families ; alerts if rotation is too short |
+| **Dashboard** | Seasonal overview ; sowing/harvest alerts ; statistics (beds, plantings, sheets) |
 
 ### Stack
 
-| Technologie | Usage |
+| Technology | Usage |
 |---|---|
-| **SvelteKit 5** (TypeScript) | Framework full-stack |
-| **Drizzle ORM** + **better-sqlite3** | Base de données SQLite |
-| **Tailwind CSS v4** | Styles |
-| **Leaflet** (OSM) | Carte interactive |
+| **SvelteKit 5** (TypeScript) | Full-stack framework |
+| **Drizzle ORM** + **better-sqlite3** | SQLite database |
+| **Tailwind CSS v4** | Styling |
+| **Leaflet** (OSM) | Interactive map |
 | **adapter-node** | Production |
-| **Docker** | Déploiement |
+| **Docker** | Deployment |
 
 ---
 
-## Lancement
+## Getting Started
 
-### Développement local
+### Local Development
 
-**Pré-requis :**
+**Prerequisites:**
 - Node.js 24+
 - npm
 
 ```bash
-# 1. Installer les dépendances
+# 1. Install dependencies
 npm install
 
-# 2. Copier et configurer le mot de passe
-cp .env.example .env   # puis éditer LOGIN_PASSWORD=mon_mot_de_passe
-#   → Si .env absent ou LOGIN_PASSWORD vide, l'authentification est désactivée (mode dev)
+# 2. Copy and configure the password
+cp .env.example .env   # then edit LOGIN_PASSWORD=my_password
+#   → If .env is missing or LOGIN_PASSWORD is empty, authentication is disabled (dev mode)
 
-# 3. Appliquer les migrations
+# 3. Apply migrations
 npx drizzle-kit push
 
-# 4. (optionnel) Remplir la base avec les fiches plantes
+# 4. (optional) Seed the database with plant sheets
 npm run db:seed
 
-#   → Ajoute les plantes manquantes sans toucher aux existantes
-#   → `npm run db:seed:force` met à jour toutes les fiches existantes
+#   → Adds missing plants without touching existing ones
+#   → `npm run db:seed:force` updates all existing sheets
 
-# 5. Lancer le serveur de dev
+# 5. Start the dev server
 npm run dev
 ```
 
-Ouvrir [http://localhost:5173](http://localhost:5173).
+Open [http://localhost:5173](http://localhost:5173).
 
-### Production Docker
+### Docker Production
 
-**Pré-requis :**
+**Prerequisites:**
 - Docker
 - Docker Compose v2
-- Node.js (pour lire la version depuis `package.json`)
+- Node.js (to read version from `package.json`)
 
 ```bash
-# Lancer (build + up) — data directory versionné automatiquement
-LOGIN_PASSWORD=mon_mdp ./scripts/docker-up.sh --build -d
-#   → Par défaut : mot de passe "change_me" (docker-compose.yml)
-#   → Si `LOGIN_PASSWORD=` est vide, l'authentification est désactivée
+# Launch (build + up) — versioned data directory automatically
+LOGIN_PASSWORD=my_password ./scripts/docker-up.sh --build -d
+#   → Default: password "change_me" (docker-compose.yml)
+#   → If `LOGIN_PASSWORD=` is empty, authentication is disabled
 
 # Logs
 docker compose logs -f
 
-# Arrêter
+# Stop
 docker compose down
 ```
 
-Ouvrir [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3000](http://localhost:3000).
 
-> **Note isolation :** Docker utilise un data directory versionné (`data-docker-v0.0.1/`) pour ne pas interférer avec la BDD de développement local (`data/`). Changer la version dans `package.json` crée une nouvelle BDD isolée. Voir `./scripts/docker-up.sh`.
+> **Isolation note:** Docker uses a versioned data directory (`data-docker-v0.0.1/`) to avoid interfering with the local development database (`data/`). Changing the version in `package.json` creates a new isolated database. See `./scripts/docker-up.sh`.
 
 ---
 
 ## Debug
 
-### Logs applicatifs
+### Application Logs
 
-En local (dev), les logs sont écrits uniquement sur **stdout** — pas de fichiers.
+Locally (dev), logs are written only to **stdout** — no files.
 
-En Docker, les logs sont écrits dans `./data-docker-vX.X.X/logs/` sur l'hôte (persistant via le volume) :
+In Docker, logs are written to `./data-docker-vX.X.X/logs/` on the host (persistent via volume):
 
 ```bash
-# Voir les logs en temps réel
+# View logs in real time
 docker compose logs -f
 
-# Accéder aux fichiers persistants
+# Access persistent files
 tail -f data-docker-v*/logs/app.log
 tail -f data-docker-v*/logs/error.log
 ```
 
-Le dossier de logs est configurable via la variable d'environnement `LOG_DIR` (défaut : `/app/data/logs`).
+The log directory is configurable via the `LOG_DIR` environment variable (default: `/app/data/logs`).
 
-### Erreurs courantes
+### Common Errors
 
-| Symptôme | Cause | Solution |
+| Symptom | Cause | Solution |
 |---|---|---|
-| `SQLITE_ERROR: no such table` | Migrations non appliquées | `npx drizzle-kit push` |
-| `LOGIN_PASSWORD` non défini | Pas de `.env` ou LOGIN_PASSWORD manquant | Créer `.env` avec `LOGIN_PASSWORD=xxx` ; si vide → pas d'auth (dev) |
-| `readonly database` | Fichier DB appartient à root (Docker) | `sudo chown -R $(whoami) data-docker-v*/` |
-| Port déjà utilisé | Un autre service écoute sur 3000/5173 | `lsof -i :3000` puis `kill` |
-| Plantation non trouvée | Bande supprimée mais plantations orphelines | Vérifier en base avec `npx drizzle-kit studio` |
+| `SQLITE_ERROR: no such table` | Migrations not applied | `npx drizzle-kit push` |
+| `LOGIN_PASSWORD` not set | No `.env` or LOGIN_PASSWORD missing | Create `.env` with `LOGIN_PASSWORD=xxx` ; if empty → no auth (dev) |
+| `readonly database` | DB file owned by root (Docker) | `sudo chown -R $(whoami) data-docker-v*/` |
+| Port already in use | Another service listening on 3000/5173 | `lsof -i :3000` then `kill` |
+| Plantation not found | Bed deleted but orphaned plantings remain | Check in database with `npx drizzle-kit studio` |
 
-### Vérifications rapides
+### Quick Checks
 
 ```bash
 # Lint / type check
@@ -124,76 +124,76 @@ npm run check
 # Build
 npm run build
 
-# Test du conteneur
+# Test the container
 curl -s -o /dev/null -w "%{http_code}" http://localhost:3000
-# Réponse attendue : 302 (redirigé vers /login)
+# Expected response: 302 (redirected to /login)
 ```
 
 ---
 
-## Cycle de mise à jour
+## Update Cycle
 
-### Ajouter / mettre à jour des plantes
+### Adding / Updating Plants
 
-Les fiches sont dans `src/lib/server/db/seed.ts`.
+The sheets are in `src/lib/server/db/seed.ts`.
 
 ```bash
-# Ajouter les nouvelles plantes uniquement (additif)
+# Add new plants only (additive)
 npm run db:seed
 
-# Forcer la mise à jour de toutes les fiches (photos, champs modifiés…)
+# Force update all sheets (photos, modified fields…)
 npm run db:seed:force
 ```
 
-Pour ajouter des champs à la fiche :
+To add fields to a sheet:
 
 ```bash
-# 1. Modifier le schéma dans schema.ts
-# 2. Générer la migration
+# 1. Modify the schema in schema.ts
+# 2. Generate the migration
 npx drizzle-kit generate
-# 3. Appliquer
+# 3. Apply
 npx drizzle-kit push
-# 4. Mettre à jour seed.ts avec la nouvelle colonne
-# 5. Re-seeder en force
+# 4. Update seed.ts with the new column
+# 5. Force re-seed
 npm run db:seed:force
 ```
 
-### Améliorer le site
+### Improving the Site
 
-1. **Modifier le code** — l'application se rebuild automatiquement en dev (`npm run dev`)
-2. **Migrer la base** — après un changement de schéma (voir ci-dessus)
-3. **Tester** — `npm run check && npm run build`
-4. **Déployer en Docker** :
+1. **Modify the code** — the application auto-rebuilds in dev (`npm run dev`)
+2. **Migrate the database** — after a schema change (see above)
+3. **Test** — `npm run check && npm run build`
+4. **Deploy with Docker**:
 
 ```bash
-./scripts/docker-up.sh --build -d   # rebuild + up avec la bonne version
+./scripts/docker-up.sh --build -d   # rebuild + up with the correct version
 ```
 
-Les données persistent dans `./data-docker-vX.X.X/monjardin.db` (data directory versionné).
+Data persists in `./data-docker-vX.X.X/monjardin.db` (versioned data directory).
 
-### Structure des migrations
+### Migration Structure
 
 ```
 drizzle/
-  0000_xxx.sql        # Migration initiale
-  0001_xxx.sql        # Ajout champ type (pixel/geo)
-  0002_xxx.sql        # Ajout dimensions/orientation
-  0003_xxx.sql        # Ajout floweringStart/floweringEnd
+  0000_xxx.sql        # Initial migration
+  0001_xxx.sql        # Added type field (pixel/geo)
+  0002_xxx.sql        # Added dimensions/orientation
+  0003_xxx.sql        # Added floweringStart/floweringEnd
 ```
 
-Les migrations sont appliquées automatiquement au démarrage du conteneur Docker via `scripts/migrate.js`.  
-Si les tables existent déjà (base préexistante), le script réconcilie la table de suivi `__drizzle_migrations` et continue.
+Migrations are applied automatically at Docker container startup via `scripts/migrate.js`.  
+If the tables already exist (pre-existing database), the script reconciles the `__drizzle_migrations` tracking table and continues.
 
 ---
 
-## Améliorations futures
+## Future Improvements
 
-*(Espace réservé — idées et priorités)*
+*(Reserved — ideas and priorities)*
 
-- [ ] Conseils individualisés par bande (sol + exposition)
-- [ ] Statistiques rendement / surface utilisée
-- [ ] Notifications par email (semis, récolte)
-- [ ] Mode hors-ligne / PWA
-- [ ] Export CSV des plantations
-- [ ] Multi-utilisateurs
-- [ ] API publique
+- [ ] Individualized bed advice (soil + exposure)
+- [ ] Yield / used area statistics
+- [ ] Email notifications (sowing, harvest)
+- [ ] Offline mode / PWA
+- [ ] CSV export of plantings
+- [ ] Multi-user
+- [ ] Public API

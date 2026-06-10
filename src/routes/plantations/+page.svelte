@@ -1,12 +1,17 @@
 <script lang="ts">
-	import ConfirmDialog from '$lib/components/ConfirmDialog.svelte';
+	import { enhance } from '$app/forms';
+	import { invalidate } from '$app/navigation';
 	import { toast } from '$lib/toast.svelte';
+	import { STATUS_LABELS, STATUS_COLORS, STATUS_BAR_COLORS } from '$lib/types';
+	import type { PlantStatus } from '$lib/types';
 
 	let { data } = $props();
 
 	let showForm = $state(false);
 	let editId = $state<number | null>(null);
 	let view = $state<'list' | 'timeline'>('list');
+	let filterBed = $state('');
+	let timelineOffset = $state(0);
 	let confirmDeleteId = $state<number | null>(null);
 	let formBedId = $state('');
 	let formPlantName = $state('');
@@ -18,49 +23,12 @@
 	let formQuantity = $state('');
 	let formNotes = $state('');
 
-	const statusLabels: Record<string, string> = {
-		planned: 'Planifié',
-		sown: 'Semé',
-		planted: 'Repiqué',
-		harvested: 'Récolté',
-		cancelled: 'Annulé'
-	};
-
-	const statusColors: Record<string, string> = {
-		planned: 'bg-gray-200 text-gray-700',
-		sown: 'bg-blue-100 text-blue-700',
-		planted: 'bg-green-100 text-green-700',
-		harvested: 'bg-amber-100 text-amber-700',
-		cancelled: 'bg-red-100 text-red-700'
-	};
+	const statusLabels = STATUS_LABELS;
+	const statusColors = STATUS_COLORS;
 
 	function nextStatus(current: string): string | null {
 		const flow: Record<string, string> = { planned: 'sown', sown: 'planted', planted: 'harvested' };
 		return flow[current] || null;
-	}
-
-	async function advance(id: number, current: string) {
-		const next = nextStatus(current);
-		if (!next) return;
-		const form = new FormData();
-		form.set('id', String(id));
-		form.set('status', next);
-		const res = await fetch('?/updateStatus', { method: 'POST', body: form });
-		if (res.ok) {
-			toast('Statut mis à jour');
-			setTimeout(() => window.location.reload(), 800);
-		}
-	}
-
-	async function deletePlantation(id: number) {
-		const form = new FormData();
-		form.set('id', String(id));
-		const res = await fetch('?/delete', { method: 'POST', body: form });
-		if (res.ok) {
-			confirmDeleteId = null;
-			toast('Plantation supprimée');
-			setTimeout(() => window.location.reload(), 800);
-		}
 	}
 
 	function resetForm() {
@@ -102,38 +70,50 @@
 		} catch { return null; }
 	}
 
-	async function submitForm() {
-		const url = editId ? '?/update' : '?/create';
-		const form = new FormData();
-		if (editId) form.set('id', String(editId));
-		form.set('gardenBedId', formBedId);
-		form.set('plantName', formPlantName);
-		form.set('plantId', formPlantId);
-		form.set('variety', formVariety);
-		form.set('sowingDate', formSowing);
-		form.set('plantingDate', formPlanting);
-		form.set('harvestDate', formHarvest);
-		form.set('quantity', formQuantity);
-		form.set('notes', formNotes);
-		const res = await fetch(url, { method: 'POST', body: form });
-		if (res.ok) {
-			toast(editId ? 'Plantation modifiée' : 'Plantation créée');
-			closeForm();
-			setTimeout(() => window.location.reload(), 800);
-		}
+	function handleFormEnhance() {
+		return async ({ result }: { result: any }) => {
+			if (result.type === 'success') {
+				toast(editId ? 'Planting updated' : 'Planting created');
+				closeForm();
+				await invalidate('app:plantations');
+			} else if (result.type === 'failure') {
+				toast(result.data?.error || 'Error', 'error');
+			}
+		};
+	}
+
+	function handleStatusEnhance() {
+		return async ({ result }: { result: any }) => {
+			if (result.type === 'success') {
+				toast('Status updated');
+				await invalidate('app:plantations');
+			}
+		};
+	}
+
+	function handleDeleteEnhance() {
+		return async ({ result }: { result: any }) => {
+			if (result.type === 'success') {
+				confirmDeleteId = null;
+				toast('Planting deleted');
+				await invalidate('app:plantations');
+			}
+		};
 	}
 
 	// Timeline computed values
 	function getMonths(): string[] {
 		const all: string[] = [];
 		const now = new Date();
-		for (let i = -2; i <= 8; i++) {
+		for (let i = -2 + timelineOffset; i <= 8 + timelineOffset; i++) {
 			const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
 			all.push(d.toISOString().slice(0, 7));
 		}
 		return all;
 	}
-	const months = getMonths();
+	const months = $derived(getMonths());
+
+	const monthLabels = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
 
 	function monthLabel(ym: string): string {
 		const d = new Date(ym + '-01');
@@ -174,34 +154,30 @@
 	}
 
 	function barColor(p: typeof data.plantations[0]): string {
-		const colors: Record<string, string> = {
-			planned: '#9ca3af',
-			sown: '#3b82f6',
-			planted: '#22c55e',
-			harvested: '#f59e0b',
-			cancelled: '#ef4444'
-		};
-		return colors[p.plantation.status] || '#9ca3af';
+		return STATUS_BAR_COLORS[p.plantation.status as PlantStatus] || '#9ca3af';
 	}
 
 	// Group by bed for timeline
 	function getBedGroups(): Map<string, typeof data.plantations> {
 		const map = new Map<string, typeof data.plantations>();
-		for (const p of data.plantations) {
-			const key = p.bedName || 'Sans bande';
+		const filtered = filterBed
+			? data.plantations.filter(p => (p.bedName || 'No bed') === filterBed)
+			: data.plantations;
+		for (const p of filtered) {
+			const key = p.bedName || 'No bed';
 			if (!map.has(key)) map.set(key, []);
 			map.get(key)!.push(p);
 		}
 		return map;
 	}
-	const bedGroups = getBedGroups();
+	const bedGroups = $derived(getBedGroups());
 </script>
 
 <div class="space-y-6">
 	<div class="flex items-center justify-between">
-		<h1 class="text-2xl font-bold">Plantations</h1>
+		<h1 class="text-2xl font-bold">Plantings</h1>
 		<button class="bg-green-600 text-white px-4 py-2 rounded" onclick={() => { resetForm(); showForm = true; }}>
-			+ Nouvelle plantation
+			+ New planting
 		</button>
 	</div>
 
@@ -211,25 +187,25 @@
 			class="px-4 py-2 -mb-px border-b-2 {view === 'list' ? 'border-green-600 text-green-700 font-medium' : 'border-transparent text-gray-500'}"
 			onclick={() => view = 'list'}
 		>
-			Liste
+			List
 		</button>
 		<button
 			class="px-4 py-2 -mb-px border-b-2 {view === 'timeline' ? 'border-green-600 text-green-700 font-medium' : 'border-transparent text-gray-500'}"
 			onclick={() => view = 'timeline'}
 		>
-			Calendrier
+			Calendar
 		</button>
 	</div>
 
 	<!-- Rotation alerts -->
 	{#if data.rotationAlerts.length > 0}
 		<div class="space-y-2">
-			<h2 class="font-bold text-lg">Alertes rotation</h2>
+			<h2 class="font-bold text-lg">Rotation alerts</h2>
 			{#each data.rotationAlerts as alert}
 				<div class="border-l-4 px-4 py-2 {alert.type === 'warning' ? 'border-red-500 bg-red-50' : 'border-blue-500 bg-blue-50'}">
 					<p class="text-sm"><strong>{alert.bedName} :</strong> {alert.message}</p>
 					{#if alert.suggestedPlants}
-						<p class="text-xs text-gray-500 mt-1">Suggestions : {alert.suggestedPlants.join(', ')}</p>
+						<p class="text-xs text-gray-500 mt-1">Suggestions: {alert.suggestedPlants.join(', ')}</p>
 					{/if}
 				</div>
 			{/each}
@@ -239,7 +215,7 @@
 	{#if view === 'list'}
 		<!-- List view -->
 		{#if data.plantations.length === 0}
-			<p class="text-gray-500 text-center py-8">Aucune plantation pour le moment.</p>
+			<p class="text-gray-500 text-center py-8">No plantations yet.</p>
 		{/if}
 
 		<div class="grid gap-3">
@@ -260,13 +236,13 @@
 						<p class="text-sm text-gray-500">{p.bedName || '—'}</p>
 						<div class="flex gap-3 text-xs text-gray-400 mt-1">
 							{#if p.plantation.sowingDate}
-								<span>Semis: {p.plantation.sowingDate}</span>
+								<span>Sowing: {p.plantation.sowingDate}</span>
 							{/if}
 							{#if p.plantation.plantingDate}
-								<span>Repiquage: {p.plantation.plantingDate}</span>
+								<span>Transplanting: {p.plantation.plantingDate}</span>
 							{/if}
 							{#if p.plantation.harvestDate}
-								<span>Récolte: {p.plantation.harvestDate}</span>
+								<span>Harvest: {p.plantation.harvestDate}</span>
 							{/if}
 						</div>
 					</div>
@@ -275,15 +251,16 @@
 							{statusLabels[p.plantation.status]}
 						</span>
 						<button class="text-xs text-blue-600 px-2 py-1 rounded hover:bg-blue-50" onclick={() => editPlantation(p)}>
-							Modifier
+							Edit
 						</button>
 						{#if nextStatus(p.plantation.status)}
-							<button
-								class="text-xs bg-blue-600 text-white px-2 py-1 rounded"
-								onclick={() => advance(p.plantation.id, p.plantation.status)}
-							>
-								Passer à {statusLabels[nextStatus(p.plantation.status)!]}
-							</button>
+							<form method="POST" action="?/updateStatus" use:enhance={handleStatusEnhance} class="inline">
+								<input type="hidden" name="id" value={p.plantation.id} />
+								<input type="hidden" name="status" value={nextStatus(p.plantation.status)!} />
+								<button type="submit" class="text-xs bg-blue-600 text-white px-2 py-1 rounded">
+									Move to {statusLabels[nextStatus(p.plantation.status)!]}
+								</button>
+							</form>
 						{/if}
 					<button class="text-red-500 text-sm" onclick={() => confirmDeleteId = p.plantation.id}>
 						✕
@@ -295,150 +272,186 @@
 		</div>
 	{:else}
 		<!-- Timeline view -->
-		{#if data.plantations.length === 0}
-			<p class="text-gray-500 text-center py-8">Aucune plantation à afficher.</p>
-		{:else}
+		<!-- Timeline controls -->
+			<div class="flex items-center justify-between gap-3">
+				<div class="flex items-center gap-1">
+				<button class="p-1 rounded border text-sm hover:bg-gray-100" onclick={() => timelineOffset -= 6} title="Previous months">◀</button>
+				<button class="p-1 rounded border text-sm hover:bg-gray-100" onclick={() => timelineOffset = 0} title="Today">Today</button>
+				<button class="p-1 rounded border text-sm hover:bg-gray-100" onclick={() => timelineOffset += 6} title="Next months">▶</button>
+				</div>
+				<select bind:value={filterBed} class="border rounded px-2 py-1 text-sm">
+					<option value="">All beds</option>
+					{#each [...new Set(data.plantations.map(p => p.bedName))] as name}
+						<option value={name}>{name}</option>
+					{/each}
+				</select>
+			</div>
+
 			<!-- Month headers -->
 			<div class="overflow-x-auto">
 				<div class="min-w-[600px]">
 					<div class="flex mb-1" style="position: sticky; left: 0;">
 						<div class="w-32 shrink-0"></div>
 						{#each months as m}
-							<div class="flex-1 text-center text-xs text-gray-500 font-medium border-l">
+							{@const isCurrent = (() => { const d = new Date(); return m === d.toISOString().slice(0, 7); })()}
+							<div class="flex-1 text-center text-xs font-medium border-l {isCurrent ? 'text-green-700 bg-green-50' : 'text-gray-500'}">
 								{monthLabel(m)}
 							</div>
 						{/each}
 					</div>
 
-					{#each [...bedGroups] as [bedName, plantList]}
-						<div class="mb-4">
-							<h3 class="text-sm font-semibold text-gray-700 mb-1">{bedName}</h3>
-							{#each plantList as p}
-								{@const pf = firstPhoto(p.plantPhotos)}
-								{@const style = barStyle(p)}
-								<div class="relative h-7 mb-1">
-									<!-- Month grid lines -->
-									<div class="absolute inset-0 flex">
-										<div class="w-32 shrink-0 flex items-center gap-1 pr-2 leading-7 truncate">
-											{#if pf}
-												<img src={pf} alt="" class="w-5 h-5 object-cover rounded shrink-0" />
-											{/if}
-											<span class="text-xs text-gray-600 truncate">{p.plantation.plantName}</span>
+					{#if data.plantations.length === 0}
+						<p class="text-gray-400 text-center py-8 text-sm">No plantations to display.</p>
+					{:else}
+						{#each [...bedGroups] as [bedName, plantList]}
+							<div class="mb-4">
+								<h3 class="text-sm font-semibold text-gray-700 mb-1">{bedName}</h3>
+								{#each plantList as p}
+									{@const pf = firstPhoto(p.plantPhotos)}
+									{@const style = barStyle(p)}
+									<div class="relative h-7 mb-1 group">
+										<div class="absolute inset-0 flex">
+											<div class="w-32 shrink-0 flex items-center gap-1 pr-2 leading-7 truncate">
+												{#if pf}
+													<img src={pf} alt="" class="w-5 h-5 object-cover rounded shrink-0" />
+												{/if}
+												<span class="text-xs text-gray-600 truncate">{p.plantation.plantName}</span>
+											</div>
+											{#each months as m}
+												<div class="flex-1 border-l border-gray-100"></div>
+											{/each}
 										</div>
-										{#each months as m}
-											<div class="flex-1 border-l border-gray-100"></div>
-										{/each}
+										{#if style}
+											<div class="absolute h-5 top-1 rounded cursor-pointer transition-opacity group-hover:opacity-90" style="background: {barColor(p)}; opacity: 0.7; {style}"
+												title="{p.plantation.plantName} ({p.bedName})
+				Sowing: {p.plantation.sowingDate || '—'}
+Transplanting: {p.plantation.plantingDate || '—'}
+Harvest: {p.plantation.harvestDate || '—'}
+{p.plantation.variety ? 'Variety: ' + p.plantation.variety : ''}">
+											</div>
+										{/if}
 									</div>
-									{#if style}
-										<div class="absolute h-5 top-1 rounded" style="background: {barColor(p)}; opacity: 0.7; {style}"></div>
-									{/if}
-								</div>
-							{/each}
-						</div>
-					{/each}
+								{/each}
+							</div>
+						{/each}
+					{/if}
 				</div>
 			</div>
 
 			<!-- Legend -->
 			<div class="flex gap-4 text-xs text-gray-500">
-				<span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-gray-400"></span> Planifié</span>
-				<span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-blue-500"></span> Semé</span>
-				<span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-green-500"></span> Repiqué</span>
-				<span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-amber-500"></span> Récolté</span>
+				<span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-gray-400"></span> Planned</span>
+				<span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-blue-500"></span> Sown</span>
+				<span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-green-500"></span> Transplanted</span>
+				<span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-amber-500"></span> Harvested</span>
 			</div>
-		{/if}
 	{/if}
 </div>
 
 <!-- New plantation dialog -->
 {#if showForm}
-	<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-	<div class="fixed inset-0 bg-black/50 flex items-center justify-center" onclick={closeForm} role="presentation">
-		<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-		<div class="bg-white rounded-lg p-6 w-96 max-h-[80vh] overflow-y-auto" onclick={(e) => e.stopPropagation()} role="presentation">
-			<h2 class="text-lg font-bold mb-4">{editId ? 'Modifier' : 'Nouvelle'} plantation</h2>
-			<div class="space-y-3">
-				<div>
-					<label class="block text-sm text-gray-600">
-						Bande *
-						<select bind:value={formBedId} class="w-full border rounded px-2 py-1">
-							<option value="">Sélectionner une bande</option>
-							{#each data.beds as bed}
-								<option value={bed.id}>{bed.name}</option>
-							{/each}
-						</select>
-					</label>
-				</div>
-				<div>
-					<label class="block text-sm text-gray-600">
-						Plante (base)
-						<select bind:value={formPlantId} class="w-full border rounded px-2 py-1">
-							<option value="">—</option>
-							{#each data.plants as plant}
-								<option value={plant.id}>{plant.commonName}</option>
-							{/each}
-						</select>
-					</label>
-				</div>
-				<div>
-					<label class="block text-sm text-gray-600">
-						Nom de la plante *
-						<input type="text" bind:value={formPlantName} class="w-full border rounded px-2 py-1" />
-					</label>
-				</div>
-				<div>
-					<label class="block text-sm text-gray-600">
-						Variété
-						<input type="text" bind:value={formVariety} class="w-full border rounded px-2 py-1" />
-					</label>
-				</div>
-				<div class="grid grid-cols-3 gap-2">
+
+	<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+	<div class="fixed inset-0 bg-black/50 flex items-center justify-center" onkeydown={(e) => e.key === 'Escape' && closeForm()} onclick={(e) => { if (e.target === e.currentTarget) closeForm(); }} role="dialog" aria-modal="true" tabindex="-1">
+
+		<div class="bg-white rounded-lg p-6 w-96 max-h-[80vh] overflow-y-auto" role="none">
+			<form method="POST" action={editId ? '?/update' : '?/create'} use:enhance={handleFormEnhance} onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()}>
+				{#if editId}
+					<input type="hidden" name="id" value={editId} />
+				{/if}
+				<h2 class="text-lg font-bold mb-4">{editId ? 'Edit' : 'New'} planting</h2>
+				<div class="space-y-3">
 					<div>
 						<label class="block text-sm text-gray-600">
-							Semis
-							<input type="date" bind:value={formSowing} class="w-full border rounded px-2 py-1 text-sm" />
+							Bed *
+							<select name="gardenBedId" bind:value={formBedId} required class="w-full border rounded px-2 py-1">
+								<option value="">Select a bed</option>
+								{#each data.beds as bed}
+									<option value={bed.id}>{bed.name}</option>
+								{/each}
+							</select>
 						</label>
 					</div>
 					<div>
 						<label class="block text-sm text-gray-600">
-							Repiquage
-							<input type="date" bind:value={formPlanting} class="w-full border rounded px-2 py-1 text-sm" />
+							Plant (base)
+							<select name="plantId" bind:value={formPlantId} class="w-full border rounded px-2 py-1">
+								<option value="">—</option>
+								{#each data.plants as plant}
+									<option value={plant.id}>{plant.commonName}</option>
+								{/each}
+							</select>
 						</label>
 					</div>
 					<div>
 						<label class="block text-sm text-gray-600">
-							Récolte
-							<input type="date" bind:value={formHarvest} class="w-full border rounded px-2 py-1 text-sm" />
+							Plant name *
+							<input type="text" name="plantName" bind:value={formPlantName} required class="w-full border rounded px-2 py-1" />
 						</label>
 					</div>
+					<div>
+						<label class="block text-sm text-gray-600">
+							Variety
+							<input type="text" name="variety" bind:value={formVariety} class="w-full border rounded px-2 py-1" />
+						</label>
+					</div>
+					<div class="grid grid-cols-3 gap-2">
+						<div>
+							<label class="block text-sm text-gray-600">
+								Sowing
+								<input type="date" name="sowingDate" bind:value={formSowing} class="w-full border rounded px-2 py-1 text-sm" />
+							</label>
+						</div>
+						<div>
+							<label class="block text-sm text-gray-600">
+								Transplanting
+								<input type="date" name="plantingDate" bind:value={formPlanting} class="w-full border rounded px-2 py-1 text-sm" />
+							</label>
+						</div>
+						<div>
+							<label class="block text-sm text-gray-600">
+								Harvest
+								<input type="date" name="harvestDate" bind:value={formHarvest} class="w-full border rounded px-2 py-1 text-sm" />
+							</label>
+						</div>
+					</div>
+					<div>
+						<label class="block text-sm text-gray-600">
+							Quantity
+							<input type="number" name="quantity" bind:value={formQuantity} class="w-full border rounded px-2 py-1" />
+						</label>
+					</div>
+					<div>
+						<label class="block text-sm text-gray-600">
+							Notes
+							<textarea name="notes" bind:value={formNotes} class="w-full border rounded px-2 py-1"></textarea>
+						</label>
+					</div>
+					<div class="flex gap-2 justify-end pt-2">
+						<button type="button" class="px-4 py-2 border rounded" onclick={closeForm}>Cancel</button>
+						<button type="submit" class="px-4 py-2 bg-green-600 text-white rounded">{editId ? 'Save' : 'Create'}</button>
+					</div>
 				</div>
-				<div>
-					<label class="block text-sm text-gray-600">
-						Quantité
-						<input type="number" bind:value={formQuantity} class="w-full border rounded px-2 py-1" />
-					</label>
-				</div>
-				<div>
-					<label class="block text-sm text-gray-600">
-						Notes
-						<textarea bind:value={formNotes} class="w-full border rounded px-2 py-1"></textarea>
-					</label>
-				</div>
-				<div class="flex gap-2 justify-end pt-2">
-					<button class="px-4 py-2 border rounded" onclick={closeForm}>Annuler</button>
-					<button class="px-4 py-2 bg-green-600 text-white rounded" onclick={submitForm}>{editId ? 'Enregistrer' : 'Créer'}</button>
-				</div>
-			</div>
+			</form>
 		</div>
 	</div>
 {/if}
 
 {#if confirmDeleteId}
-	<ConfirmDialog
-		title="Supprimer la plantation"
-		message="Cette action est irréversible."
-		confirmLabel="Supprimer"
-		onconfirm={() => deletePlantation(confirmDeleteId!)}
-		oncancel={() => confirmDeleteId = null}
-	/>
+
+	<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+	<div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onkeydown={(e) => e.key === 'Escape' && (confirmDeleteId = null)} onclick={(e) => { if (e.target === e.currentTarget) confirmDeleteId = null; }} role="dialog" aria-modal="true" tabindex="-1">
+
+		<div class="bg-white rounded-lg p-6 w-80 shadow-xl" role="none">
+			<form method="POST" action="?/delete" use:enhance={handleDeleteEnhance} onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()}>
+				<input type="hidden" name="id" value={confirmDeleteId} />
+				<h3 class="font-bold text-lg mb-2">Delete planting</h3>
+				<p class="text-sm text-gray-600 mb-5">This action is irreversible.</p>
+				<div class="flex justify-end gap-2">
+					<button type="button" class="px-4 py-2 border rounded text-sm" onclick={() => confirmDeleteId = null}>Cancel</button>
+					<button type="submit" class="px-4 py-2 bg-red-600 text-white rounded text-sm">Delete</button>
+				</div>
+			</form>
+		</div>
+	</div>
 {/if}

@@ -54,8 +54,8 @@
 						<div class="text-sm">
 							<strong>${bed.name}</strong>
 							<div class="mt-1 flex gap-2">
-								<button class="text-blue-600 underline text-xs" id="view-plantations-${bed.id}">Voir les plantations</button>
-								<button class="text-gray-500 underline text-xs" id="edit-bed-${bed.id}">Modifier</button>
+								<button class="text-blue-600 underline text-xs" id="view-plantations-${bed.id}">View plantations</button>
+								<button class="text-gray-500 underline text-xs" id="edit-bed-${bed.id}">Edit</button>
 							</div>
 						</div>
 					`);
@@ -115,15 +115,15 @@
 
 	function goToMyLocation() {
 		if (!navigator.geolocation) {
-			toast('Géolocalisation non supportée par votre navigateur', 'error');
+			toast('Geolocation not supported by your browser', 'error');
 			return;
 		}
 		if (!map || !L) {
-			toast('Carte pas encore chargée, réessayez', 'error');
+			toast('Map not loaded yet, please retry', 'error');
 			return;
 		}
 
-		const timeout = setTimeout(() => toast('Géolocalisation : temps d\'attente dépassé', 'error'), 10000);
+		const timeout = setTimeout(() => toast('Geolocation: timeout exceeded', 'error'), 10000);
 
 		function onPosition(pos: GeolocationPosition) {
 			clearTimeout(timeout);
@@ -132,23 +132,23 @@
 			if (geoMarker) map.removeLayer(geoMarker);
 			geoMarker = L.circleMarker([latitude, longitude], {
 				radius: 8, color: '#2563eb', fillColor: '#3b82f6', fillOpacity: 0.6
-			}).addTo(map).bindPopup('Votre position').openPopup();
+			}).addTo(map).bindPopup('Your position').openPopup();
 		}
 
 		function onError(err: GeolocationPositionError) {
 			clearTimeout(timeout);
 			if (err.code === err.PERMISSION_DENIED) {
-				toast('Géolocalisation refusée — autorisez-la dans les paramètres du navigateur', 'error');
+				toast('Geolocation denied — enable it in your browser settings', 'error');
 			} else if (err.code === err.TIMEOUT) {
-				toast('Géolocalisation : temps d\'attente dépassé', 'error');
+				toast('Geolocation: timeout exceeded', 'error');
 			} else {
 				// POSITION_UNAVAILABLE — retry without high accuracy
 				navigator.geolocation.getCurrentPosition(
 					onPosition,
 					(err2) => {
 						const msg = err2.code === err2.PERMISSION_DENIED
-							? 'Géolocalisation refusée'
-							: 'Géolocalisation indisponible — vérifiez que la localisation est activée sur votre appareil';
+							? 'Geolocation denied'
+							: 'Geolocation unavailable — check that location is enabled on your device';
 						toast(msg, 'error');
 					},
 					{ enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
@@ -208,7 +208,7 @@
 				<input
 					type="text"
 					bind:value={searchQuery}
-					placeholder="Ville, village..."
+					placeholder="City, village..."
 					class="w-full border rounded px-3 py-1.5 text-sm"
 				/>
 			</form>
@@ -230,20 +230,20 @@
 			class="px-3 py-1.5 rounded text-sm bg-blue-600 text-white whitespace-nowrap"
 			onclick={goToMyLocation}
 		>
-			📌 Ma position
+			📌 My location
 		</button>
 
 		{#if !drawing}
 			<button class="px-3 py-1.5 rounded text-sm bg-green-600 text-white whitespace-nowrap" onclick={toggleDrawing}>
-				Dessiner une bande
+				Draw a bed
 			</button>
 		{:else}
-			<span class="text-sm font-medium text-blue-700">Cliquez sur la carte</span>
+			<span class="text-sm font-medium text-blue-700">Click on the map</span>
 			<button class="px-3 py-1.5 rounded text-sm bg-amber-600 text-white" onclick={savePolygon} disabled={currentPoints.length < 3}>
-				Valider ({currentPoints.length} pts)
+				Confirm ({currentPoints.length} pts)
 			</button>
 			<button class="px-3 py-1.5 rounded text-sm bg-gray-400 text-white" onclick={toggleDrawing}>
-				Annuler
+				Cancel
 			</button>
 		{/if}
 	</div>

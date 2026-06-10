@@ -4,7 +4,8 @@ import { eq, like, or, and } from 'drizzle-orm';
 import { fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types.js';
 
-export const load: PageServerLoad = async ({ url }) => {
+export const load: PageServerLoad = async ({ url, depends }) => {
+	depends('app:plants');
 	const search = url.searchParams.get('q') || '';
 	const family = url.searchParams.get('family') || '';
 	const exposure = url.searchParams.get('exposure') || '';
@@ -45,7 +46,7 @@ export const actions: Actions = {
 	create: async ({ request }) => {
 		const data = await request.formData();
 		const commonName = data.get('commonName') as string;
-		if (!commonName) return fail(400, { error: 'Nom requis' });
+		if (!commonName) return fail(400, { error: 'Name required' });
 
 		db.insert(plants).values({
 			commonName,

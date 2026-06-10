@@ -20,7 +20,7 @@ export interface BedPlantHistory {
 	status: string;
 }
 
-// Familles et leurs temps de retour recommandé (années)
+// Families and their recommended return time (years)
 const FAMILY_ROTATION_GAP: Record<string, number> = {
 	'Solanaceae': 4,
 	'Brassicaceae': 3,
@@ -34,7 +34,7 @@ const FAMILY_ROTATION_GAP: Record<string, number> = {
 	'Lamiaceae': 2
 };
 
-// Après une certaine famille, que planter ?
+// After a certain family, what to plant next?
 function getNextFamilySuggestions(family: string | null): string[] {
 	if (!family) return [];
 	const suggestions: Record<string, string[]> = {
@@ -83,17 +83,17 @@ export async function getRotationSuggestions(bedId: number): Promise<{
 }> {
 	const history = await getBedHistory(bedId);
 
-	// Trouver la famille de la dernière culture récoltée
+	// Find the family of the last harvested crop
 	const lastHarvested = [...history].reverse().find(p => p.status === 'harvested');
 	const lastFamily = lastHarvested?.family || null;
 
-	// Familles à éviter
+	// Families to avoid
 	const bannedFamilies = new Set<string>();
 	const bannedPlants = new Set<number>();
 
 	if (lastFamily) {
 		bannedFamilies.add(lastFamily);
-		// Ajouter les plantes de la même famille
+		// Add plants from the same family
 		const sameFamily = db.select()
 			.from(plants)
 			.where(eq(plants.family, lastFamily))
@@ -101,7 +101,7 @@ export async function getRotationSuggestions(bedId: number): Promise<{
 		sameFamily.forEach(p => bannedPlants.add(p.id));
 	}
 
-	// Si la même famille a été plantée 2 fois de suite, élargir l'interdiction
+	// If the same family has been planted 2 times in a row, broaden the restriction
 	const familiesInHistory = history
 		.filter(p => p.family)
 		.map(p => p.family as string);
@@ -115,19 +115,41 @@ export async function getRotationSuggestions(bedId: number): Promise<{
 		if (count >= 2) bannedFamilies.add(fam);
 	}
 
-	// Récupérer toutes les plantes
+	// Get all plants
 	const allPlants = db.select().from(plants).all();
 
 	const recommended = allPlants.filter(p =>
 		!bannedFamilies.has(p.family || '') && !bannedPlants.has(p.id)
 	);
 
-	// Pour les non-recommandés, exclure les plantes déjà dans recommandé
+	// For not recommended, exclude plants already in recommended
 	const notRecommended = allPlants.filter(p =>
 		(bannedFamilies.has(p.family || '') || bannedPlants.has(p.id))
 	);
 
 	return { recommended, notRecommended, lastFamily, history };
+}
+
+// Personalized advice per bed (soil + exposure)
+export function getBedAdvice(soilType: string | null, sunExposure: string | null): typeof plants.$inferSelect[] {
+	const all = db.select().from(plants).all();
+
+	return all.filter(p => {
+		if (sunExposure && p.sunExposure && p.sunExposure !== sunExposure) {
+			// Compatibility: full_sun also accepts partial_shade, partial_shade also accepts shade
+			if (sunExposure === 'plein_soleil' && p.sunExposure === 'ombre') return false;
+			if (sunExposure === 'ombre' && p.sunExposure === 'plein_soleil') return false;
+			if (sunExposure === 'plein_soleil' && p.sunExposure === 'mi_ombre') return true;
+			if (sunExposure === 'mi_ombre' && p.sunExposure === 'plein_soleil') return true;
+			if (sunExposure === 'mi_ombre' && p.sunExposure === 'ombre') return true;
+			if (sunExposure === 'ombre' && p.sunExposure === 'mi_ombre') return true;
+			return false;
+		}
+		return true;
+	}).filter(p => {
+		if (soilType && p.soilType && p.soilType !== soilType) return false;
+		return true;
+	});
 }
 
 export async function getRotationAlerts(): Promise<RotationAlert[]> {
@@ -144,14 +166,14 @@ export async function getRotationAlerts(): Promise<RotationAlert[]> {
 
 		const last = harvested[harvested.length - 1];
 
-		// Vérifier si la même famille a été plantée 2 fois de suite
+		// Check if the same family has been planted 2 times in a row
 		const families = harvested.filter(p => p.family).map(p => p.family);
 		const lastFams = families.slice(-2);
 		if (lastFams.length === 2 && lastFams[0] === lastFams[1] && lastFams[0]) {
 			alerts.push({
 				bedId: bed.id,
 				bedName: bed.name,
-				message: `⚠️ La bande a reçu 2 cultures consécutives de la famille ${lastFams[0]}. Risque d'épuisement du sol et de maladies.`,
+				message: `⚠️ The bed received 2 consecutive crops from the ${lastFams[0]} family. Risk of soil depletion and diseases.`,
 				type: 'warning',
 				lastPlant: last.plantName,
 				lastFamily: last.family || undefined
@@ -166,7 +188,7 @@ export async function getRotationAlerts(): Promise<RotationAlert[]> {
 			alerts.push({
 				bedId: bed.id,
 				bedName: bed.name,
-				message: `Après ${last.plantName} (${lastFamily}), privilégiez des plantes des familles ${nextFamilies.join(', ')}.`,
+				message: `After ${last.plantName} (${lastFamily}), favor plants from the ${nextFamilies.join(', ')} families.`,
 				type: 'info',
 				lastPlant: last.plantName,
 				lastFamily: lastFamily,
@@ -174,7 +196,7 @@ export async function getRotationAlerts(): Promise<RotationAlert[]> {
 			});
 		}
 
-		// Si plus de 2 ans avec la même famille dominante
+		// If more than 2 years with the same dominant family
 		if (families.length >= 3) {
 			const lastThree = families.slice(-3);
 			const unique = new Set(lastThree);
@@ -182,7 +204,7 @@ export async function getRotationAlerts(): Promise<RotationAlert[]> {
 				alerts.push({
 					bedId: bed.id,
 					bedName: bed.name,
-					message: `🚫 La famille ${[...unique][0]} est cultivée depuis 3 cycles sur cette bande. Rotation urgente nécessaire !`,
+					message: `🚫 The ${[...unique][0]} family has been grown for 3 cycles in this bed. Urgent rotation needed!`,
 					type: 'warning',
 					lastPlant: last.plantName,
 					lastFamily: last.family || undefined

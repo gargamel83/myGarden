@@ -12,7 +12,8 @@ function computeStatus(sowingDate: string | null, plantingDate: string | null, h
 	return 'planned';
 }
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async (event) => {
+	event.depends('app:plantations');
 	const all = db.select({
 		plantation: plantations,
 		bedName: gardenBeds.name,
@@ -46,7 +47,7 @@ export const actions: Actions = {
 		const notes = data.get('notes') as string;
 
 		if (!gardenBedId || !plantName) {
-			return fail(400, { error: 'Bande et nom de plante requis' });
+			return fail(400, { error: 'Bed and plant name required' });
 		}
 
 		db.insert(plantations).values({
@@ -79,7 +80,7 @@ export const actions: Actions = {
 		const notes = data.get('notes') as string;
 
 		if (!id || !gardenBedId || !plantName) {
-			return fail(400, { error: 'Champs requis manquants' });
+			return fail(400, { error: 'Missing required fields' });
 		}
 
 		db.update(plantations).set({
@@ -104,7 +105,7 @@ export const actions: Actions = {
 		const id = data.get('id') as string;
 		const status = data.get('status') as string;
 
-		if (!id) return fail(400, { error: 'ID requis' });
+		if (!id) return fail(400, { error: 'ID required' });
 
 		// Only set date to today if not already set by the user
 		const existing = db.select().from(plantations).where(eq(plantations.id, parseInt(id))).get();

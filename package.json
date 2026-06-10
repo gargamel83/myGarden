@@ -32,6 +32,7 @@
 		"dotenv": "^17.4.2",
 		"drizzle-kit": "^0.31.10",
 		"drizzle-orm": "^0.45.2",
-		"leaflet": "^1.9.4"
+		"leaflet": "^1.9.4",
+		"tiktoken": "^1.0.22"
 	}
 }

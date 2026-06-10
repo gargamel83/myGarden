@@ -4,9 +4,10 @@ import { eq, asc } from 'drizzle-orm';
 import { fail } from '@sveltejs/kit';
 import { writeFileSync, existsSync, mkdirSync } from 'fs';
 import type { PageServerLoad, Actions } from './$types.js';
-import { getRotationAlerts, getBedHistory } from '$lib/server/rotation';
+import { getRotationAlerts, getBedHistory, getBedAdvice } from '$lib/server/rotation';
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async (event) => {
+	event.depends('app:garden');
 	const photos = db.select().from(gardenPhotos).orderBy(gardenPhotos.createdAt).all();
 	const beds = db.select().from(gardenBeds).orderBy(gardenBeds.createdAt).all();
 
@@ -43,7 +44,15 @@ export const load: PageServerLoad = async () => {
 		bedPlantations[p.gardenBedId].push(p);
 	}
 
-	return { photos, beds, rotationAlerts, bedHistories, bedPlantations };
+	const bedAdvice: Record<number, string[]> = {};
+	for (const bed of beds) {
+		const advice = getBedAdvice(bed.soilType, bed.sunExposure);
+		if (advice.length > 0) {
+			bedAdvice[bed.id] = advice.slice(0, 8).map(p => p.commonName);
+		}
+	}
+
+	return { photos, beds, rotationAlerts, bedHistories, bedPlantations, bedAdvice };
 };
 
 export const actions: Actions = {
@@ -53,7 +62,7 @@ export const actions: Actions = {
 		const file = data.get('photo') as File;
 
 		if (!file || file.size === 0) {
-			return fail(400, { error: 'Fichier requis' });
+			return fail(400, { error: 'File required' });
 		}
 
 		const ext = file.name.split('.').pop();
@@ -64,7 +73,7 @@ export const actions: Actions = {
 		writeFileSync(`${uploadDir}/${filename}`, buffer);
 
 		db.insert(gardenPhotos).values({
-			label: label || 'Photo du jardin',
+			label: label || 'Garden photo',
 			filename,
 			width: 0,
 			height: 0
@@ -88,7 +97,7 @@ export const actions: Actions = {
 		const notes = data.get('notes') as string;
 
 		if (!name || !polygon) {
-			return fail(400, { error: 'Nom et polygone requis' });
+			return fail(400, { error: 'Name and polygon required' });
 		}
 
 		const bedData = {
@@ -118,7 +127,15 @@ export const actions: Actions = {
 		const data = await request.formData();
 		const id = data.get('id') as string;
 		if (id) {
-			db.delete(gardenBeds).where(eq(gardenBeds.id, parseInt(id))).run();
+			try {
+				db.delete(gardenBeds).where(eq(gardenBeds.id, parseInt(id))).run();
+			} catch (e) {
+				const msg = (e as Error).message || '';
+				if (msg.includes('FOREIGN KEY')) {
+					return fail(400, { error: 'Cannot delete this bed: there are linked plantations' });
+				}
+				return fail(500, { error: 'Error while deleting' });
+			}
 		}
 		return { success: true };
 	}

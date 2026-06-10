@@ -5,12 +5,13 @@ import { error, fail, redirect } from '@sveltejs/kit';
 import { writeFileSync, existsSync, mkdirSync } from 'fs';
 import type { PageServerLoad, Actions } from './$types.js';
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, depends }) => {
+	depends('app:plant');
 	const id = parseInt(params.id);
-	if (isNaN(id)) error(404, 'Plante introuvable');
+	if (isNaN(id)) error(404, 'Plant not found');
 
 	const plant = db.select().from(plants).where(eq(plants.id, id)).get();
-	if (!plant) error(404, 'Plante introuvable');
+	if (!plant) error(404, 'Plant not found');
 
 	let companions: typeof plants.$inferSelect[] = [];
 	let antagonists: typeof plants.$inferSelect[] = [];
@@ -43,11 +44,11 @@ export const load: PageServerLoad = async ({ params }) => {
 export const actions: Actions = {
 	update: async ({ request, params }) => {
 		const id = parseInt(params.id);
-		if (isNaN(id)) return fail(404, { error: 'Plante introuvable' });
+		if (isNaN(id)) return fail(404, { error: 'Plant not found' });
 
 		const data = await request.formData();
 		const commonName = data.get('commonName') as string;
-		if (!commonName) return fail(400, { error: 'Nom requis' });
+		if (!commonName) return fail(400, { error: 'Name required' });
 
 		// Preserve existing photos if not overwritten
 		const existing = db.select().from(plants).where(eq(plants.id, id)).get();
@@ -80,7 +81,7 @@ export const actions: Actions = {
 
 	delete: async ({ params }) => {
 		const id = parseInt(params.id);
-		if (isNaN(id)) return fail(404, { error: 'Plante introuvable' });
+		if (isNaN(id)) return fail(404, { error: 'Plant not found' });
 
 		db.delete(plants).where(eq(plants.id, id)).run();
 		throw redirect(303, '/plants');
@@ -88,13 +89,13 @@ export const actions: Actions = {
 
 	uploadPhoto: async ({ request, params }) => {
 		const id = parseInt(params.id);
-		if (isNaN(id)) return fail(404, { error: 'Plante introuvable' });
+		if (isNaN(id)) return fail(404, { error: 'Plant not found' });
 
 		const data = await request.formData();
 		const file = data.get('photo') as File;
 
 		if (!file || file.size === 0) {
-			return fail(400, { error: 'Fichier requis' });
+			return fail(400, { error: 'File required' });
 		}
 
 		const ext = file.name.split('.').pop() || 'jpg';

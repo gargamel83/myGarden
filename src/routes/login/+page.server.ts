@@ -1,5 +1,6 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions } from './$types.js';
+import { logger } from '$lib/server/logger';
 
 function hash(s: string): string {
 	let h = 0;
@@ -17,7 +18,8 @@ export const actions: Actions = {
 		const expected = process.env.LOGIN_PASSWORD;
 
 		if (!password || password !== expected) {
-			return fail(401, { error: 'Mot de passe incorrect' });
+			logger.warn('Login failed');
+			return fail(401, { error: 'Incorrect password' });
 		}
 
 		const token = hash('monjardin-' + password);
@@ -28,6 +30,7 @@ export const actions: Actions = {
 			maxAge: 60 * 60 * 24 * 365
 		});
 
+		logger.info('Login successful');
 		throw redirect(303, '/');
 	}
 };

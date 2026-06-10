@@ -1,5 +1,6 @@
 import type { Handle } from '@sveltejs/kit';
 import { building } from '$app/environment';
+import { logger } from '$lib/server/logger';
 
 const PASSWORD = building ? '' : process.env.LOGIN_PASSWORD;
 
@@ -23,5 +24,15 @@ export const handle: Handle = async ({ event, resolve }) => {
 		});
 	}
 
-	return resolve(event);
+	const { pathname } = event.url;
+	const method = event.request.method;
+	const start = Date.now();
+	const response = await resolve(event);
+	const ms = Date.now() - start;
+
+	if (pathname !== '/login') {
+		logger.info(`${method} ${pathname} ${response.status} ${ms}ms`);
+	}
+
+	return response;
 };

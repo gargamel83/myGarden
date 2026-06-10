@@ -1,5 +1,5 @@
 <script lang="ts">
-	let { title = 'Confirmer', message = '', confirmLabel = 'Supprimer', onconfirm, oncancel }: {
+	let { title = 'Confirm', message = '', confirmLabel = 'Delete', onconfirm, oncancel }: {
 		title?: string
 		message?: string
 		confirmLabel?: string
@@ -15,7 +15,7 @@
 		<h3 class="font-bold text-lg mb-2">{title}</h3>
 		<p class="text-sm text-gray-600 mb-5">{message}</p>
 		<div class="flex justify-end gap-2">
-			<button class="px-4 py-2 border rounded text-sm" onclick={oncancel}>Annuler</button>
+			<button class="px-4 py-2 border rounded text-sm" onclick={oncancel}>Cancel</button>
 			<button class="px-4 py-2 bg-red-600 text-white rounded text-sm" onclick={onconfirm}>{confirmLabel}</button>
 		</div>
 	</div>

@@ -4,7 +4,8 @@ import { eq, and, sql } from 'drizzle-orm';
 import { getRotationAlerts } from '$lib/server/rotation';
 import type { PageServerLoad } from './$types.js';
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async (event) => {
+	event.depends('app:dashboard');
 	const bedCount = db.select({ count: sql<number>`count(*)` }).from(gardenBeds).get()?.count || 0;
 	const plantCount = db.select({ count: sql<number>`count(*)` }).from(plants).get()?.count || 0;
 
@@ -16,7 +17,7 @@ export const load: PageServerLoad = async () => {
 	const harvested = allPlantations.filter(p => p.status === 'harvested');
 	const planned = allPlantations.filter(p => p.status === 'planned');
 
-	// Alertes : plantations planifiées dont la date de semis approche
+	// Alerts: planned plantations whose sowing date is approaching
 	const today = new Date();
 	const currentMonth = today.getMonth() + 1;
 	const currentDay = today.getDate();
@@ -39,7 +40,7 @@ export const load: PageServerLoad = async () => {
 		}
 	}
 
-	// Récoltes à venir dans les 30 jours
+	// Harvests to come within 30 days
 	const harvestAlerts: { plantation: typeof plantations.$inferSelect; plant: typeof plants.$inferSelect | null; daysLeft: number }[] = [];
 	for (const p of active) {
 		if (p.plantId) {
@@ -55,6 +56,39 @@ export const load: PageServerLoad = async () => {
 		}
 	}
 
+	// Advanced statistics
+	const beds = db.select().from(gardenBeds).all();
+	const totalArea = beds.reduce((sum, b) => sum + ((b.length || 0) * (b.width || 0)), 0);
+	const avgBedSize = bedCount > 0 ? totalArea / bedCount : 0;
+
+	// Top 5 most cultivated plants
+	const plantCounts: Record<string, number> = {};
+	for (const p of allPlantations) {
+		plantCounts[p.plantName] = (plantCounts[p.plantName] || 0) + 1;
+	}
+	const topCrops = Object.entries(plantCounts)
+		.sort((a, b) => b[1] - a[1])
+		.slice(0, 5)
+		.map(([name, count]) => ({ name, count }));
+
+	// Occupation by month (number of active plantations)
+	const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+	const occupationByMonth = monthNames.map((_, month) => {
+		const m = month + 1;
+		return allPlantations.filter(p => {
+			if (p.status === 'cancelled') return false;
+			const startDate = p.sowingDate || p.plantingDate;
+			const endDate = p.actualHarvestDate || p.harvestDate;
+			if (!startDate) return false;
+			const startM = new Date(startDate).getMonth() + 1;
+			if (endDate) {
+				const endM = new Date(endDate).getMonth() + 1;
+				return m >= startM && m <= endM;
+			}
+			return m >= startM;
+		}).length;
+	});
+
 	const rotationAlerts = await getRotationAlerts();
 	const recentActivity = [...allPlantations].reverse().slice(0, 5);
 
@@ -64,8 +98,12 @@ export const load: PageServerLoad = async () => {
 			plantCount,
 			activeCount: active.length,
 			harvestedCount: harvested.length,
-			plannedCount: planned.length
+			plannedCount: planned.length,
+			totalArea: Math.round(totalArea * 10) / 10,
+			avgBedSize: Math.round(avgBedSize * 10) / 10
 		},
+		topCrops,
+		occupationByMonth,
 		active: active.slice(0, 10),
 		recentActivity,
 		sowingAlerts,
