@@ -74,3 +74,4 @@ Types: `feat`, `fix`, `docs`, `refactor`, `style`, `chore`, `perf`, `test`
 - Migrations are in `/drizzle/`
 - Auth uses `@sveltejs/kit` hooks (`handle`) to protect routes
 - No UI library — Tailwind only
+- **Chaque commit DOIT inclure** : les tests, la MAJ du CHANGELOG et la MAJ du README si nécessaire
