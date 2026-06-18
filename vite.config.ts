@@ -8,6 +8,9 @@ export default defineConfig({
 		sveltekit()
 	],
 	test: {
-		include: ['src/**/*.test.ts']
+		include: ['src/**/*.test.ts'],
+		env: {
+			NODE_ENV: 'development'
+		}
 	}
 });

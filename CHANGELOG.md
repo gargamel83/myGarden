@@ -3,7 +3,8 @@
 ## v0.1.1
 
 ### Added
-- **Tests automatisés**: Vitest configuré, 32 tests unitaires couvrant `types.ts`, `rotation.ts`, `planting.ts`, `toast.svelte.ts`
+- **Tests automatisés**: Vitest configuré, 44 tests (unitaires + intégration DB) couvrant `types.ts`, `rotation.ts`, `planting.ts`, `toast.svelte.ts`, `logger.ts`, `db.ts`
+- **CI GitHub Actions**: workflow `ci.yml` avec `check` + `test` + `build`
 
 ### Fixed
 - **Filtre plantes**: remplace `window.location.href` par `goto()` — fini les rechargements complets

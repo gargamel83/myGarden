@@ -121,6 +121,12 @@ The log directory is configurable via the `LOG_DIR` environment variable (defaul
 # Lint / type check
 npm run check
 
+# Tests unitaires + intégration
+npm test
+
+# Mode watch (dev)
+npm run test:watch
+
 # Build
 npm run build
 
@@ -130,6 +136,32 @@ curl -s -o /dev/null -w "%{http_code}" http://localhost:3000
 ```
 
 ---
+
+## Tests
+
+```bash
+# Run all tests (once)
+npm test
+
+# Watch mode
+npm run test:watch
+```
+
+44 tests couvrent :
+- **Unitaires** : `types.ts`, `rotation.ts`, `planting.ts`, `toast.svelte.ts`, `logger.ts`
+- **Intégration DB** : `db.ts` (SQLite temporaire avec `better-sqlite3`, migrations Drizzle)
+
+Les tests d'intégration DB créent une base SQLite temporaire (`/tmp/monjardin-test-*`) et la détruisent après execution.
+
+> **Note** : Pour les tests logger, `NODE_ENV=development` est défini automatiquement par la config vitest (évite les tentatives d'écriture dans `/app/data/logs`).
+
+### CI
+
+Un workflow GitHub Actions (`.github/workflows/ci.yml`) est déclenché sur tout push vers `main`, `iteration-*`, `test/*`, `fix/*` :
+- `npm ci`
+- `npm run check`
+- `npm test`
+- `npm run build`
 
 ## Update Cycle
 
