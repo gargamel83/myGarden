@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { computeStatus } from '../../routes/plantations/+page.server';
+import { computeStatus } from '../planting';
 
 describe('computeStatus', () => {
 	it('should return planned when no dates', () => {
@@ -26,11 +26,8 @@ describe('computeStatus', () => {
 		expect(computeStatus(null, null, '2026-07-20')).toBe('harvested');
 	});
 
-	it('should handle empty strings', () => {
+	it('should treat empty strings as falsy (same as null)', () => {
 		expect(computeStatus('', '', '')).toBe('planned');
-	});
-
-	it('should handle empty strings mixed with null', () => {
-		expect(computeStatus('', null, null)).toBe('sown');
+		expect(computeStatus('', null, null)).toBe('planned');
 	});
 });

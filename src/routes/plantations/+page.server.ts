@@ -4,13 +4,7 @@ import { eq, asc } from 'drizzle-orm';
 import { fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types.js';
 import { getRotationAlerts } from '$lib/server/rotation';
-
-export function computeStatus(sowingDate: string | null, plantingDate: string | null, harvestDate: string | null): string {
-	if (harvestDate) return 'harvested';
-	if (plantingDate) return 'planted';
-	if (sowingDate) return 'sown';
-	return 'planned';
-}
+import { computeStatus } from '$lib/server/planting';
 
 export const load: PageServerLoad = async (event) => {
 	event.depends('app:plantations');

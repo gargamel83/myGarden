@@ -3,7 +3,7 @@
 ## v0.1.1
 
 ### Added
-- **Tests automatisés**: Vitest configuré, 12 tests unitaires pour `types.ts` et `rotation.ts`
+- **Tests automatisés**: Vitest configuré, 32 tests unitaires couvrant `types.ts`, `rotation.ts`, `planting.ts`, `toast.svelte.ts`
 
 ### Fixed
 - **Filtre plantes**: remplace `window.location.href` par `goto()` — fini les rechargements complets
