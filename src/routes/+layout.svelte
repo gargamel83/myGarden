@@ -2,10 +2,12 @@
 	import '../app.css';
 	import { page } from '$app/stores';
 	import Toast from '$lib/components/Toast.svelte';
+	import LogPanel from '$lib/components/LogPanel.svelte';
 	import { setToastHandler } from '$lib/toast.svelte';
 	let { children } = $props();
 
 	let mobileOpen = $state(false);
+	let showLogs = $state(false);
 	let toastMsg = $state('');
 	let toastType: 'success' | 'error' | 'info' = $state('success');
 	let toastKey = $state(0);
@@ -50,19 +52,31 @@
 			{/each}
 		</div>
 
-		<button
-			class="md:hidden p-1"
-			onclick={() => mobileOpen = !mobileOpen}
-			aria-label="Menu"
-		>
-			<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-				{#if mobileOpen}
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-				{:else}
+		<div class="flex items-center gap-1">
+			<button
+				class="p-1.5 rounded hover:bg-green-600/50 text-sm"
+				onclick={() => showLogs = true}
+				aria-label="Logs"
+				title="Logs"
+			>
+				<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-				{/if}
-			</svg>
-		</button>
+				</svg>
+			</button>
+			<button
+				class="md:hidden p-1"
+				onclick={() => mobileOpen = !mobileOpen}
+				aria-label="Menu"
+			>
+				<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					{#if mobileOpen}
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+					{:else}
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+					{/if}
+				</svg>
+			</button>
+		</div>
 	</div>
 
 	{#if mobileOpen}
@@ -85,3 +99,7 @@
 		{@render children()}
 	</main>
 </div>
+
+{#if showLogs}
+	<LogPanel onclose={() => showLogs = false} />
+{/if}

@@ -90,9 +90,31 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ### Application Logs
 
-Locally (dev), logs are written only to **stdout** — no files.
+#### Configuration
 
-In Docker, logs are written to `./data-docker-vX.X.X/logs/` on the host (persistent via volume):
+| Variable | Défaut | Description |
+|---|---|---|
+| `LOG_LEVEL` | `TRACE` (dev) / `INFO` (prod) | Seuil minimal : `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR` |
+| `LOG_FORMAT` | `text` | Format de sortie : `text` ou `json` (pour Elastic/Loki) |
+| `LOG_DIR` | `/app/data/logs` | Répertoire des fichiers logs (Docker uniquement) |
+
+#### Sorties
+
+- Locally (dev), logs écrits sur **stdout/stderr** uniquement.
+- In Docker, logs écrits dans `./data-docker-vX.X.X/logs/` sur l'hôte (volume persistant) :
+
+```bash
+# Voir les logs en direct
+docker compose logs -f
+
+# Fichiers persistants
+tail -f data-docker-v*/logs/app.log
+tail -f data-docker-v*/logs/error.log
+```
+
+#### Panneau UI
+
+Un bouton `☰` dans la barre de navigation ouvre un panneau de logs accessible depuis l'interface : filtrage par niveau (ALL à ERROR), auto-scroll, rafraîchissement toutes les 2s.
 
 ```bash
 # View logs in real time
@@ -147,7 +169,7 @@ npm test
 npm run test:watch
 ```
 
-44 tests couvrent :
+49 tests couvrent :
 - **Unitaires** : `types.ts`, `rotation.ts`, `planting.ts`, `toast.svelte.ts`, `logger.ts`
 - **Intégration DB** : `db.ts` (SQLite temporaire avec `better-sqlite3`, migrations Drizzle)
 

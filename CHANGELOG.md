@@ -1,9 +1,18 @@
 # Changelog
 
+## v0.1.2
+
+### Added
+- **Logger amélioré**: seuil `LOG_LEVEL` (TRACE..ERROR), format `LOG_FORMAT=json`, ring buffer 1000 entrées, `getLogs()` pour API
+- **Panneau logs UI**: `LogPanel.svelte` accessible depuis la nav, filtrage par niveau (ALL/TRACE/DEBUG/INFO/WARN/ERROR), auto-scroll, polling 2s
+- **API `/api/log`**: retourne les logs du ring buffer, filtre optionnel `?level=`
+- **Types `LogLevel`/`LOG_LEVELS`** dans `$lib/types`, partagés client/serveur
+- **Tests logger**: 9 tests (format, niveaux, JSON, ring buffer) — total passe à 49
+
 ## v0.1.1
 
 ### Added
-- **Tests automatisés**: Vitest configuré, 44 tests (unitaires + intégration DB) couvrant `types.ts`, `rotation.ts`, `planting.ts`, `toast.svelte.ts`, `logger.ts`, `db.ts`
+- **Tests automatisés**: Vitest configuré, 44 tests (unitaires + intégration DB)
 - **CI GitHub Actions**: workflow `ci.yml` avec `check` + `test` + `build`
 
 ### Fixed

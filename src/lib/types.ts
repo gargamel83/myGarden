@@ -6,6 +6,9 @@ export type SoilType = 'riche' | 'meuble' | 'lourd' | 'léger';
 
 export type Watering = 'faible' | 'moyen' | 'élevé';
 
+export const LOG_LEVELS = ['TRACE', 'DEBUG', 'INFO', 'WARN', 'ERROR'] as const;
+export type LogLevel = (typeof LOG_LEVELS)[number];
+
 export type Orientation = 'N' | 'S' | 'E' | 'O' | 'NE' | 'NO' | 'SE' | 'SO';
 
 export type CoordinatesType = 'pixel' | 'geo';
