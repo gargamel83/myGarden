@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.2.1
+
+### Added
+- **Statistiques avancées** : taux de réussite, durée cycle moyenne, histogramme plantations/mois, distribution par famille botanique, utilisation des planches par année
+
 ## v0.2.0
 
 ### Added
