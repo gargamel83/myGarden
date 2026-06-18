@@ -3,6 +3,7 @@ import { plants } from '$lib/server/db/schema';
 import { eq, inArray } from 'drizzle-orm';
 import { error, fail } from '@sveltejs/kit';
 import { writeFileSync, existsSync, mkdirSync } from 'fs';
+import sharp from 'sharp';
 import type { PageServerLoad, Actions } from './$types.js';
 
 export const load: PageServerLoad = async ({ params, depends }) => {
@@ -98,12 +99,15 @@ export const actions: Actions = {
 			return fail(400, { error: 'File required' });
 		}
 
-		const ext = file.name.split('.').pop() || 'jpg';
-		const filename = `plant_${id}_${Date.now()}.${ext}`;
+		const filename = `plant_${id}_${Date.now()}.webp`;
 		const buffer = Buffer.from(await file.arrayBuffer());
 		const uploadDir = 'static/uploads';
 		if (!existsSync(uploadDir)) mkdirSync(uploadDir, { recursive: true });
-		writeFileSync(`${uploadDir}/${filename}`, buffer);
+		const resized = await sharp(buffer)
+			.resize(1600, 1200, { fit: 'inside', withoutEnlargement: true })
+			.webp({ quality: 80 })
+			.toBuffer();
+		writeFileSync(`${uploadDir}/${filename}`, resized);
 
 		// Append to existing photos
 		const plant = db.select().from(plants).where(eq(plants.id, id)).get();

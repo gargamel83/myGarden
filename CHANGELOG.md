@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.2.2
+
+### Added
+- **Resize images uploadées** : les photos (jardin + plantes) sont converties en WebP (quality 80) et redimensionnées à 1600×1200 max via `sharp` — gain de bande passante et disque
+- **Cache headers** : `Cache-Control: public, max-age=86400, immutable` sur les fichiers dans `/uploads/`
+- **Tests** : 5 nouveaux tests (cache headers + resize sharp) — total passe à 54
+
 ## v0.2.1
 
 ### Added

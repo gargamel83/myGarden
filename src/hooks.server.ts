@@ -34,5 +34,9 @@ export const handle: Handle = async ({ event, resolve }) => {
 		logger.info(`${method} ${pathname} ${response.status} ${ms}ms`);
 	}
 
+	if (pathname.startsWith('/uploads/')) {
+		response.headers.set('Cache-Control', 'public, max-age=86400, immutable');
+	}
+
 	return response;
 };

@@ -25,6 +25,7 @@ Web application for managing a vegetable garden — cultivation beds, plantings,
 | **Tailwind CSS v4** | Styling |
 | **Leaflet** (OSM) | Interactive map |
 | **adapter-node** | Production |
+| **sharp** | Image processing (WebP resize on upload) |
 | **Docker** | Deployment |
 
 ---
@@ -169,8 +170,8 @@ npm test
 npm run test:watch
 ```
 
-49 tests couvrent :
-- **Unitaires** : `types.ts`, `rotation.ts`, `planting.ts`, `toast.svelte.ts`, `logger.ts`
+54 tests couvrent :
+- **Unitaires** : `types.ts`, `rotation.ts`, `planting.ts`, `toast.svelte.ts`, `logger.ts`, `cache-headers.ts`, `image-resize.ts`
 - **Intégration DB** : `db.ts` (SQLite temporaire avec `better-sqlite3`, migrations Drizzle)
 
 Les tests d'intégration DB créent une base SQLite temporaire (`/tmp/monjardin-test-*`) et la détruisent après execution.
