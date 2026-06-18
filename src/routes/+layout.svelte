@@ -1,8 +1,10 @@
 <script lang="ts">
 	import '../app.css';
 	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
 	import Toast from '$lib/components/Toast.svelte';
 	import LogPanel from '$lib/components/LogPanel.svelte';
+	import NotificationBell from '$lib/components/NotificationBell.svelte';
 	import { setToastHandler } from '$lib/toast.svelte';
 	let { children } = $props();
 
@@ -53,6 +55,7 @@
 		</div>
 
 		<div class="flex items-center gap-1">
+			<NotificationBell onnavigate={(url) => { goto(url); }} />
 			<button
 				class="p-1.5 rounded hover:bg-green-600/50 text-sm"
 				onclick={() => showLogs = true}

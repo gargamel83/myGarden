@@ -170,8 +170,8 @@ npm test
 npm run test:watch
 ```
 
-54 tests couvrent :
-- **Unitaires** : `types.ts`, `rotation.ts`, `planting.ts`, `toast.svelte.ts`, `logger.ts`, `cache-headers.ts`, `image-resize.ts`
+58 tests couvrent :
+- **Unitaires** : `types.ts`, `rotation.ts`, `planting.ts`, `toast.svelte.ts`, `logger.ts`, `cache-headers.ts`, `image-resize.ts`, `notifications.ts`
 - **Intégration DB** : `db.ts` (SQLite temporaire avec `better-sqlite3`, migrations Drizzle)
 
 Les tests d'intégration DB créent une base SQLite temporaire (`/tmp/monjardin-test-*`) et la détruisent après execution.
