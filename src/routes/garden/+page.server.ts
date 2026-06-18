@@ -3,6 +3,7 @@ import { gardenBeds, gardenPhotos, plantations, plants } from '$lib/server/db/sc
 import { eq, inArray, asc } from 'drizzle-orm';
 import { fail } from '@sveltejs/kit';
 import { writeFileSync, existsSync, mkdirSync } from 'fs';
+import sharp from 'sharp';
 import type { PageServerLoad, Actions } from './$types.js';
 import { getRotationAlerts, getBedHistory, getBedAdvice } from '$lib/server/rotation';
 
@@ -89,12 +90,15 @@ export const actions: Actions = {
 			return fail(400, { error: 'File required' });
 		}
 
-		const ext = file.name.split('.').pop();
-		const filename = `${Date.now()}.${ext}`;
+		const filename = `${Date.now()}.webp`;
 		const buffer = Buffer.from(await file.arrayBuffer());
 		const uploadDir = 'static/uploads';
 		if (!existsSync(uploadDir)) mkdirSync(uploadDir, { recursive: true });
-		writeFileSync(`${uploadDir}/${filename}`, buffer);
+		const resized = await sharp(buffer)
+			.resize(1600, 1200, { fit: 'inside', withoutEnlargement: true })
+			.webp({ quality: 80 })
+			.toBuffer();
+		writeFileSync(`${uploadDir}/${filename}`, resized);
 
 		db.insert(gardenPhotos).values({
 			label: label || 'Garden photo',

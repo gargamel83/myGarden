@@ -36,6 +36,7 @@
 		"drizzle-kit": "^0.31.10",
 		"drizzle-orm": "^0.45.2",
 		"leaflet": "^1.9.4",
+		"sharp": "^0.35.1",
 		"tiktoken": "^1.0.22"
 	}
 }
