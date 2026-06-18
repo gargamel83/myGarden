@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.1.2
+## v0.2.0
 
 ### Added
 - **Logger amélioré**: seuil `LOG_LEVEL` (TRACE..ERROR), format `LOG_FORMAT=json`, ring buffer 1000 entrées, `getLogs()` pour API
@@ -8,6 +8,16 @@
 - **API `/api/log`**: retourne les logs du ring buffer, filtre optionnel `?level=`
 - **Types `LogLevel`/`LOG_LEVELS`** dans `$lib/types`, partagés client/serveur
 - **Tests logger**: 9 tests (format, niveaux, JSON, ring buffer) — total passe à 49
+
+### Performance
+- **Indexes DB**: 6 indexes sur `plants` (family, common_name, sun_exposure) et `plantations` (garden_bed_id, plant_id, status) — les requêtes les plus fréquentes passent de table scan à index seek
+- **`loading="lazy"`** : ajouté sur toutes les images (liste plantes, galerie, lightbox, plantations) — seules les images visibles sont chargées
+- **N+1 dashboard**: les requêtes per-plant (semis, récolte) sont remplacées par un seul `inArray()` — de ~58 requêtes à 1
+- **N+1 jardin**: l'historique des planches est chargé en une seule requête batch au lieu de N requêtes individuelles
+- **N+1 rotation**: `getAllPlants()` est mis en cache (module-level) — plus de 58 re-scans de la table plants à chaque planche
+- **Pagination plantes**: `PAGE_SIZE=20` avec bouton "Show more" — moitié moins de cartes rendues au chargement initial
+- **JSON.parse serveur**: les photos des plantes sont parsées côté serveur dans le `load()` — plus de 58 try/catch dans le template
+- **Clés `{#each}`**: ajout de clés sur toutes les listes principales (dashboard, plantations) — Svelte réutilise les DOM nodes au lieu de tout re-rendre
 
 ## v0.1.1
 

@@ -54,7 +54,7 @@
 			<div class="border rounded-lg p-4">
 				<a href="/plantations" class="font-bold text-lg mb-2 text-blue-700 block hover:underline">🌱 Upcoming sowings</a>
 				<div class="space-y-2">
-					{#each sowingAlerts as a}
+					{#each sowingAlerts as a (a.plantation.id)}
 						<a href="/plants/{a.plant?.id || ''}" class="flex justify-between text-sm hover:bg-blue-50 -mx-2 px-2 py-1 rounded">
 							<div>
 								<span class="font-medium">{a.plant?.commonName || a.plantation.plantName}</span>
@@ -74,7 +74,7 @@
 			<div class="border rounded-lg p-4">
 				<a href="/plantations" class="font-bold text-lg mb-2 text-amber-700 block hover:underline">🧑‍🌾 Upcoming harvests</a>
 				<div class="space-y-2">
-					{#each harvestAlerts as a}
+					{#each harvestAlerts as a (a.plantation.id)}
 						<a href="/plants/{a.plant?.id || ''}" class="flex justify-between text-sm hover:bg-amber-50 -mx-2 px-2 py-1 rounded">
 							<div>
 								<span class="font-medium">{a.plant?.commonName || a.plantation.plantName}</span>
@@ -95,7 +95,7 @@
 		<div class="border rounded-lg p-4">
 			<h2 class="font-bold text-lg mb-3">Top crops</h2>
 			<div class="space-y-2">
-				{#each data.topCrops as crop}
+				{#each data.topCrops as crop (crop.name)}
 					<div class="flex items-center gap-2">
 						<span class="text-sm flex-1">{crop.name}</span>
 						<div class="flex-1 bg-gray-100 rounded h-4">
@@ -128,7 +128,7 @@
 	{#if rotationAlerts.length > 0}
 		<a href="/garden" class="block border-l-4 border-red-500 bg-red-50 px-4 py-3 hover:bg-red-100">
 			<h2 class="font-bold text-sm text-red-700">⚠️ Rotation alerts</h2>
-			{#each rotationAlerts as a}
+			{#each rotationAlerts as a (a.bedId)}
 				<p class="text-xs text-gray-600 mt-1">{a.message}</p>
 			{/each}
 		</a>
@@ -139,7 +139,7 @@
 		<div>
 			<a href="/plantations" class="font-bold text-lg mb-3 block hover:underline">In progress</a>
 			<div class="grid gap-2">
-				{#each active as p}
+				{#each active as p (p.id)}
 					<a href="/plantations" class="border rounded p-3 flex items-center justify-between text-sm hover:bg-gray-50">
 						<div>
 							<span class="font-medium">{p.plantName}</span>
@@ -161,7 +161,7 @@
 		<div>
 			<h2 class="font-bold text-lg mb-3">Recent activity</h2>
 			<div class="space-y-1 text-sm">
-				{#each recentActivity as a}
+				{#each recentActivity as a (a.id)}
 					<a href="/plantations" class="flex gap-2 text-gray-600 hover:bg-gray-50 -mx-2 px-2 py-1 rounded">
 						<span class="px-1.5 py-0.5 rounded text-xs font-medium {statusColors[a.status as PlantStatus]}">
 							{statusLabels[a.status as PlantStatus]}

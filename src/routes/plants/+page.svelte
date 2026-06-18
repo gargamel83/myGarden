@@ -13,6 +13,15 @@
 	let exposure = $state(data.selectedExposure);
 
 	let showForm = $state(false);
+
+	const PAGE_SIZE = 20;
+	let visibleCount = $state(PAGE_SIZE);
+	let plants = $derived(data.plants.slice(0, visibleCount));
+	let hasMore = $derived(visibleCount < data.plants.length);
+
+	function showMore() {
+		visibleCount += PAGE_SIZE;
+	}
 	let formName = $state('');
 	let formLatin = $state('');
 	let formFamily = $state('');
@@ -133,11 +142,10 @@
 	{/if}
 
 	<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-		{#each data.plants as plant}
-			{@const firstPhoto = (() => { try { const p = JSON.parse(plant.photos || '[]'); return Array.isArray(p) && p.length > 0 ? p[0] : null; } catch { return null; } })()}
+		{#each plants as plant (plant.id)}
 			<a href="/plants/{plant.id}" class="border rounded-lg p-4 hover:shadow-lg transition block">
-				{#if firstPhoto}
-					<img src={firstPhoto} alt="" class="w-full h-28 object-cover rounded mb-3" />
+				{#if plant.firstPhoto}
+					<img src={plant.firstPhoto} alt="" loading="lazy" class="w-full h-28 object-cover rounded mb-3" />
 				{/if}
 				<div class="flex items-start justify-between">
 					<div>
@@ -160,7 +168,6 @@
 					{/if}
 				</div>
 
-				<!-- Period bars -->
 				<div class="mt-3 space-y-1">
 					{#if plant.sowingStart}
 						{@const months = periodBar(plant.sowingStart, plant.sowingEnd)}
@@ -197,6 +204,14 @@
 			</a>
 		{/each}
 	</div>
+
+	{#if hasMore}
+		<div class="text-center pt-4">
+			<button class="bg-green-600 text-white px-6 py-2 rounded text-sm" onclick={showMore}>
+				Show {Math.min(PAGE_SIZE, data.plants.length - visibleCount)} more…
+			</button>
+		</div>
+	{/if}
 </div>
 
 <!-- New plant dialog -->

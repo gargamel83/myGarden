@@ -1,6 +1,6 @@
 import { db } from '$lib/server/db';
 import { gardenBeds, gardenPhotos, plantations, plants } from '$lib/server/db/schema';
-import { eq, asc } from 'drizzle-orm';
+import { eq, inArray, asc } from 'drizzle-orm';
 import { fail } from '@sveltejs/kit';
 import { writeFileSync, existsSync, mkdirSync } from 'fs';
 import type { PageServerLoad, Actions } from './$types.js';
@@ -11,11 +11,35 @@ export const load: PageServerLoad = async (event) => {
 	const photos = db.select().from(gardenPhotos).orderBy(gardenPhotos.createdAt).all();
 	const beds = db.select().from(gardenBeds).orderBy(gardenBeds.createdAt).all();
 
-	// Load rotation data per bed
 	const rotationAlerts = await getRotationAlerts();
+	const bedIds = beds.map(b => b.id);
+
+	// Batch load all bed histories in a single query
+	const allHistory = db.select({
+		bedId: plantations.gardenBedId,
+		plantId: plantations.plantId,
+		plantName: plantations.plantName,
+		status: plantations.status,
+		harvestDate: plantations.actualHarvestDate,
+		plantFamily: plants.family
+	})
+		.from(plantations)
+		.leftJoin(plants, eq(plantations.plantId, plants.id))
+		.where(inArray(plantations.gardenBedId, bedIds))
+		.orderBy(plantations.createdAt)
+		.all();
+
 	const bedHistories: Record<number, Awaited<ReturnType<typeof getBedHistory>>> = {};
-	for (const bed of beds) {
-		bedHistories[bed.id] = await getBedHistory(bed.id);
+	for (const bedId of bedIds) {
+		bedHistories[bedId] = allHistory
+			.filter(h => h.bedId === bedId)
+			.map(p => ({
+				plantId: p.plantId,
+				plantName: p.plantName,
+				family: p.plantFamily,
+				year: p.harvestDate ? new Date(p.harvestDate).getFullYear() : new Date().getFullYear(),
+				status: p.status
+			}));
 	}
 
 	// Load active plantations per bed

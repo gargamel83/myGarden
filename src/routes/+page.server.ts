@@ -1,6 +1,6 @@
 import { db } from '$lib/server/db';
 import { gardenBeds, plants, plantations } from '$lib/server/db/schema';
-import { eq, and, sql } from 'drizzle-orm';
+import { eq, inArray, sql } from 'drizzle-orm';
 import { getRotationAlerts } from '$lib/server/rotation';
 import type { PageServerLoad } from './$types.js';
 
@@ -17,18 +17,23 @@ export const load: PageServerLoad = async (event) => {
 	const harvested = allPlantations.filter(p => p.status === 'harvested');
 	const planned = allPlantations.filter(p => p.status === 'planned');
 
-	// Alerts: planned plantations whose sowing date is approaching
 	const today = new Date();
 	const currentMonth = today.getMonth() + 1;
 	const currentDay = today.getDate();
 	const currentMD = currentMonth * 100 + currentDay;
 
+	// Batch load all referenced plants
+	const refPlantIds = [...new Set(allPlantations.filter(p => p.plantId).map(p => p.plantId as number))];
+	const plantMap = new Map(
+		db.select().from(plants).where(inArray(plants.id, refPlantIds)).all()
+			.map(p => [p.id, p])
+	);
+
 	const sowingAlerts: { plantation: typeof plantations.$inferSelect; plant: typeof plants.$inferSelect | null; daysLeft: number }[] = [];
 
-	// Prendre les plantations avec plantId et vérifier leur période de semis
 	for (const p of allPlantations) {
 		if (p.plantId && p.status === 'planned') {
-			const plant = db.select().from(plants).where(eq(plants.id, p.plantId)).get();
+			const plant = plantMap.get(p.plantId) ?? null;
 			if (plant?.sowingStart) {
 				const [m, d] = plant.sowingStart.split('-').map(Number);
 				const sowingMD = m * 100 + d;
@@ -40,11 +45,10 @@ export const load: PageServerLoad = async (event) => {
 		}
 	}
 
-	// Harvests to come within 30 days
 	const harvestAlerts: { plantation: typeof plantations.$inferSelect; plant: typeof plants.$inferSelect | null; daysLeft: number }[] = [];
 	for (const p of active) {
 		if (p.plantId) {
-			const plant = db.select().from(plants).where(eq(plants.id, p.plantId)).get();
+			const plant = plantMap.get(p.plantId) ?? null;
 			if (plant?.harvestStart) {
 				const [m, d] = plant.harvestStart.split('-').map(Number);
 				const harvestMD = m * 100 + d;

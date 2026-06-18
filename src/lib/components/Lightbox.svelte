@@ -31,7 +31,7 @@
 			<button class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 rounded-full w-10 h-10 flex items-center justify-center text-lg hover:bg-white z-10 {current === images.length - 1 ? 'opacity-30 cursor-not-allowed' : ''}" onclick={next} disabled={current === images.length - 1}>▶</button>
 		{/if}
 		<button class="absolute top-2 right-2 bg-white/80 rounded-full w-8 h-8 flex items-center justify-center text-sm hover:bg-white z-10" onclick={onclose}>✕</button>
-		<img src={images[current]} alt="" class="max-w-full max-h-[90vh] object-contain rounded" />
+		<img src={images[current]} alt="" loading="lazy" class="max-w-full max-h-[90vh] object-contain rounded" />
 		{#if images.length > 1}
 			<p class="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/60 text-white text-xs px-3 py-1 rounded-full">{current + 1} / {images.length}</p>
 		{/if}

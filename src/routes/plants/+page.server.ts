@@ -32,6 +32,11 @@ export const load: PageServerLoad = async ({ url, depends }) => {
 		? query.where(and(...conditions)).orderBy(plants.commonName).all()
 		: query.orderBy(plants.commonName).all();
 
+	const plantsWithPhotos = all.map(p => ({
+		...p,
+		firstPhoto: (() => { try { const arr = JSON.parse(p.photos || '[]'); return Array.isArray(arr) && arr.length > 0 ? arr[0] : null; } catch { return null; } })()
+	}));
+
 	const families = db.select({ family: plants.family })
 		.from(plants)
 		.groupBy(plants.family)
@@ -39,7 +44,7 @@ export const load: PageServerLoad = async ({ url, depends }) => {
 		.all()
 		.map(r => r.family);
 
-	return { plants: all, families, search, selectedFamily: family, selectedExposure: exposure };
+	return { plants: plantsWithPhotos, families, search, selectedFamily: family, selectedExposure: exposure };
 };
 
 export const actions: Actions = {

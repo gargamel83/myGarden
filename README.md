@@ -232,10 +232,12 @@ drizzle/
   0000_xxx.sql        # Initial migration
   0001_xxx.sql        # Added type field (pixel/geo)
   0002_xxx.sql        # Added dimensions/orientation
-  0003_xxx.sql        # Added floweringStart/floweringEnd
+   0003_xxx.sql        # Added floweringStart/floweringEnd
+   0004_xxx.sql        # Added indexes (plants.family, plants.common_name, plants.sun_exposure,
+                       #   plantations.garden_bed_id, plantations.plant_id, plantations.status)
 ```
 
-Migrations are applied automatically at Docker container startup via `scripts/migrate.js`.  
+Migrations are applied automatically at Docker container startup via `scripts/migrate.js`.
 If the tables already exist (pre-existing database), the script reconciles the `__drizzle_migrations` tracking table and continues.
 
 ---

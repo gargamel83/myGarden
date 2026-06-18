@@ -24,7 +24,9 @@ export const load: PageServerLoad = async (event) => {
 	const plantList = db.select().from(plants).orderBy(asc(plants.commonName)).all();
 	const rotationAlerts = await getRotationAlerts();
 
-	return { plantations: all, beds, plants: plantList, rotationAlerts };
+	const bedNames = [...new Set(all.map(p => p.bedName).filter(Boolean))] as string[];
+
+	return { plantations: all, beds, plants: plantList, rotationAlerts, bedNames };
 };
 
 export const actions: Actions = {

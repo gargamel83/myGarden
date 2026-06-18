@@ -1,6 +1,15 @@
 import { db } from './db';
 import { plantations, plants, gardenBeds } from './db/schema';
-import { eq, inArray, and, notInArray } from 'drizzle-orm';
+import { eq, inArray } from 'drizzle-orm';
+
+let _allPlants: typeof plants.$inferSelect[] | null = null;
+
+export function getAllPlants(): typeof plants.$inferSelect[] {
+	if (!_allPlants) {
+		_allPlants = db.select().from(plants).all();
+	}
+	return _allPlants;
+}
 
 export interface RotationAlert {
 	bedId: number;
@@ -115,14 +124,12 @@ export async function getRotationSuggestions(bedId: number): Promise<{
 		if (count >= 2) bannedFamilies.add(fam);
 	}
 
-	// Get all plants
-	const allPlants = db.select().from(plants).all();
+	const allPlants = getAllPlants();
 
 	const recommended = allPlants.filter(p =>
 		!bannedFamilies.has(p.family || '') && !bannedPlants.has(p.id)
 	);
 
-	// For not recommended, exclude plants already in recommended
 	const notRecommended = allPlants.filter(p =>
 		(bannedFamilies.has(p.family || '') || bannedPlants.has(p.id))
 	);
@@ -132,7 +139,7 @@ export async function getRotationSuggestions(bedId: number): Promise<{
 
 // Personalized advice per bed (soil + exposure)
 export function getBedAdvice(soilType: string | null, sunExposure: string | null): typeof plants.$inferSelect[] {
-	const all = db.select().from(plants).all();
+	const all = getAllPlants();
 
 	return all.filter(p => {
 		if (sunExposure && p.sunExposure && p.sunExposure !== sunExposure) {

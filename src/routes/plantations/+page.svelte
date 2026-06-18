@@ -219,12 +219,12 @@
 		{/if}
 
 		<div class="grid gap-3">
-	{#each data.plantations as p}
+	{#each data.plantations as p (p.plantation.id)}
 			{@const pf = firstPhoto(p.plantPhotos)}
 			<div class="border rounded p-4 flex items-center justify-between">
 				<div class="flex items-center gap-3">
 					{#if pf}
-						<img src={pf} alt="" class="w-10 h-10 object-cover rounded shrink-0" />
+						<img src={pf} alt="" loading="lazy" class="w-10 h-10 object-cover rounded shrink-0" />
 					{/if}
 					<div>
 						<div class="flex items-center gap-2">
@@ -281,9 +281,9 @@
 				</div>
 				<select bind:value={filterBed} class="border rounded px-2 py-1 text-sm">
 					<option value="">All beds</option>
-					{#each [...new Set(data.plantations.map(p => p.bedName))] as name}
-						<option value={name}>{name}</option>
-					{/each}
+				{#each data.bedNames as name}
+					<option value={name}>{name}</option>
+				{/each}
 				</select>
 			</div>
 
@@ -303,17 +303,17 @@
 					{#if data.plantations.length === 0}
 						<p class="text-gray-400 text-center py-8 text-sm">No plantations to display.</p>
 					{:else}
-						{#each [...bedGroups] as [bedName, plantList]}
+						{#each bedGroups as [bedName, plantList] (bedName)}
 							<div class="mb-4">
 								<h3 class="text-sm font-semibold text-gray-700 mb-1">{bedName}</h3>
-								{#each plantList as p}
+								{#each plantList as p (p.plantation.id)}
 									{@const pf = firstPhoto(p.plantPhotos)}
 									{@const style = barStyle(p)}
 									<div class="relative h-7 mb-1 group">
 										<div class="absolute inset-0 flex">
 											<div class="w-32 shrink-0 flex items-center gap-1 pr-2 leading-7 truncate">
 												{#if pf}
-													<img src={pf} alt="" class="w-5 h-5 object-cover rounded shrink-0" />
+													<img src={pf} alt="" loading="lazy" class="w-5 h-5 object-cover rounded shrink-0" />
 												{/if}
 												<span class="text-xs text-gray-600 truncate">{p.plantation.plantName}</span>
 											</div>

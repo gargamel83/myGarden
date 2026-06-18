@@ -284,7 +284,7 @@
 			<div class="flex flex-wrap gap-3">
 				{#each photos as url, i}
 					<div class="relative group">
-						<img src={url} alt="" class="w-32 h-32 object-cover rounded border" />
+						<img src={url} alt="" loading="lazy" class="w-32 h-32 object-cover rounded border" />
 						<div class="absolute top-1 right-1 flex gap-0.5 opacity-0 group-hover:opacity-100 transition">
 							<button type="button" class="bg-white rounded shadow text-xs px-1 py-0.5 hover:bg-gray-100 disabled:opacity-30" onclick={() => movePhoto(i, -1)} disabled={i === 0}>↑</button>
 							<button type="button" class="bg-white rounded shadow text-xs px-1 py-0.5 hover:bg-gray-100 disabled:opacity-30" onclick={() => movePhoto(i, 1)} disabled={i === photos.length - 1}>↓</button>
@@ -419,7 +419,7 @@
 				<div class="flex flex-wrap gap-3">
 					{#each photos as url, i}
 						<button class="p-0 border-0 bg-transparent cursor-pointer" onclick={() => lightboxIndex = i}>
-							<img src={url} alt="" class="w-32 h-32 object-cover rounded border hover:opacity-80 transition-opacity" />
+							<img src={url} alt="" loading="lazy" class="w-32 h-32 object-cover rounded border hover:opacity-80 transition-opacity" />
 						</button>
 					{/each}
 				</div>
