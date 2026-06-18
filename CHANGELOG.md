@@ -2,6 +2,12 @@
 
 ## v0.2.3
 
+### Added
+- **Notifications** : cloche 🔔 dans la barre de navigation avec badge de compteur, dropdown des 20 dernières, marquage individuel ou tout lu, persistance en base
+- **Types** : `sowing` (semis à venir), `harvest` (récolte), `rotation` (alerte rotation), `stale` (plantation planifiée depuis >14j sans action)
+- **API** : `GET /api/notifications` (génération + liste), `POST /api/notifications/[id]/read`, `POST /api/notifications/read-all`
+- **Tests** : 4 tests (insertion, contrainte unique, marquage lu, limite 20) — total passe à 58
+
 ### Fixed
 - **LogPanel** : suppression du `$effect` dupliqué (2 appels `fetchLogs()` au mount), clé unique sur les entrées de logs
 

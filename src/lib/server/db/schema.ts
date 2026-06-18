@@ -67,6 +67,16 @@ export const plantations = sqliteTable('plantations', {
 	statusIdx: index('idx_plantations_status').on(table.status)
 }));
 
+export const notifications = sqliteTable('notifications', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	type: text('type').notNull(),
+	key: text('key').notNull().unique(),
+	message: text('message').notNull(),
+	link: text('link'),
+	isRead: integer('is_read', { mode: 'boolean' }).notNull().default(false),
+	createdAt: text('created_at').notNull().$default(() => new Date().toISOString())
+});
+
 export const gardenPhotos = sqliteTable('garden_photos', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
 	label: text('label').notNull(),
