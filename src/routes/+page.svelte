@@ -134,6 +134,91 @@
 		</a>
 	{/if}
 
+	<!-- Advanced statistics -->
+	{#if data.advanced}
+		{@const a = data.advanced}
+		<div class="border rounded-lg p-4">
+			<h2 class="font-bold text-lg mb-3">📊 Advanced statistics</h2>
+			<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+
+				<!-- Taux de réussite -->
+				<div class="border rounded p-3">
+					<p class="text-xs text-gray-500 mb-1">Success rate</p>
+					<p class="text-2xl font-bold text-green-700">{a.successRate}%</p>
+					<p class="text-xs text-gray-400">plantations harvested</p>
+				</div>
+
+				<!-- Durée cycle moyenne -->
+				<div class="border rounded p-3">
+					<p class="text-xs text-gray-500 mb-1">Avg. cycle</p>
+					<p class="text-2xl font-bold text-blue-700">{a.avgCycleDays} days</p>
+					<p class="text-xs text-gray-400">from sowing to harvest</p>
+				</div>
+
+				<!-- Nb de cycles complétés -->
+				<div class="border rounded p-3">
+					<p class="text-xs text-gray-500 mb-1">Completed cycles</p>
+					<p class="text-2xl font-bold text-purple-700">{a.completedCycles}</p>
+					<p class="text-xs text-gray-400">with full dates</p>
+				</div>
+
+			</div>
+
+			<!-- Plantations par mois (histogramme) -->
+			{#if a.plantationsByMonth && a.plantationsByMonth.length > 0}
+				{@const maxCount = Math.max(1, ...a.plantationsByMonth.map(m => m.count))}
+				<div class="mt-4">
+					<p class="text-sm font-semibold text-gray-700 mb-2">New plantations / month</p>
+					<div class="flex items-end gap-1 h-20">
+						{#each a.plantationsByMonth as m (m.month)}
+							<div class="flex-1 flex flex-col items-center">
+								<div class="w-full bg-green-400 rounded-t" style="height: {(m.count / maxCount) * 100}%"></div>
+								<span class="text-[9px] text-gray-400 mt-0.5">{m.month.slice(5)}</span>
+							</div>
+						{/each}
+					</div>
+				</div>
+			{/if}
+
+			<!-- Distribution par famille botanique -->
+			{#if a.familyDistribution && a.familyDistribution.length > 0}
+				<div class="mt-4">
+					<p class="text-sm font-semibold text-gray-700 mb-2">Botanical families</p>
+					<div class="space-y-1.5">
+						{#each a.familyDistribution as f (f.family)}
+							{@const pct = Math.round((f.count / a.familyDistribution.reduce((s, x) => s + x.count, 0)) * 100)}
+							<div class="flex items-center gap-2 text-xs">
+								<span class="w-24 text-right text-gray-600 truncate">{f.family}</span>
+								<div class="flex-1 bg-gray-100 rounded h-3">
+									<div class="bg-amber-400 rounded h-3" style="width: {pct}%"></div>
+								</div>
+								<span class="w-8 text-gray-500">{f.count}</span>
+							</div>
+						{/each}
+					</div>
+				</div>
+			{/if}
+
+			<!-- Utilisation des planches -->
+			{#if a.bedUtilization && a.bedUtilization.length > 0}
+				<div class="mt-4">
+					<p class="text-sm font-semibold text-gray-700 mb-2">Bed utilization {new Date().getFullYear()}</p>
+					<div class="space-y-1.5">
+						{#each a.bedUtilization as b (b.bedId)}
+							<div class="flex items-center gap-2 text-xs">
+								<span class="w-28 text-right text-gray-600 truncate">{b.bedName}</span>
+								<div class="flex-1 bg-gray-100 rounded h-3">
+									<div class="bg-blue-400 rounded h-3" style="width: {(b.occupiedMonths / 12) * 100}%"></div>
+								</div>
+								<span class="w-6 text-gray-500">{b.occupiedMonths}m</span>
+							</div>
+						{/each}
+					</div>
+				</div>
+			{/if}
+		</div>
+	{/if}
+
 	<!-- Plantations actives -->
 	{#if active.length > 0}
 		<div>

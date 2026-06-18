@@ -247,7 +247,7 @@ If the tables already exist (pre-existing database), the script reconciles the `
 *(Reserved — ideas and priorities)*
 
 - [x] Individualized bed advice (soil + exposure)
-- [ ] Yield / used area statistics
+- [x] Yield / used area statistics
 - [ ] Email notifications (sowing, harvest)
 - [ ] Offline mode / PWA
 - [ ] CSV export of plantings
