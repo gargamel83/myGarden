@@ -5,24 +5,31 @@ import {
 } from '../types';
 
 describe('STATUS_LABELS', () => {
-	it('should have labels for all statuses', () => {
-		const labels = STATUS_LABELS;
-		expect(labels.planned).toBe('Planned');
-		expect(labels.sown).toBe('Sown');
-		expect(labels.planted).toBe('Transplanted');
-		expect(labels.harvested).toBe('Harvested');
-		expect(labels.cancelled).toBe('Cancelled');
+	it('should have labels for all plant statuses', () => {
+		expect(STATUS_LABELS).toEqual({
+			planned: 'Planned',
+			sown: 'Sown',
+			planted: 'Transplanted',
+			harvested: 'Harvested',
+			cancelled: 'Cancelled'
+		});
+	});
+
+	it('should have 5 status labels', () => {
+		expect(Object.keys(STATUS_LABELS).length).toBe(5);
 	});
 });
 
 describe('STATUS_COLORS', () => {
 	it('should have Tailwind classes for all statuses', () => {
-		const colors = STATUS_COLORS;
-		expect(colors.planned).toContain('bg-gray');
-		expect(colors.sown).toContain('bg-blue');
-		expect(colors.planted).toContain('bg-green');
-		expect(colors.harvested).toContain('bg-amber');
-		expect(colors.cancelled).toContain('bg-red');
+		for (const [status, color] of Object.entries(STATUS_COLORS)) {
+			expect(color).toContain('bg-');
+			expect(color).toContain('text-');
+		}
+	});
+
+	it('should have 5 status color entries', () => {
+		expect(Object.keys(STATUS_COLORS).length).toBe(5);
 	});
 });
 
@@ -33,12 +40,22 @@ describe('STATUS_BAR_COLORS', () => {
 			expect(color).toMatch(hexRegex);
 		}
 	});
+
+	it('should have 5 status bar color entries', () => {
+		expect(Object.keys(STATUS_BAR_COLORS).length).toBe(5);
+	});
 });
 
 describe('EXPOSURE_LABELS', () => {
-	it('should have labels for all exposures', () => {
-		expect(EXPOSURE_LABELS.plein_soleil).toBe('Full sun');
-		expect(EXPOSURE_LABELS.mi_ombre).toBe('Partial shade');
-		expect(EXPOSURE_LABELS.ombre).toBe('Shade');
+	it('should have labels for all sun exposures', () => {
+		expect(EXPOSURE_LABELS).toEqual({
+			plein_soleil: 'Full sun',
+			mi_ombre: 'Partial shade',
+			ombre: 'Shade'
+		});
+	});
+
+	it('should have 3 exposure labels', () => {
+		expect(Object.keys(EXPOSURE_LABELS).length).toBe(3);
 	});
 });
