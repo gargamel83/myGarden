@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.2.3
+
+### Fixed
+- **LogPanel** : suppression du `$effect` dupliqué (2 appels `fetchLogs()` au mount), clé unique sur les entrées de logs
+
 ## v0.2.2
 
 ### Added

@@ -32,13 +32,9 @@
 	}
 
 	$effect(() => {
+		fetchLogs();
 		const interval = setInterval(fetchLogs, 2000);
-		fetchLogs();
 		return () => clearInterval(interval);
-	});
-
-	$effect(() => {
-		fetchLogs();
 	});
 
 	const levelColors: Record<string, string> = {
@@ -93,7 +89,7 @@
 			{#if logs.length === 0}
 				<p class="text-gray-400 text-center py-8">No logs at this level.</p>
 			{:else}
-				{#each logs as entry, i}
+				{#each logs as entry, i (entry.timestamp + entry.level + entry.message)}
 					{@const color = levelColors[entry.level] || 'text-gray-600'}
 					{@const bg = levelBg[entry.level] || ''}
 					<div class="flex gap-2 px-2 py-1 rounded {bg} hover:bg-gray-100">
