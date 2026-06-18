@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.4
+
+### Added
+- **Pagination plantations** : `PAGE_SIZE=30` avec bouton "Show more" dans la vue liste — seules 30 plantations sont rendues au chargement initial, le calendrier conserve toutes les données
+- **Canvas double buffer** : utilisation d'un OffscreenCanvas pour le fond (image satellite + toutes les planches), redessiné uniquement au changement d'image ou des planches ; l'overlay (polygone en cours) est redessiné seul à chaque clic — gain de perfs notable pendant le dessin de polygones
+
 ## v0.2.3
 
 ### Added

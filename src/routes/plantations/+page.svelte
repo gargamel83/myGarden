@@ -10,6 +10,15 @@
 	let showForm = $state(false);
 	let editId = $state<number | null>(null);
 	let view = $state<'list' | 'timeline'>('list');
+	const PAGE_SIZE = 30;
+	let visibleCount = $state(PAGE_SIZE);
+	let visiblePlantations = $derived(data.plantations.slice(0, visibleCount));
+	let hasMore = $derived(visibleCount < data.plantations.length);
+
+	function showMore() {
+		visibleCount += PAGE_SIZE;
+	}
+
 	let filterBed = $state('');
 	let timelineOffset = $state(0);
 	let confirmDeleteId = $state<number | null>(null);
@@ -219,7 +228,7 @@
 		{/if}
 
 		<div class="grid gap-3">
-	{#each data.plantations as p (p.plantation.id)}
+	{#each visiblePlantations as p (p.plantation.id)}
 			{@const pf = firstPhoto(p.plantPhotos)}
 			<div class="border rounded p-4 flex items-center justify-between">
 				<div class="flex items-center gap-3">
@@ -270,6 +279,11 @@
 			</div>
 			{/each}
 		</div>
+		{#if hasMore}
+			<button onclick={showMore} class="w-full py-2 border rounded text-sm text-gray-600 hover:bg-gray-50">
+				Show more ({data.plantations.length - visibleCount} remaining)
+			</button>
+		{/if}
 	{:else}
 		<!-- Timeline view -->
 		<!-- Timeline controls -->

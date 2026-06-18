@@ -10,8 +10,8 @@ Web application for managing a vegetable garden — cultivation beds, plantings,
 
 | Module | Description |
 |---|---|
-| **Garden organization** | Upload satellite photo or interactive OSM map ; polygon drawing (beds) ; each bed has: name, dimensions, orientation, soil type, exposure |
-| **Planting management** | CRUD linked to a bed ; sowing → transplanting → harvesting cycles ; visual calendar ; per-bed history |
+| **Garden organization** | Upload satellite photo or interactive OSM map ; canvas double buffer for smooth polygon drawing ; each bed has: name, dimensions, orientation, soil type, exposure |
+| **Planting management** | CRUD linked to a bed ; sowing → transplanting → harvesting cycles ; visual calendar (all data) ; paginated list (30/page) ; per-bed history |
 | **Plant knowledge base** | 58 pre-filled sheets (periods, exposure, soil, companion planting, photos) ; search and filters ; detail pages with advice |
 | **Crop rotation** | Suggestions based on bed history ; botanical families ; alerts if rotation is too short |
 | **Dashboard** | Seasonal overview ; sowing/harvest alerts ; statistics (beds, plantings, sheets) |
@@ -234,9 +234,11 @@ drizzle/
   0001_xxx.sql        # Added type field (pixel/geo)
   0002_xxx.sql        # Added dimensions/orientation
    0003_xxx.sql        # Added floweringStart/floweringEnd
-   0004_xxx.sql        # Added indexes (plants.family, plants.common_name, plants.sun_exposure,
-                       #   plantations.garden_bed_id, plantations.plant_id, plantations.status)
+    0004_xxx.sql        # Added indexes (plants.family, plants.common_name, plants.sun_exposure,
+                        #   plantations.garden_bed_id, plantations.plant_id, plantations.status)
+    0005_xxx.sql        # Added notifications table
 ```
+
 
 Migrations are applied automatically at Docker container startup via `scripts/migrate.js`.
 If the tables already exist (pre-existing database), the script reconciles the `__drizzle_migrations` tracking table and continues.
