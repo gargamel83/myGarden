@@ -10,6 +10,8 @@
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"test": "vitest run",
+		"test:watch": "vitest",
 		"db:seed": "npx tsx src/lib/server/db/seed.ts",
 		"db:seed:force": "npx tsx src/lib/server/db/seed.ts --force"
 	},
@@ -25,7 +27,8 @@
 		"svelte-check": "^4.6.0",
 		"tsx": "^4.22.4",
 		"typescript": "^6.0.3",
-		"vite": "^8.0.16"
+		"vite": "^8.0.16",
+		"vitest": "^4.1.9"
 	},
 	"dependencies": {
 		"better-sqlite3": "^12.10.0",

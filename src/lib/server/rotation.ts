@@ -21,7 +21,7 @@ export interface BedPlantHistory {
 }
 
 // Families and their recommended return time (years)
-const FAMILY_ROTATION_GAP: Record<string, number> = {
+export const FAMILY_ROTATION_GAP: Record<string, number> = {
 	'Solanaceae': 4,
 	'Brassicaceae': 3,
 	'Cucurbitaceae': 4,
@@ -35,7 +35,7 @@ const FAMILY_ROTATION_GAP: Record<string, number> = {
 };
 
 // After a certain family, what to plant next?
-function getNextFamilySuggestions(family: string | null): string[] {
+export function getNextFamilySuggestions(family: string | null): string[] {
 	if (!family) return [];
 	const suggestions: Record<string, string[]> = {
 		'Solanaceae': ['Fabaceae', 'Apiaceae', 'Brassicaceae', 'Chenopodiaceae'],

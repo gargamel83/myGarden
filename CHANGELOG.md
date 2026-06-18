@@ -1,6 +1,9 @@
 # Changelog
 
-## v0.1.1 (hotfix)
+## v0.1.1
+
+### Added
+- **Tests automatisés**: Vitest configuré, 12 tests unitaires pour `types.ts` et `rotation.ts`
 
 ### Fixed
 - **Filtre plantes**: remplace `window.location.href` par `goto()` — fini les rechargements complets
