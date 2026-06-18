@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.1.1 (hotfix)
+
+### Fixed
+- **Filtre plantes**: remplace `window.location.href` par `goto()` — fini les rechargements complets
+- **Suppression plante**: le `redirect` serveur empêchait le toast de confirmation ; remplacé par un retour `success` + navigation client
+- **Type de sol**: uniformisé en `<select>` avec valeurs contraintes dans le formulaire des planches
+- **TypeScript**: 7 erreurs typecheck corrigées (`string` → `PlantStatus` sur les accès `STATUS_COLORS`/`STATUS_LABELS`)
+
 ## v0.1.0 (iteration-2 branch)
 
 ### Added

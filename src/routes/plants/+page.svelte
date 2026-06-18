@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import { invalidate } from '$app/navigation';
+	import { invalidate, goto } from '$app/navigation';
 	import { toast } from '$lib/toast.svelte';
 
 	let { data, form } = $props();
@@ -37,7 +37,7 @@
 		if (family) params.set('family', family);
 		if (exposure) params.set('exposure', exposure);
 		const qs = params.toString();
-		window.location.href = qs ? `/plants?${qs}` : '/plants';
+		goto(qs ? `/plants?${qs}` : '/plants');
 	}
 
 	function handleCreateEnhance() {

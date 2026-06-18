@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import { invalidate } from '$app/navigation';
+	import { invalidate, goto } from '$app/navigation';
 	import { toast } from '$lib/toast.svelte';
 	import Lightbox from '$lib/components/Lightbox.svelte';
 
@@ -105,7 +105,10 @@
 
 	function handleDeleteEnhance() {
 		return async ({ result }: { result: any }) => {
-			// Server throws redirect(303, '/plants'), use:enhance handles it
+			if (result.type === 'success') {
+				toast('Plant deleted');
+				await goto('/plants');
+			}
 		};
 	}
 

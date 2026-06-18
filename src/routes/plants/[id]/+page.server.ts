@@ -1,7 +1,7 @@
 import { db } from '$lib/server/db';
 import { plants } from '$lib/server/db/schema';
 import { eq, inArray } from 'drizzle-orm';
-import { error, fail, redirect } from '@sveltejs/kit';
+import { error, fail } from '@sveltejs/kit';
 import { writeFileSync, existsSync, mkdirSync } from 'fs';
 import type { PageServerLoad, Actions } from './$types.js';
 
@@ -84,7 +84,7 @@ export const actions: Actions = {
 		if (isNaN(id)) return fail(404, { error: 'Plant not found' });
 
 		db.delete(plants).where(eq(plants.id, id)).run();
-		throw redirect(303, '/plants');
+		return { success: true, deleted: true };
 	},
 
 	uploadPhoto: async ({ request, params }) => {

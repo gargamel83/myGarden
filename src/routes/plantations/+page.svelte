@@ -247,8 +247,8 @@
 						</div>
 					</div>
 					<div class="flex items-center gap-2">
-						<span class="px-2 py-1 rounded text-xs font-medium {statusColors[p.plantation.status]}">
-							{statusLabels[p.plantation.status]}
+						<span class="px-2 py-1 rounded text-xs font-medium {statusColors[p.plantation.status as PlantStatus]}">
+							{statusLabels[p.plantation.status as PlantStatus]}
 						</span>
 						<button class="text-xs text-blue-600 px-2 py-1 rounded hover:bg-blue-50" onclick={() => editPlantation(p)}>
 							Edit
@@ -258,7 +258,7 @@
 								<input type="hidden" name="id" value={p.plantation.id} />
 								<input type="hidden" name="status" value={nextStatus(p.plantation.status)!} />
 								<button type="submit" class="text-xs bg-blue-600 text-white px-2 py-1 rounded">
-									Move to {statusLabels[nextStatus(p.plantation.status)!]}
+									Move to {statusLabels[nextStatus(p.plantation.status) as PlantStatus]}
 								</button>
 							</form>
 						{/if}

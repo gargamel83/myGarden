@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { STATUS_LABELS, STATUS_COLORS } from '$lib/types';
+	import type { PlantStatus } from '$lib/types';
 
 	let { data } = $props();
 	let stats = $derived(data.stats);
@@ -146,8 +147,8 @@
 								<span class="text-gray-400 ml-2">Sowing: {p.sowingDate}</span>
 							{/if}
 						</div>
-						<span class="px-2 py-0.5 rounded text-xs font-medium {statusColors[p.status]}">
-							{statusLabels[p.status]}
+						<span class="px-2 py-0.5 rounded text-xs font-medium {statusColors[p.status as PlantStatus]}">
+							{statusLabels[p.status as PlantStatus]}
 						</span>
 					</a>
 				{/each}
@@ -162,8 +163,8 @@
 			<div class="space-y-1 text-sm">
 				{#each recentActivity as a}
 					<a href="/plantations" class="flex gap-2 text-gray-600 hover:bg-gray-50 -mx-2 px-2 py-1 rounded">
-						<span class="px-1.5 py-0.5 rounded text-xs font-medium {statusColors[a.status]}">
-							{statusLabels[a.status]}
+						<span class="px-1.5 py-0.5 rounded text-xs font-medium {statusColors[a.status as PlantStatus]}">
+							{statusLabels[a.status as PlantStatus]}
 						</span>
 						<span>{a.plantName}</span>
 						{#if a.sowingDate}

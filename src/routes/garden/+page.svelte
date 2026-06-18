@@ -412,7 +412,13 @@
 					<div>
 						<label class="block text-sm text-gray-600">
 							Soil type
-							<input type="text" name="soilType" bind:value={editingBed.soilType} class="w-full border rounded px-2 py-1" />
+							<select name="soilType" bind:value={editingBed.soilType} class="w-full border rounded px-2 py-1">
+								<option value="">—</option>
+								<option value="riche">Rich</option>
+								<option value="meuble">Loose</option>
+								<option value="lourd">Heavy</option>
+								<option value="léger">Light</option>
+							</select>
 						</label>
 					</div>
 					<div>
