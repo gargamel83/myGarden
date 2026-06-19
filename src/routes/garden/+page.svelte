@@ -22,6 +22,44 @@
 	let canvas = $state<HTMLCanvasElement | null>(null);
 	let img = $state<HTMLImageElement | null>(null);
 	let scale = $state(1);
+	let bufferCanvas = $state<HTMLCanvasElement | null>(null);
+
+	function renderBackground() {
+		if (!canvas || !img) return;
+		const w = Math.min(img.naturalWidth, 1200);
+		const h = img.naturalHeight * (w / img.naturalWidth);
+		if (!bufferCanvas || bufferCanvas.width !== w || bufferCanvas.height !== h) {
+			bufferCanvas = document.createElement('canvas');
+			bufferCanvas.width = w;
+			bufferCanvas.height = h;
+		}
+		scale = img.naturalWidth / w;
+		const bctx = bufferCanvas.getContext('2d')!;
+		bctx.drawImage(img, 0, 0, w, h);
+		for (const bed of beds) {
+			drawPolygon(bctx, JSON.parse(bed.polygon), bed.color || '#4ade80', false);
+		}
+	}
+
+	function renderOverlay() {
+		if (!canvas) return;
+		if (!bufferCanvas) { renderBackground(); if (!bufferCanvas) return; }
+		const w = bufferCanvas.width;
+		const h = bufferCanvas.height;
+		canvas.width = w;
+		canvas.height = h;
+		const ctx = canvas.getContext('2d')!;
+		ctx.drawImage(bufferCanvas, 0, 0);
+		if (currentPolygon.length > 0) {
+			drawPolygon(ctx, currentPolygon, '#fbbf24', true);
+		}
+	}
+
+	function drawCanvas() {
+		if (!canvas) return;
+		if (!bufferCanvas) renderBackground();
+		renderOverlay();
+	}
 
 	function loadImage(filename: string) {
 		selectedPhoto = filename;
@@ -29,27 +67,10 @@
 		image.src = `/uploads/${filename}`;
 		image.onload = () => {
 			img = image;
-			drawCanvas();
+			bufferCanvas = null;
+			renderBackground();
+			renderOverlay();
 		};
-	}
-
-	function drawCanvas() {
-		if (!canvas || !img) return;
-		const ctx = canvas.getContext('2d')!;
-		const w = Math.min(img.naturalWidth, 1200);
-		const h = img.naturalHeight * (w / img.naturalWidth);
-		canvas.width = w;
-		canvas.height = h;
-		scale = img.naturalWidth / w;
-		ctx.drawImage(img, 0, 0, w, h);
-
-		for (const bed of beds) {
-			drawPolygon(ctx, JSON.parse(bed.polygon), bed.color || '#4ade80', false);
-		}
-
-		if (currentPolygon.length > 0) {
-			drawPolygon(ctx, currentPolygon, '#fbbf24', true);
-		}
 	}
 
 	function drawPolygon(ctx: CanvasRenderingContext2D, pts: [number, number][], color: string, dashed: boolean) {
@@ -71,6 +92,13 @@
 		ctx.setLineDash([]);
 	}
 
+	$effect(() => {
+		if (beds && img && bufferCanvas) {
+			renderBackground();
+			renderOverlay();
+		}
+	});
+
 	function handleCanvasClick(e: MouseEvent) {
 		if (!drawingMode) return;
 		if (!canvas) return;
@@ -78,7 +106,7 @@
 		const x = e.clientX - rect.left;
 		const y = e.clientY - rect.top;
 		currentPolygon = [...currentPolygon, [x, y]];
-		drawCanvas();
+		renderOverlay();
 	}
 
 	function finishPolygon() {
@@ -104,7 +132,7 @@
 	function cancelDrawing() {
 		currentPolygon = [];
 		drawingMode = false;
-		drawCanvas();
+		renderOverlay();
 	}
 
 	function zoomToBed(bed: typeof beds[0]) {
@@ -241,7 +269,7 @@
 			></canvas>
 			{#if !drawingMode}
 				<div class="absolute top-2 left-2">
-					<button class="bg-green-600 text-white px-3 py-1 rounded text-sm" onclick={() => { drawingMode = true; currentPolygon = []; drawCanvas(); }}>
+					<button class="bg-green-600 text-white px-3 py-1 rounded text-sm" onclick={() => { drawingMode = true; currentPolygon = []; renderOverlay(); }}>
 						Add a bed
 					</button>
 				</div>
