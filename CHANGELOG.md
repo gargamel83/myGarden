@@ -2,7 +2,13 @@
 
 ## v0.2.9
 
+### Added
+- **Système de thèmes** : 4 thèmes (Teal, Green, Earth, Slate) avec sélecteur palette dans la navbar, stockage localStorage, CSS variables
+- **Composant `ThemeSwitcher.svelte`** : icône palette avec tooltip au hover, dropdown avec cercle couleur + nom + tooltip description
+- **Tests themes** : 12 tests pour `themes.ts` (structure, loadTheme, saveTheme, applyTheme) — total 132 tests
+
 ### Fixed
+- **Dropdown theme** : texte invisible (blanc sur blanc) à cause de l'héritage `text-white` de la navbar — corrigé avec `text-gray-700`
 - **Filtrage par type** : `GridCanvas` n'affiche que les planches `pixel`, `LeafletMap` n'affiche que les planches `geo` (les planches pixel n'étaient plus interprétées comme des coordonnées GPS sur la carte OSM)
 - **Rendu visuel de la grille** : traits plus fins (0.8px/1.2px), couleurs plus neutres (`#d8e0d0`/`#c8d8b8`)
 - **Remplissage des planches** : marron terre (`#d4c5a9`) au lieu de la couleur de la planche en transparence
@@ -10,6 +16,7 @@
 
 ### Changed
 - `GridCanvas` et `LeafletMap` ajoutent `type` dans le type des props
+- Couleurs des composants (nav, boutons, toasts, badges, barres) passées en CSS variables pour support des thèmes
 
 ## v0.2.8
 

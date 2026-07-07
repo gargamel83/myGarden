@@ -19,7 +19,7 @@
 	});
 
 	const colors: Record<string, string> = {
-		success: 'bg-green-600',
+		success: 'bg-[var(--btn-bg)]',
 		error: 'bg-red-600',
 		info: 'bg-blue-600'
 	};

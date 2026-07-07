@@ -16,7 +16,7 @@
 			required
 			class="w-full border rounded px-3 py-2"
 		/>
-		<button class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">
+		<button class="w-full bg-[var(--btn-bg)] text-white py-2 rounded hover:bg-[var(--btn-hover)]">
 			Log in
 		</button>
 	</form>

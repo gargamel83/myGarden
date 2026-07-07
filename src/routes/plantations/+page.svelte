@@ -188,7 +188,7 @@ import Modal from '$lib/components/Modal.svelte';
 <div class="space-y-6">
 	<div class="flex items-center justify-between">
 		<h1 class="text-2xl font-bold">Plantings</h1>
-		<button class="bg-green-600 text-white px-4 py-2 rounded" onclick={() => { resetForm(); showForm = true; }}>
+		<button class="bg-[var(--btn-bg)] text-white px-4 py-2 rounded" onclick={() => { resetForm(); showForm = true; }}>
 			+ New planting
 		</button>
 	</div>
@@ -196,13 +196,13 @@ import Modal from '$lib/components/Modal.svelte';
 	<!-- View switcher -->
 	<div class="flex gap-1 border-b">
 		<button
-			class="px-4 py-2 -mb-px border-b-2 {view === 'list' ? 'border-green-600 text-green-700 font-medium' : 'border-transparent text-gray-500'}"
+			class="px-4 py-2 -mb-px border-b-2 {view === 'list' ? 'border-[var(--tab-border)] text-[var(--tab-text)] font-medium' : 'border-transparent text-gray-500'}"
 			onclick={() => view = 'list'}
 		>
 			List
 		</button>
 		<button
-			class="px-4 py-2 -mb-px border-b-2 {view === 'timeline' ? 'border-green-600 text-green-700 font-medium' : 'border-transparent text-gray-500'}"
+			class="px-4 py-2 -mb-px border-b-2 {view === 'timeline' ? 'border-[var(--tab-border)] text-[var(--tab-text)] font-medium' : 'border-transparent text-gray-500'}"
 			onclick={() => view = 'timeline'}
 		>
 			Calendar
@@ -311,7 +311,7 @@ import Modal from '$lib/components/Modal.svelte';
 						<div class="w-32 shrink-0"></div>
 						{#each months as m}
 							{@const isCurrent = (() => { const d = new Date(); return m === d.toISOString().slice(0, 7); })()}
-							<div class="flex-1 text-center text-xs font-medium border-l {isCurrent ? 'text-green-700 bg-green-50' : 'text-gray-500'}">
+							<div class="flex-1 text-center text-xs font-medium border-l {isCurrent ? 'text-[var(--text-primary)] bg-[var(--bg-subtle)]' : 'text-gray-500'}">
 								{monthLabel(m)}
 							</div>
 						{/each}
@@ -359,8 +359,8 @@ Harvest: {p.plantation.harvestDate || '—'}
 			<div class="flex gap-4 text-xs text-gray-500">
 				<span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-gray-400"></span> Planned</span>
 				<span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-blue-500"></span> Sown</span>
-				<span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-green-500"></span> Transplanted</span>
-				<span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-amber-500"></span> Harvested</span>
+				<span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-[var(--bar-fill)]"></span> Transplanted</span>
+				<span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-[var(--bar-fill)]"></span> Harvested</span>
 			</div>
 	{/if}
 </div>
@@ -441,7 +441,7 @@ Harvest: {p.plantation.harvestDate || '—'}
 					</div>
 					<div class="flex gap-2 justify-end pt-2">
 						<button type="button" class="px-4 py-2 border rounded" onclick={closeForm}>Cancel</button>
-						<button type="submit" class="px-4 py-2 bg-green-600 text-white rounded">{editId ? 'Save' : 'Create'}</button>
+						<button type="submit" class="px-4 py-2 bg-[var(--btn-bg)] text-white rounded">{editId ? 'Save' : 'Create'}</button>
 					</div>
 				</div>
 			</form>

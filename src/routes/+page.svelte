@@ -27,8 +27,8 @@
 
 	<!-- Stats cards -->
 	<div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-		<a href="/garden" class="block bg-green-50 border border-green-200 rounded-lg p-4 text-center hover:bg-green-100">
-			<p class="text-3xl font-bold text-green-700">{stats.bedCount}</p>
+		<a href="/garden" class="block bg-[var(--bg-subtle)] border border-[var(--border-card)] rounded-lg p-4 text-center hover:bg-slate-100">
+			<p class="text-3xl font-bold text-[var(--text-primary)]">{stats.bedCount}</p>
 			<p class="text-xs text-gray-600 mt-1">Beds</p>
 			{#if stats.totalArea > 0}
 				<p class="text-[10px] text-gray-400 mt-0.5">{stats.totalArea} m²</p>
@@ -38,8 +38,8 @@
 			<p class="text-3xl font-bold text-blue-700">{stats.activeCount}</p>
 			<p class="text-xs text-gray-600 mt-1">Active</p>
 		</a>
-		<a href="/plantations" class="block bg-amber-50 border border-amber-200 rounded-lg p-4 text-center hover:bg-amber-100">
-			<p class="text-3xl font-bold text-amber-700">{stats.plannedCount}</p>
+		<a href="/plantations" class="block bg-[var(--bg-subtle)] border border-[var(--border-card)] rounded-lg p-4 text-center hover:bg-slate-100">
+			<p class="text-3xl font-bold text-[var(--text-primary)]">{stats.plannedCount}</p>
 			<p class="text-xs text-gray-600 mt-1">Planned</p>
 		</a>
 		<a href="/plantations" class="block bg-purple-50 border border-purple-200 rounded-lg p-4 text-center hover:bg-purple-100">
@@ -72,17 +72,17 @@
 		<!-- Alertes récolte -->
 		{#if harvestAlerts.length > 0}
 			<div class="border rounded-lg p-4">
-				<a href="/plantations" class="font-bold text-lg mb-2 text-amber-700 block hover:underline">🧑‍🌾 Upcoming harvests</a>
+				<a href="/plantations" class="font-bold text-lg mb-2 text-[var(--text-primary)] block hover:underline">🧑‍🌾 Upcoming harvests</a>
 				<div class="space-y-2">
 					{#each harvestAlerts as a (a.plantation.id)}
-						<a href="/plants/{a.plant?.id || ''}" class="flex justify-between text-sm hover:bg-amber-50 -mx-2 px-2 py-1 rounded">
+						<a href="/plants/{a.plant?.id || ''}" class="flex justify-between text-sm hover:bg-slate-50 -mx-2 px-2 py-1 rounded">
 							<div>
 								<span class="font-medium">{a.plant?.commonName || a.plantation.plantName}</span>
 								{#if a.plant?.harvestStart}
 									<span class="text-gray-400 ml-1">(from {a.plant.harvestStart})</span>
 								{/if}
 							</div>
-							<span class="text-amber-600">{daysText(a.daysLeft)}</span>
+							<span class="text-gray-500">{daysText(a.daysLeft)}</span>
 						</a>
 					{/each}
 				</div>
@@ -99,7 +99,7 @@
 					<div class="flex items-center gap-2">
 						<span class="text-sm flex-1">{crop.name}</span>
 						<div class="flex-1 bg-gray-100 rounded h-4">
-							<div class="bg-green-500 rounded h-4" style="width: {Math.min(crop.count / Math.max(...data.topCrops.map(c => c.count)) * 100, 100)}%"></div>
+							<div class="bg-[var(--bar-fill)] rounded h-4" style="width: {Math.min(crop.count / Math.max(...data.topCrops.map(c => c.count)) * 100, 100)}%"></div>
 						</div>
 						<span class="text-xs text-gray-500 w-6 text-right">{crop.count}</span>
 					</div>
@@ -144,7 +144,7 @@
 				<!-- Taux de réussite -->
 				<div class="border rounded p-3">
 					<p class="text-xs text-gray-500 mb-1">Success rate</p>
-					<p class="text-2xl font-bold text-green-700">{a.successRate}%</p>
+					<p class="text-2xl font-bold text-[var(--text-primary)]">{a.successRate}%</p>
 					<p class="text-xs text-gray-400">plantations harvested</p>
 				</div>
 
@@ -172,7 +172,7 @@
 					<div class="flex items-end gap-1 h-20">
 						{#each a.plantationsByMonth as m (m.month)}
 							<div class="flex-1 flex flex-col items-center">
-								<div class="w-full bg-green-400 rounded-t" style="height: {(m.count / maxCount) * 100}%"></div>
+								<div class="w-full bg-[var(--bar-fill-light)] rounded-t" style="height: {(m.count / maxCount) * 100}%"></div>
 								<span class="text-[9px] text-gray-400 mt-0.5">{m.month.slice(5)}</span>
 							</div>
 						{/each}
@@ -190,7 +190,7 @@
 							<div class="flex items-center gap-2 text-xs">
 								<span class="w-24 text-right text-gray-600 truncate">{f.family}</span>
 								<div class="flex-1 bg-gray-100 rounded h-3">
-									<div class="bg-amber-400 rounded h-3" style="width: {pct}%"></div>
+									<div class="bg-[var(--bar-fill-light)] rounded h-3" style="width: {pct}%"></div>
 								</div>
 								<span class="w-8 text-gray-500">{f.count}</span>
 							</div>
@@ -266,7 +266,7 @@
 		<div class="text-center py-12">
 			<p class="text-gray-500">Welcome to My Garden!</p>
 			<div class="flex justify-center gap-3 mt-4">
-				<a href="/garden" class="bg-green-600 text-white px-6 py-2 rounded-lg">Add beds</a>
+				<a href="/garden" class="bg-[var(--btn-bg)] text-white px-6 py-2 rounded-lg">Add beds</a>
 				<a href="/plants" class="bg-blue-600 text-white px-6 py-2 rounded-lg">Explore plants</a>
 			</div>
 		</div>

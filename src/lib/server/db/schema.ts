@@ -5,7 +5,7 @@ export const gardenBeds = sqliteTable('garden_beds', {
 	name: text('name').notNull(),
 	polygon: text('polygon').notNull(), // JSON array of [x,y] or [lng,lat] points
 	type: text('type').default('pixel'), // 'pixel' or 'geo'
-	color: text('color').default('#4ade80'),
+	color: text('color').default('#64748b'),
 	soilType: text('soil_type'),
 	sunExposure: text('sun_exposure'),
 	length: real('length'),

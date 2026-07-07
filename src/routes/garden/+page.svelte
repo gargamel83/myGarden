@@ -5,6 +5,7 @@
 	import { invalidate } from '$app/navigation';
 	import { toast } from '$lib/toast.svelte';
 	import Modal from '$lib/components/Modal.svelte';
+	import { STATUS_COLORS, type PlantStatus } from '$lib/types';
 	import type { SubmitFunction } from '@sveltejs/kit';
 
 	let { data } = $props();
@@ -36,7 +37,7 @@
 			name: '',
 			polygon,
 			type: 'pixel',
-			color: '#4ade80',
+			color: '#64748b',
 			soilType: null,
 			sunExposure: null,
 			length: null,
@@ -102,7 +103,7 @@
 			name: '',
 			polygon,
 			type: 'geo',
-			color: '#4ade80',
+			color: '#64748b',
 			soilType: null,
 			sunExposure: null,
 			length: null,
@@ -124,13 +125,13 @@
 	<!-- Tab switcher -->
 	<div class="flex gap-1 border-b">
 		<button
-			class="px-4 py-2 -mb-px border-b-2 {tab === 'plan' ? 'border-green-600 text-green-700 font-medium' : 'border-transparent text-gray-500'}"
+			class="px-4 py-2 -mb-px border-b-2 {tab === 'plan' ? 'border-[var(--tab-border)] text-[var(--tab-text)] font-medium' : 'border-transparent text-gray-500'}"
 			onclick={() => { tab = 'plan'; sessionStorage.setItem('gardenTab', 'plan'); }}
 		>
 			Plan
 		</button>
 		<button
-			class="px-4 py-2 -mb-px border-b-2 {tab === 'map' ? 'border-green-600 text-green-700 font-medium' : 'border-transparent text-gray-500'}"
+			class="px-4 py-2 -mb-px border-b-2 {tab === 'map' ? 'border-[var(--tab-border)] text-[var(--tab-text)] font-medium' : 'border-transparent text-gray-500'}"
 			onclick={() => { tab = 'map'; sessionStorage.setItem('gardenTab', 'map'); }}
 		>
 			OSM Map
@@ -146,7 +147,7 @@
 				<div class="flex gap-1 flex-wrap">
 					{#each photos as photo}
 						<button
-							class="px-2 py-0.5 rounded text-xs {selectedPhoto?.filename === photo.filename ? 'bg-green-600 text-white' : 'bg-gray-200 hover:bg-gray-300'}"
+							class="px-2 py-0.5 rounded text-xs {selectedPhoto?.filename === photo.filename ? 'bg-[var(--btn-bg)] text-white' : 'bg-gray-200 hover:bg-gray-300'}"
 							onclick={() => selectedPhoto = photo}
 						>
 							{photo.label}
@@ -217,7 +218,7 @@
 						<p>Orientation {bed.orientation}</p>
 					{/if}
 					{#if bPlantations.length > 0}
-						<p class="text-xs {bPlantations.filter(p => p.status !== 'harvested' && p.status !== 'cancelled').length > 0 ? 'text-green-600' : 'text-gray-400'}">
+						<p class="text-xs {bPlantations.filter(p => p.status !== 'harvested' && p.status !== 'cancelled').length > 0 ? 'text-gray-500' : 'text-gray-400'}">
 							{bPlantations.length} plantation{bPlantations.length > 1 ? 's' : ''}
 						</p>
 					{/if}
@@ -251,16 +252,16 @@
 				<input type="hidden" name="id" value={editingBed.id || ''} />
 				<input type="hidden" name="polygon" value={editingBed.polygon} />
 				<input type="hidden" name="coordinatesType" value={tab === 'map' ? 'geo' : 'pixel'} />
-				<input type="hidden" name="color" value={editingBed.color || '#4ade80'} />
+				<input type="hidden" name="color" value={editingBed.color || '#64748b'} />
 				<h2 class="text-lg font-bold mb-4">
 					{editingBed.id ? 'Edit' : 'New'} bed
 				</h2>
 				{#if editingBed.soilType || editingBed.sunExposure}
 					{@const advice = data.bedAdvice[editingBed.id] || []}
 					{#if advice.length > 0}
-						<div class="mb-4 p-3 bg-green-50 rounded text-xs">
-							<p class="font-medium text-green-700 mb-1">🌱 Plants suitable for this bed</p>
-							<p class="text-green-600">{advice.join(', ')}</p>
+						<div class="mb-4 p-3 bg-[var(--bg-subtle)] rounded text-xs">
+							<p class="font-medium text-[var(--text-primary)] mb-1">🌱 Plants suitable for this bed</p>
+							<p class="text-slate-600">{advice.join(', ')}</p>
 						</div>
 					{/if}
 				{/if}
@@ -357,7 +358,7 @@
 						{/if}
 						<div class="flex gap-2 ml-auto">
 							<button type="button" class="px-4 py-2 border rounded" onclick={(e) => { if (e.target === e.currentTarget) showForm = false; }}>Cancel</button>
-							<button type="submit" class="px-4 py-2 bg-green-600 text-white rounded">
+							<button type="submit" class="px-4 py-2 bg-[var(--btn-bg)] text-white rounded">
 								Save
 							</button>
 						</div>
@@ -408,7 +409,7 @@
 									{#if p.harvestDate}<span>Harvest: {p.harvestDate}</span>{/if}
 								</div>
 							</div>
-							<span class="px-2 py-0.5 rounded text-xs font-medium {p.status === 'planned' ? 'bg-gray-200 text-gray-600' : p.status === 'sown' ? 'bg-blue-100 text-blue-700' : p.status === 'planted' ? 'bg-green-100 text-green-700' : p.status === 'harvested' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'}">
+							<span class="px-2 py-0.5 rounded text-xs font-medium {STATUS_COLORS[p.status as PlantStatus]}">
 								{p.status === 'planned' ? 'Planned' : p.status === 'sown' ? 'Sown' : p.status === 'planted' ? 'Transplanted' : p.status === 'harvested' ? 'Harvested' : 'Cancelled'}
 							</span>
 						</div>
@@ -426,7 +427,7 @@
 							View on map
 						</button>
 					{/if}
-					<a href="/plantations" class="text-sm bg-green-600 text-white px-3 py-1.5 rounded">
+					<a href="/plantations" class="text-sm bg-[var(--btn-bg)] text-white px-3 py-1.5 rounded">
 						+ New planting
 					</a>
 				</div>

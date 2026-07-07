@@ -190,7 +190,7 @@
 			for (const bed of beds.filter(b => b.type === 'pixel')) {
 				try {
 					const pts = JSON.parse(bed.polygon) as [number, number][];
-					drawPoly(ctx, pts, bed.color || '#4ade80', false, 2);
+					drawPoly(ctx, pts, bed.color || '#64748b', false, 2);
 				} catch { /* empty */ }
 			}
 		if (currentPolygon.length > 0) drawPoly(ctx, currentPolygon, '#fbbf24', true, 1.5);
@@ -203,7 +203,7 @@
 			for (const bed of beds.filter(b => b.type === 'pixel')) {
 				try {
 					const pts = JSON.parse(bed.polygon) as [number, number][];
-					drawPoly(ctx, pts, bed.color || '#4ade80', false, 2 / zoom);
+					drawPoly(ctx, pts, bed.color || '#64748b', false, 2 / zoom);
 				} catch { /* empty */ }
 			}
 			if (currentPolygon.length > 0) drawPoly(ctx, currentPolygon, '#fbbf24', true, 2 / zoom);
@@ -322,14 +322,14 @@
 
 	{#if !drawing}
 		<div class="absolute top-2 left-2 flex gap-2 flex-wrap">
-			<button class="bg-green-600 text-white px-3 py-1 rounded text-sm shadow hover:bg-green-700" onclick={startDrawing}>
+			<button class="bg-[var(--btn-bg)] text-white px-3 py-1 rounded text-sm shadow hover:bg-[var(--btn-hover)]" onclick={startDrawing}>
 				+ Add a bed
 			</button>
 			{#each beds.filter(b => b.type === 'pixel') as bed}
 				{#if bed.id}
 					<button
 						class="px-2 py-1 rounded text-xs shadow hover:bg-gray-100 bg-white/80"
-						style="border-left: 3px solid {bed.color || '#4ade80'}"
+						style="border-left: 3px solid {bed.color || '#64748b'}"
 						onclick={() => onEditBed?.(bed.id)}
 					>
 						{bed.name}
@@ -340,7 +340,7 @@
 	{:else}
 		<div class="absolute top-2 left-2 bg-black/70 text-white px-3 py-1.5 rounded text-sm shadow flex items-center gap-2">
 			<span>Click to draw ({currentPolygon.length} pt{currentPolygon.length > 1 ? 's' : ''})</span>
-			<button class="text-green-300 underline" onclick={finishPolygon} disabled={currentPolygon.length < 3}>Finish</button>
+			<button class="text-slate-300 underline" onclick={finishPolygon} disabled={currentPolygon.length < 3}>Finish</button>
 			<button class="text-red-300 underline ml-1" onclick={cancelDrawing}>Cancel</button>
 		</div>
 	{/if}

@@ -34,16 +34,16 @@
 	const levelColors: Record<string, string> = {
 		TRACE: 'text-gray-400',
 		DEBUG: 'text-blue-500',
-		INFO: 'text-green-600',
-		WARN: 'text-amber-600',
+		INFO: 'text-[var(--log-level-text)]',
+		WARN: 'text-[var(--log-level-text)]',
 		ERROR: 'text-red-600'
 	};
 
 	const levelBg: Record<string, string> = {
 		TRACE: 'bg-gray-100',
 		DEBUG: 'bg-blue-50',
-		INFO: 'bg-green-50',
-		WARN: 'bg-amber-50',
+		INFO: 'bg-[var(--log-level-bg)]',
+		WARN: 'bg-[var(--log-level-bg)]',
 		ERROR: 'bg-red-50'
 	};
 </script>

@@ -22,17 +22,17 @@ export const STATUS_LABELS: Record<PlantStatus, string> = {
 };
 
 export const STATUS_COLORS: Record<PlantStatus, string> = {
-	planned: 'bg-gray-200 text-gray-700',
+	planned: 'bg-gray-200 text-gray-600',
 	sown: 'bg-blue-100 text-blue-700',
-	planted: 'bg-green-100 text-green-700',
+	planted: 'bg-emerald-100 text-emerald-700',
 	harvested: 'bg-amber-100 text-amber-700',
 	cancelled: 'bg-red-100 text-red-700'
 };
 
 export const STATUS_BAR_COLORS: Record<PlantStatus, string> = {
-	planned: '#9ca3af',
+	planned: '#a8a29e',
 	sown: '#3b82f6',
-	planted: '#22c55e',
+	planted: '#10b981',
 	harvested: '#f59e0b',
 	cancelled: '#ef4444'
 };

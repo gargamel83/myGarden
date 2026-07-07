@@ -8,3 +8,108 @@
 		to { opacity: 1; transform: translateY(0); }
 	}
 }
+
+/* Theme: Teal (default) */
+:root,
+[data-theme="teal"] {
+	--nav-bg: #0f766e;
+	--nav-active: rgba(17, 94, 89, 0.5);
+	--nav-hover: rgba(13, 148, 136, 0.5);
+	--nav-border: #0d9488;
+	--nav-accent: #99f6e4;
+	--btn-bg: #0d9488;
+	--btn-hover: #0f766e;
+	--tab-border: #0d9488;
+	--tab-text: #0f766e;
+	--text-primary: #0f766e;
+	--text-secondary: #0d9488;
+	--bg-subtle: #f0fdfa;
+	--border-card: #99f6e4;
+	--badge-bg: #ccfbf1;
+	--badge-text: #0f766e;
+	--badge-hover: #99f6e4;
+	--toast-bg: #0d9488;
+	--log-level-text: #0891b2;
+	--log-level-bg: #ecfeff;
+	--bed-color: #14b8a6;
+	--bar-fill: #14b8a6;
+	--bar-fill-light: #2dd4bf;
+}
+
+/* Theme: Green (original) */
+[data-theme="green"] {
+	--nav-bg: #15803d;
+	--nav-active: rgba(22, 101, 52, 0.5);
+	--nav-hover: rgba(22, 163, 74, 0.5);
+	--nav-border: #16a34a;
+	--nav-accent: #bbf7d0;
+	--btn-bg: #16a34a;
+	--btn-hover: #15803d;
+	--tab-border: #16a34a;
+	--tab-text: #15803d;
+	--text-primary: #15803d;
+	--text-secondary: #16a34a;
+	--bg-subtle: #f0fdf4;
+	--border-card: #bbf7d0;
+	--badge-bg: #dcfce7;
+	--badge-text: #15803d;
+	--badge-hover: #bbf7d0;
+	--toast-bg: #16a34a;
+	--log-level-text: #16a34a;
+	--log-level-bg: #f0fdf4;
+	--bed-color: #4ade80;
+	--bar-fill: #22c55e;
+	--bar-fill-light: #4ade80;
+}
+
+/* Theme: Earth (amber/brown) */
+[data-theme="earth"] {
+	--nav-bg: #92400e;
+	--nav-active: rgba(120, 53, 15, 0.5);
+	--nav-hover: rgba(217, 119, 6, 0.5);
+	--nav-border: #d97706;
+	--nav-accent: #fde68a;
+	--btn-bg: #d97706;
+	--btn-hover: #b45309;
+	--tab-border: #d97706;
+	--tab-text: #b45309;
+	--text-primary: #b45309;
+	--text-secondary: #d97706;
+	--bg-subtle: #fffbeb;
+	--border-card: #fde68a;
+	--badge-bg: #fef3c7;
+	--badge-text: #b45309;
+	--badge-hover: #fde68a;
+	--toast-bg: #d97706;
+	--log-level-text: #d97706;
+	--log-level-bg: #fffbeb;
+	--bed-color: #b8914a;
+	--bar-fill: #d97706;
+	--bar-fill-light: #f59e0b;
+}
+
+/* Theme: Slate (gray) */
+[data-theme="slate"] {
+	--nav-bg: #1e293b;
+	--nav-active: rgba(30, 41, 59, 0.5);
+	--nav-hover: rgba(51, 65, 85, 0.5);
+	--nav-border: #475569;
+	--nav-accent: #cbd5e1;
+	--btn-bg: #334155;
+	--btn-hover: #1e293b;
+	--tab-border: #475569;
+	--tab-text: #334155;
+	--text-primary: #334155;
+	--text-secondary: #475569;
+	--bg-subtle: #f8fafc;
+	--border-card: #cbd5e1;
+	--badge-bg: #e2e8f0;
+	--badge-text: #334155;
+	--badge-hover: #cbd5e1;
+	--toast-bg: #334155;
+	--log-level-text: #64748b;
+	--log-level-bg: #f1f5f9;
+	--bed-color: #64748b;
+	--bar-fill: #64748b;
+	--bar-fill-light: #94a3b8;
+}

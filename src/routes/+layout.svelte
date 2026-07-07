@@ -5,7 +5,10 @@
 	import Toast from '$lib/components/Toast.svelte';
 	import LogPanel from '$lib/components/LogPanel.svelte';
 	import NotificationBell from '$lib/components/NotificationBell.svelte';
+	import ThemeSwitcher from '$lib/components/ThemeSwitcher.svelte';
 	import { setToastHandler } from '$lib/toast.svelte';
+	import { version } from '../../package.json';
+	import { applyTheme, loadTheme } from '$lib/themes';
 	let { children } = $props();
 
 	let mobileOpen = $state(false);
@@ -26,6 +29,10 @@
 		{ href: '/plantations', label: 'Plantings' },
 		{ href: '/plants', label: 'Plants' }
 	];
+
+	$effect(() => {
+		applyTheme(loadTheme());
+	});
 </script>
 
 <svelte:head>
@@ -39,15 +46,15 @@
 {/key}
 
 <!-- Navigation -->
-<nav class="bg-green-700 text-white">
+<nav class="bg-[var(--nav-bg)] text-white">
 	<div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-		<a href="/" class="font-bold text-lg">MonJardin</a>
+		<a href="/" class="font-bold text-lg">MonJardin <span class="text-[var(--nav-accent)] text-xs font-normal">v{version}</span></a>
 
 		<div class="hidden md:flex items-center gap-1">
 			{#each links as link}
 				<a
 					href={link.href}
-					class="px-3 py-1.5 rounded text-sm transition-colors {$page.url.pathname === link.href ? 'bg-green-800/50 font-medium' : 'hover:bg-green-600/50'}"
+					class="px-3 py-1.5 rounded text-sm transition-colors {$page.url.pathname === link.href ? 'bg-[var(--nav-active)] font-medium' : 'hover:bg-[var(--nav-hover)]'}"
 				>
 					{link.label}
 				</a>
@@ -55,9 +62,10 @@
 		</div>
 
 		<div class="flex items-center gap-1">
+			<ThemeSwitcher />
 			<NotificationBell onnavigate={(url) => { goto(url); }} />
 			<button
-				class="p-1.5 rounded hover:bg-green-600/50 text-sm"
+				class="p-1.5 rounded hover:bg-[var(--nav-hover)] text-sm"
 				onclick={() => showLogs = true}
 				aria-label="Logs"
 				title="Logs"
@@ -83,11 +91,11 @@
 	</div>
 
 	{#if mobileOpen}
-		<div class="md:hidden border-t border-green-600 px-4 py-2 space-y-1">
+		<div class="md:hidden border-t border-[var(--nav-border)] px-4 py-2 space-y-1">
 			{#each links as link}
 				<a
 					href={link.href}
-					class="block px-3 py-2 rounded text-sm transition-colors {$page.url.pathname === link.href ? 'bg-green-800/50 font-medium' : 'hover:bg-green-600/50'}"
+					class="block px-3 py-2 rounded text-sm transition-colors {$page.url.pathname === link.href ? 'bg-[var(--nav-active)] font-medium' : 'hover:bg-[var(--nav-hover)]'}"
 					onclick={() => mobileOpen = false}
 				>
 					{link.label}

@@ -132,7 +132,7 @@ export const actions: Actions = {
 			name,
 			polygon,
 			type,
-			color: color || '#4ade80',
+			color: color || '#64748b',
 			soilType: soilType || null,
 			sunExposure: sunExposure || null,
 			length: length ? parseFloat(length) : null,

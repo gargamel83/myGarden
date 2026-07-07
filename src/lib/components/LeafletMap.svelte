@@ -47,7 +47,7 @@
 				const coords = JSON.parse(bed.polygon);
 				if (Array.isArray(coords) && coords.length > 0) {
 					const layer = L.polygon(coords, {
-						color: bed.color || '#4ade80',
+						color: bed.color || '#64748b',
 						fillOpacity: 0.2
 					}).addTo(map);
 					layer.bindPopup(`
@@ -235,12 +235,12 @@
 		</button>
 
 		{#if !drawing}
-			<button class="px-3 py-1.5 rounded text-sm bg-green-600 text-white whitespace-nowrap" onclick={toggleDrawing}>
+			<button class="px-3 py-1.5 rounded text-sm bg-[var(--btn-bg)] text-white whitespace-nowrap" onclick={toggleDrawing}>
 				Draw a bed
 			</button>
 		{:else}
 			<span class="text-sm font-medium text-blue-700">Click on the map</span>
-			<button class="px-3 py-1.5 rounded text-sm bg-amber-600 text-white" onclick={savePolygon} disabled={currentPoints.length < 3}>
+			<button class="px-3 py-1.5 rounded text-sm bg-[var(--btn-bg)] text-white" onclick={savePolygon} disabled={currentPoints.length < 3}>
 				Confirm ({currentPoints.length} pts)
 			</button>
 			<button class="px-3 py-1.5 rounded text-sm bg-gray-400 text-white" onclick={toggleDrawing}>

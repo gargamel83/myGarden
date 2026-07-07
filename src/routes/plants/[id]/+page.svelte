@@ -246,7 +246,7 @@
 				</div>
 				<div class="flex gap-2 justify-end pt-2">
 					<button type="button" class="px-4 py-2 border rounded" onclick={() => editing = false}>Cancel</button>
-					<button type="submit" class="px-4 py-2 bg-green-600 text-white rounded">Save</button>
+					<button type="submit" class="px-4 py-2 bg-[var(--btn-bg)] text-white rounded">Save</button>
 				</div>
 			</div>
 		</form>
@@ -313,7 +313,7 @@
 							<p class="text-sm font-medium text-gray-600">Sowing</p>
 							<div class="flex gap-0.5 h-4 mt-1">
 								{#each monthsInRange(plant.sowingStart, plant.sowingEnd) as active, i}
-									<div class="flex-1 rounded {active ? 'bg-green-500' : 'bg-gray-100'}" title={monthLabels[i]}></div>
+									<div class="flex-1 rounded {active ? 'bg-[var(--bar-fill)]' : 'bg-gray-100'}" title={monthLabels[i]}></div>
 								{/each}
 							</div>
 							<div class="flex justify-between text-[10px] text-gray-400 mt-0.5">
@@ -339,7 +339,7 @@
 							<p class="text-sm font-medium text-gray-600">Harvest</p>
 							<div class="flex gap-0.5 h-4 mt-1">
 								{#each monthsInRange(plant.harvestStart, plant.harvestEnd) as active, i}
-									<div class="flex-1 rounded {active ? 'bg-amber-500' : 'bg-gray-100'}" title={monthLabels[i]}></div>
+									<div class="flex-1 rounded {active ? 'bg-[var(--bar-fill)]' : 'bg-gray-100'}" title={monthLabels[i]}></div>
 								{/each}
 							</div>
 							<div class="flex justify-between text-[10px] text-gray-400 mt-0.5">
@@ -365,10 +365,10 @@
 		<div class="mt-6 grid gap-6 md:grid-cols-2">
 			{#if companions.length > 0}
 				<div class="border rounded-lg p-4">
-					<h2 class="font-bold text-lg mb-2 text-green-700">🌱 Good companions</h2>
+					<h2 class="font-bold text-lg mb-2 text-[var(--text-primary)]">🌱 Good companions</h2>
 					<div class="flex flex-wrap gap-2">
 						{#each companions as c}
-							<a href="/plants/{c.id}" class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm hover:bg-green-200">{c.commonName}</a>
+							<a href="/plants/{c.id}" class="bg-[var(--badge-bg)] text-[var(--badge-text)] px-3 py-1 rounded-full text-sm hover:bg-[var(--badge-hover)]">{c.commonName}</a>
 						{/each}
 					</div>
 				</div>

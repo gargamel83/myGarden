@@ -93,7 +93,7 @@ import Modal from '$lib/components/Modal.svelte';
 
 <div class="space-y-6">
 	<h1 class="text-2xl font-bold">Plant knowledge base</h1>
-	<button class="bg-green-600 text-white px-4 py-2 rounded text-sm" onclick={() => showForm = true}>
+	<button class="bg-[var(--btn-bg)] text-white px-4 py-2 rounded text-sm" onclick={() => showForm = true}>
 		+ New plant
 	</button>
 
@@ -159,7 +159,7 @@ import Modal from '$lib/components/Modal.svelte';
 						{@const months = monthsInRange(plant.sowingStart, plant.sowingEnd)}
 						<div class="flex gap-0.5 h-2">
 							{#each months as active, i}
-								<div class="flex-1 rounded-sm {active ? 'bg-green-500' : 'bg-gray-100'}" title={monthLabels[i]}></div>
+								<div class="flex-1 rounded-sm {active ? 'bg-[var(--bar-fill)]' : 'bg-gray-100'}" title={monthLabels[i]}></div>
 							{/each}
 						</div>
 						<p class="text-[10px] text-gray-400">Sowing</p>
@@ -177,7 +177,7 @@ import Modal from '$lib/components/Modal.svelte';
 						{@const months = monthsInRange(plant.harvestStart, plant.harvestEnd)}
 						<div class="flex gap-0.5 h-2">
 							{#each months as active, i}
-								<div class="flex-1 rounded-sm {active ? 'bg-amber-500' : 'bg-gray-100'}" title={monthLabels[i]}></div>
+								<div class="flex-1 rounded-sm {active ? 'bg-[var(--bar-fill)]' : 'bg-gray-100'}" title={monthLabels[i]}></div>
 							{/each}
 						</div>
 						<p class="text-[10px] text-gray-400">Harvest</p>
@@ -193,7 +193,7 @@ import Modal from '$lib/components/Modal.svelte';
 
 	{#if hasMore}
 		<div class="text-center pt-4">
-			<button class="bg-green-600 text-white px-6 py-2 rounded text-sm" onclick={showMore}>
+			<button class="bg-[var(--btn-bg)] text-white px-6 py-2 rounded text-sm" onclick={showMore}>
 				Show {Math.min(PAGE_SIZE, filteredPlants.length - visibleCount)} more…
 			</button>
 		</div>
@@ -340,7 +340,7 @@ import Modal from '$lib/components/Modal.svelte';
 			</div>
 			<div class="flex gap-2 justify-end pt-2">
 				<button type="button" class="px-4 py-2 border rounded" onclick={() => showForm = false}>Cancel</button>
-				<button type="submit" class="px-4 py-2 bg-green-600 text-white rounded">Create</button>
+				<button type="submit" class="px-4 py-2 bg-[var(--btn-bg)] text-white rounded">Create</button>
 			</div>
 		</div>
 	</form>
