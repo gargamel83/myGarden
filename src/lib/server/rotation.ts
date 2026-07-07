@@ -162,9 +162,38 @@ export function getBedAdvice(soilType: string | null, sunExposure: string | null
 export async function getRotationAlerts(): Promise<RotationAlert[]> {
 	const alerts: RotationAlert[] = [];
 	const beds = db.select().from(gardenBeds).all();
+	const bedIds = beds.map(b => b.id);
+
+	// Batch load all histories in a single query
+	const allHistory = db.select({
+		bedId: plantations.gardenBedId,
+		plantId: plantations.plantId,
+		plantName: plantations.plantName,
+		status: plantations.status,
+		harvestDate: plantations.actualHarvestDate,
+		plantFamily: plants.family
+	})
+		.from(plantations)
+		.leftJoin(plants, eq(plantations.plantId, plants.id))
+		.where(inArray(plantations.gardenBedId, bedIds))
+		.orderBy(plantations.createdAt)
+		.all();
+
+	// Group by bed
+	const historiesMap: Record<number, BedPlantHistory[]> = {};
+	for (const h of allHistory) {
+		if (!historiesMap[h.bedId]) historiesMap[h.bedId] = [];
+		historiesMap[h.bedId].push({
+			plantId: h.plantId,
+			plantName: h.plantName,
+			family: h.plantFamily,
+			year: h.harvestDate ? new Date(h.harvestDate).getFullYear() : new Date().getFullYear(),
+			status: h.status
+		});
+	}
 
 	for (const bed of beds) {
-		const { history, lastFamily, recommended } = await getRotationSuggestions(bed.id);
+		const history = historiesMap[bed.id] || [];
 		const harvested = history.filter(p => p.status === 'harvested');
 
 		if (harvested.length === 0) {
@@ -172,9 +201,9 @@ export async function getRotationAlerts(): Promise<RotationAlert[]> {
 		}
 
 		const last = harvested[harvested.length - 1];
+		const families = harvested.filter(p => p.family).map(p => p.family as string);
 
 		// Check if the same family has been planted 2 times in a row
-		const families = harvested.filter(p => p.family).map(p => p.family);
 		const lastFams = families.slice(-2);
 		if (lastFams.length === 2 && lastFams[0] === lastFams[1] && lastFams[0]) {
 			alerts.push({
@@ -185,8 +214,13 @@ export async function getRotationAlerts(): Promise<RotationAlert[]> {
 				lastPlant: last.plantName,
 				lastFamily: last.family || undefined
 			});
-		} else if (lastFamily) {
-			const nextFamilies = getNextFamilySuggestions(lastFamily);
+		} else if (last.family) {
+			const nextFamilies = getNextFamilySuggestions(last.family);
+			const bannedFamilies = new Set([last.family]);
+			const allPlants = getAllPlants();
+			const recommended = allPlants.filter(p =>
+				!bannedFamilies.has(p.family || '')
+			);
 			const suggestedPlants = recommended
 				.filter(p => nextFamilies.includes(p.family || ''))
 				.slice(0, 3)
@@ -195,10 +229,10 @@ export async function getRotationAlerts(): Promise<RotationAlert[]> {
 			alerts.push({
 				bedId: bed.id,
 				bedName: bed.name,
-				message: `After ${last.plantName} (${lastFamily}), favor plants from the ${nextFamilies.join(', ')} families.`,
+				message: `After ${last.plantName} (${last.family}), favor plants from the ${nextFamilies.join(', ')} families.`,
 				type: 'info',
 				lastPlant: last.plantName,
-				lastFamily: lastFamily,
+				lastFamily: last.family,
 				suggestedPlants: suggestedPlants.length > 0 ? suggestedPlants : undefined
 			});
 		}

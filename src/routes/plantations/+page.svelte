@@ -4,6 +4,9 @@
 	import { toast } from '$lib/toast.svelte';
 	import { STATUS_LABELS, STATUS_COLORS, STATUS_BAR_COLORS } from '$lib/types';
 	import type { PlantStatus } from '$lib/types';
+	import type { SubmitFunction } from '@sveltejs/kit';
+import { firstPhoto } from '$lib/utils';
+import Modal from '$lib/components/Modal.svelte';
 
 	let { data } = $props();
 
@@ -79,15 +82,8 @@
 		}
 	});
 
-	function firstPhoto(photos: string | null): string | null {
-		try {
-			const a = JSON.parse(photos || '[]');
-			return Array.isArray(a) && a.length > 0 ? a[0] : null;
-		} catch { return null; }
-	}
-
-	function handleFormEnhance() {
-		return async ({ result }: { result: any }) => {
+	const handleFormEnhance: SubmitFunction = (_input) => {
+		return async ({ result }) => {
 			if (result.type === 'success') {
 				toast(editId ? 'Planting updated' : 'Planting created');
 				closeForm();
@@ -98,8 +94,8 @@
 		};
 	}
 
-	function handleStatusEnhance() {
-		return async ({ result }: { result: any }) => {
+	const handleStatusEnhance: SubmitFunction = (_input) => {
+		return async ({ result }) => {
 			if (result.type === 'success') {
 				toast('Status updated');
 				await invalidate('app:plantations');
@@ -107,8 +103,8 @@
 		};
 	}
 
-	function handleDeleteEnhance() {
-		return async ({ result }: { result: any }) => {
+	const handleDeleteEnhance: SubmitFunction = (_input) => {
+		return async ({ result }) => {
 			if (result.type === 'success') {
 				confirmDeleteId = null;
 				toast('Planting deleted');
@@ -370,13 +366,8 @@ Harvest: {p.plantation.harvestDate || '—'}
 </div>
 
 <!-- New plantation dialog -->
-{#if showForm}
-
-	<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-	<div class="fixed inset-0 bg-black/50 flex items-center justify-center" onkeydown={(e) => e.key === 'Escape' && closeForm()} onclick={(e) => { if (e.target === e.currentTarget) closeForm(); }} role="dialog" aria-modal="true" tabindex="-1">
-
-		<div class="bg-white rounded-lg p-6 w-96 max-h-[80vh] overflow-y-auto" role="none">
-			<form method="POST" action={editId ? '?/update' : '?/create'} use:enhance={handleFormEnhance} onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()}>
+<Modal open={showForm} onclose={closeForm} class="w-96 max-h-[80vh] overflow-y-auto">
+	<form method="POST" action={editId ? '?/update' : '?/create'} use:enhance={handleFormEnhance}>
 				{#if editId}
 					<input type="hidden" name="id" value={editId} />
 				{/if}
@@ -454,25 +445,16 @@ Harvest: {p.plantation.harvestDate || '—'}
 					</div>
 				</div>
 			</form>
+</Modal>
+
+<Modal open={!!confirmDeleteId} onclose={() => confirmDeleteId = null} class="w-80 shadow-xl">
+	<form method="POST" action="?/delete" use:enhance={handleDeleteEnhance}>
+		<input type="hidden" name="id" value={confirmDeleteId} />
+		<h3 class="font-bold text-lg mb-2">Delete planting</h3>
+		<p class="text-sm text-gray-600 mb-5">This action is irreversible.</p>
+		<div class="flex justify-end gap-2">
+			<button type="button" class="px-4 py-2 border rounded text-sm" onclick={() => confirmDeleteId = null}>Cancel</button>
+			<button type="submit" class="px-4 py-2 bg-red-600 text-white rounded text-sm">Delete</button>
 		</div>
-	</div>
-{/if}
-
-{#if confirmDeleteId}
-
-	<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-	<div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onkeydown={(e) => e.key === 'Escape' && (confirmDeleteId = null)} onclick={(e) => { if (e.target === e.currentTarget) confirmDeleteId = null; }} role="dialog" aria-modal="true" tabindex="-1">
-
-		<div class="bg-white rounded-lg p-6 w-80 shadow-xl" role="none">
-			<form method="POST" action="?/delete" use:enhance={handleDeleteEnhance} onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()}>
-				<input type="hidden" name="id" value={confirmDeleteId} />
-				<h3 class="font-bold text-lg mb-2">Delete planting</h3>
-				<p class="text-sm text-gray-600 mb-5">This action is irreversible.</p>
-				<div class="flex justify-end gap-2">
-					<button type="button" class="px-4 py-2 border rounded text-sm" onclick={() => confirmDeleteId = null}>Cancel</button>
-					<button type="submit" class="px-4 py-2 bg-red-600 text-white rounded text-sm">Delete</button>
-				</div>
-			</form>
-		</div>
-	</div>
-{/if}
+	</form>
+</Modal>

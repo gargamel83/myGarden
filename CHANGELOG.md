@@ -1,14 +1,19 @@
 # Changelog
 
-## v0.2.6
+## v0.2.7
 
-### Added
-- **Tests rotation** : 8 tests (getBedAdvice avec différents sols/expositions, rotation multi-saisons, getAllPlants)
-- **Tests notifications** : 13 tests (generateNotifications scénarios complets, getNotifications validate limite/marquage, markAllRead)
-- **Tests seed data** : 14 tests d'intégrité (58 plantes, familles valides, dates MM-DD, JSON companions/antagonists, photos URLs, valeurs contrôlées)
-- **Tests logger** : 17 tests (tous les niveaux TRACE..ERROR, file logging Docker, format JSON)
-- **Extraction seed-data** : les 58 fiches plantes sont exportées depuis `seed.ts` vers `seed-data.ts` pour testabilité sans DB
-- Total : 101 tests (+43 depuis v0.2.5)
+### Changed
+- **N+1 rotation** : `getRotationAlerts()` charge toutes les histoires en 1 requête au lieu d'une par planche
+- **Index `is_read`** sur `notifications` + migration
+- **Pragmas SQLite** : `busy_timeout = 5000` + `journal_size_limit = 4194304`
+- **`tiktoken` supprimé** des dépendances (dead weight 1.5MB)
+- **Types `any` supprimés** : LeafletMap utilise `@types/leaflet`, les enhance handlers utilisent `SubmitFunction`
+- **Types dupliqués** : `LogEntry` importé de `logger.ts`, `AppNotification` importé de `notifications.ts`
+- **Utils mutualisées** : `$lib/utils.ts` avec `monthsInRange`, `firstPhoto`, `serializeCommaSeparated`
+- **Composant `Modal.svelte`** réutilisable, utilisé dans garden, plantations, plants
+- **Labels centralisés** dans `types.ts` : `EXPOSURE_LABELS`, `SOIL_LABELS`, `WATERING_LABELS`
+- **Tests utils** : 18 tests (firstPhoto, monthsInRange, serializeCommaSeparated)
+- Total : 123 tests (+22 depuis v0.2.6)
 
 ## v0.2.5
 

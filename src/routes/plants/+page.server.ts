@@ -3,6 +3,7 @@ import { plants } from '$lib/server/db/schema';
 import { eq, like, or, and } from 'drizzle-orm';
 import { fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types.js';
+import { firstPhoto } from '$lib/utils';
 
 export const load: PageServerLoad = async ({ url, depends }) => {
 	depends('app:plants');
@@ -34,7 +35,7 @@ export const load: PageServerLoad = async ({ url, depends }) => {
 
 	const plantsWithPhotos = all.map(p => ({
 		...p,
-		firstPhoto: (() => { try { const arr = JSON.parse(p.photos || '[]'); return Array.isArray(arr) && arr.length > 0 ? arr[0] : null; } catch { return null; } })()
+		firstPhoto: firstPhoto(p.photos)
 	}));
 
 	const families = db.select({ family: plants.family })

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
 	STATUS_LABELS, STATUS_COLORS, STATUS_BAR_COLORS,
-	EXPOSURE_LABELS
+	EXPOSURE_LABELS, SOIL_LABELS, WATERING_LABELS
 } from '../types';
 
 describe('STATUS_LABELS', () => {
@@ -49,13 +49,42 @@ describe('STATUS_BAR_COLORS', () => {
 describe('EXPOSURE_LABELS', () => {
 	it('should have labels for all sun exposures', () => {
 		expect(EXPOSURE_LABELS).toEqual({
-			plein_soleil: 'Full sun',
-			mi_ombre: 'Partial shade',
-			ombre: 'Shade'
+			plein_soleil: '☀️ Full sun',
+			mi_ombre: '🌤 Partial shade',
+			ombre: '🌑 Shade'
 		});
 	});
 
 	it('should have 3 exposure labels', () => {
 		expect(Object.keys(EXPOSURE_LABELS).length).toBe(3);
+	});
+});
+
+describe('SOIL_LABELS', () => {
+	it('should have labels for all soil types', () => {
+		expect(SOIL_LABELS).toEqual({
+			riche: 'Rich (loam/manure)',
+			meuble: 'Loose (sandy-loam)',
+			lourd: 'Heavy (clay)',
+			léger: 'Light (sandy)'
+		});
+	});
+
+	it('should have 4 soil type labels', () => {
+		expect(Object.keys(SOIL_LABELS).length).toBe(4);
+	});
+});
+
+describe('WATERING_LABELS', () => {
+	it('should have labels for all watering levels', () => {
+		expect(WATERING_LABELS).toEqual({
+			faible: '💧 Low',
+			moyen: '💧💧 Medium',
+			élevé: '💧💧💧 High'
+		});
+	});
+
+	it('should have 3 watering labels', () => {
+		expect(Object.keys(WATERING_LABELS).length).toBe(3);
 	});
 });
