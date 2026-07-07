@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.2.9
+
+### Fixed
+- **Filtrage par type** : `GridCanvas` n'affiche que les planches `pixel`, `LeafletMap` n'affiche que les planches `geo` (les planches pixel n'étaient plus interprétées comme des coordonnées GPS sur la carte OSM)
+- **Rendu visuel de la grille** : traits plus fins (0.8px/1.2px), couleurs plus neutres (`#d8e0d0`/`#c8d8b8`)
+- **Remplissage des planches** : marron terre (`#d4c5a9`) au lieu de la couleur de la planche en transparence
+- **Bordures des planches** : 2px au lieu de 3px
+
+### Changed
+- `GridCanvas` et `LeafletMap` ajoutent `type` dans le type des props
+
 ## v0.2.8
 
 ### Added
