@@ -1,5 +1,6 @@
 <script lang="ts">
 	import LeafletMap from '$lib/components/LeafletMap.svelte';
+	import GridCanvas from '$lib/components/GridCanvas.svelte';
 	import { enhance } from '$app/forms';
 	import { invalidate } from '$app/navigation';
 	import { toast } from '$lib/toast.svelte';
@@ -10,113 +11,30 @@
 
 	let photos = $derived(data.photos);
 	let beds = $derived(data.beds);
-	// svelte-ignore state_referenced_locally
-	let selectedPhoto = $state(data.photos[0]?.filename || null);
-	let drawingMode = $state(false);
-	let currentPolygon = $state<[number, number][]>([]);
+	let selectedPhoto = $state<(typeof data.photos)[0] | null>(null);
 	let editingBed = $state<typeof beds[0] | null>(null);
 	let showForm = $state(false);
-	let tab = $state<'photo' | 'map'>((typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('gardenTab') as 'photo' | 'map' : null) || 'photo');
+	let showUpload = $state(true);
+
+	$effect(() => {
+		if (data.photos.length > 0 && !selectedPhoto) {
+			selectedPhoto = data.photos[0];
+			showUpload = false;
+		} else if (data.photos.length === 0) {
+			selectedPhoto = null;
+			showUpload = true;
+		}
+	});
+	let tab = $state<'plan' | 'map'>((typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('gardenTab') as 'plan' | 'map' : null) || 'plan');
 	let confirmDeleteId = $state<number | null>(null);
 	let zoomToBedId = $state<number | null>(null);
 	let showPlantations = $state<typeof data.beds[0] | null>(null);
 
-	let canvas = $state<HTMLCanvasElement | null>(null);
-	let img = $state<HTMLImageElement | null>(null);
-	let scale = $state(1);
-	let bufferCanvas = $state<HTMLCanvasElement | null>(null);
-
-	function renderBackground() {
-		if (!canvas || !img) return;
-		const w = Math.min(img.naturalWidth, 1200);
-		const h = img.naturalHeight * (w / img.naturalWidth);
-		if (!bufferCanvas || bufferCanvas.width !== w || bufferCanvas.height !== h) {
-			bufferCanvas = document.createElement('canvas');
-			bufferCanvas.width = w;
-			bufferCanvas.height = h;
-		}
-		scale = img.naturalWidth / w;
-		const bctx = bufferCanvas.getContext('2d')!;
-		bctx.drawImage(img, 0, 0, w, h);
-		for (const bed of beds) {
-			drawPolygon(bctx, JSON.parse(bed.polygon), bed.color || '#4ade80', false);
-		}
-	}
-
-	function renderOverlay() {
-		if (!canvas) return;
-		if (!bufferCanvas) { renderBackground(); if (!bufferCanvas) return; }
-		const w = bufferCanvas.width;
-		const h = bufferCanvas.height;
-		canvas.width = w;
-		canvas.height = h;
-		const ctx = canvas.getContext('2d')!;
-		ctx.drawImage(bufferCanvas, 0, 0);
-		if (currentPolygon.length > 0) {
-			drawPolygon(ctx, currentPolygon, '#fbbf24', true);
-		}
-	}
-
-	function drawCanvas() {
-		if (!canvas) return;
-		if (!bufferCanvas) renderBackground();
-		renderOverlay();
-	}
-
-	function loadImage(filename: string) {
-		selectedPhoto = filename;
-		const image = new Image();
-		image.src = `/uploads/${filename}`;
-		image.onload = () => {
-			img = image;
-			bufferCanvas = null;
-			renderBackground();
-			renderOverlay();
-		};
-	}
-
-	function drawPolygon(ctx: CanvasRenderingContext2D, pts: [number, number][], color: string, dashed: boolean) {
-		if (pts.length < 2) return;
-		ctx.beginPath();
-		ctx.moveTo(pts[0][0], pts[0][1]);
-		for (let i = 1; i < pts.length; i++) {
-			ctx.lineTo(pts[i][0], pts[i][1]);
-		}
-		if (pts.length > 2) ctx.closePath();
-		ctx.strokeStyle = color;
-		ctx.lineWidth = dashed ? 2 : 3;
-		ctx.setLineDash(dashed ? [5, 5] : []);
-		ctx.stroke();
-		if (pts.length > 2) {
-			ctx.fillStyle = color + '33';
-			ctx.fill();
-		}
-		ctx.setLineDash([]);
-	}
-
-	$effect(() => {
-		if (beds && img && bufferCanvas) {
-			renderBackground();
-			renderOverlay();
-		}
-	});
-
-	function handleCanvasClick(e: MouseEvent) {
-		if (!drawingMode) return;
-		if (!canvas) return;
-		const rect = canvas.getBoundingClientRect();
-		const x = e.clientX - rect.left;
-		const y = e.clientY - rect.top;
-		currentPolygon = [...currentPolygon, [x, y]];
-		renderOverlay();
-	}
-
-	function finishPolygon() {
-		if (currentPolygon.length < 3) return;
+	function handleSaveBed(polygon: string) {
 		editingBed = {
 			id: 0,
 			name: '',
-			polygon: JSON.stringify(currentPolygon),
+			polygon,
 			type: 'pixel',
 			color: '#4ade80',
 			soilType: null,
@@ -129,12 +47,6 @@
 			updatedAt: ''
 		};
 		showForm = true;
-	}
-
-	function cancelDrawing() {
-		currentPolygon = [];
-		drawingMode = false;
-		renderOverlay();
 	}
 
 	function zoomToBed(bed: typeof beds[0]) {
@@ -151,14 +63,12 @@
 	}
 
 	const handleSaveEnhance: SubmitFunction = (_input) => {
+		const wasEdit = !!editingBed?.id;
 		return async ({ result }) => {
 			if (result.type === 'success') {
-				const isEdit = !!editingBed?.id;
 				showForm = false;
 				editingBed = null;
-				currentPolygon = [];
-				drawingMode = false;
-				toast(isEdit ? 'Bed updated' : 'Bed created');
+				toast(wasEdit ? 'Bed updated' : 'Bed created');
 				await invalidate('app:garden');
 			} else if (result.type === 'failure') {
 				toast(result.data?.error || 'Error', 'error');
@@ -204,10 +114,6 @@
 		};
 		showForm = true;
 	}
-
-	$effect(() => {
-		if (tab === 'photo' && selectedPhoto) loadImage(selectedPhoto);
-	});
 </script>
 
 <div class="space-y-6">
@@ -218,10 +124,10 @@
 	<!-- Tab switcher -->
 	<div class="flex gap-1 border-b">
 		<button
-			class="px-4 py-2 -mb-px border-b-2 {tab === 'photo' ? 'border-green-600 text-green-700 font-medium' : 'border-transparent text-gray-500'}"
-			onclick={() => { tab = 'photo'; sessionStorage.setItem('gardenTab', 'photo'); }}
+			class="px-4 py-2 -mb-px border-b-2 {tab === 'plan' ? 'border-green-600 text-green-700 font-medium' : 'border-transparent text-gray-500'}"
+			onclick={() => { tab = 'plan'; sessionStorage.setItem('gardenTab', 'plan'); }}
 		>
-			Satellite
+			Plan
 		</button>
 		<button
 			class="px-4 py-2 -mb-px border-b-2 {tab === 'map' ? 'border-green-600 text-green-700 font-medium' : 'border-transparent text-gray-500'}"
@@ -231,65 +137,49 @@
 		</button>
 	</div>
 
-	{#if tab === 'photo'}
-		<!-- Photo upload -->
-		<form method="POST" action="?/upload" enctype="multipart/form-data" use:enhance={handleUploadEnhance} class="flex gap-3 items-end">
-			<div>
-				<label class="block text-sm text-gray-600 mb-1">
-					Satellite photo
-					<input type="file" name="photo" accept="image/*" class="block" />
-				</label>
-			</div>
-			<div>
-				<label class="block text-sm text-gray-600 mb-1">
-					Name
-					<input type="text" name="label" class="border rounded px-2 py-1" />
-				</label>
-			</div>
-			<button class="bg-blue-600 text-white px-4 py-2 rounded">Upload</button>
-		</form>
-
-		<!-- Photo selector -->
-		{#if data.photos.length > 0}
-			<div class="flex gap-2 flex-wrap">
-				{#each data.photos as photo}
-					<button
-						class="px-3 py-1 rounded text-sm {selectedPhoto === photo.filename ? 'bg-green-600 text-white' : 'bg-gray-200'}"
-						onclick={() => loadImage(photo.filename)}
-					>
-						{photo.label}
-					</button>
-				{/each}
+	{#if tab === 'plan'}
+		{#if photos.length > 0}
+			<div class="flex items-center gap-2 mb-2">
+				<button class="text-xs text-gray-500 hover:text-gray-700 underline" onclick={() => showUpload = !showUpload}>
+					{showUpload ? 'Hide' : '📷'} Photo
+				</button>
+				<div class="flex gap-1 flex-wrap">
+					{#each photos as photo}
+						<button
+							class="px-2 py-0.5 rounded text-xs {selectedPhoto?.filename === photo.filename ? 'bg-green-600 text-white' : 'bg-gray-200 hover:bg-gray-300'}"
+							onclick={() => selectedPhoto = photo}
+						>
+							{photo.label}
+						</button>
+					{/each}
+				</div>
 			</div>
 		{/if}
 
-		<!-- Canvas -->
-		<div class="relative border rounded overflow-hidden bg-gray-100">
-			{#if selectedPhoto}
-				<canvas
-					bind:this={canvas}
-					onclick={handleCanvasClick}
-					class="max-w-full cursor-crosshair"
-				></canvas>
-				{#if !drawingMode}
-					<div class="absolute top-2 left-2">
-						<button class="bg-green-600 text-white px-3 py-1 rounded text-sm" onclick={() => { drawingMode = true; currentPolygon = []; renderOverlay(); }}>
-							Add a bed
-						</button>
-					</div>
-				{:else}
-					<div class="absolute top-2 left-2 bg-black/70 text-white px-3 py-1 rounded text-sm">
-						Click to add points.
-						<button class="text-green-300 underline" onclick={finishPolygon}>Finish</button>
-						<button class="text-red-300 underline ml-2" onclick={cancelDrawing}>Cancel</button>
-					</div>
-				{/if}
-			{:else}
-				<div class="flex items-center justify-center h-48 text-gray-400 text-sm">
-					Upload a satellite photo above to start drawing beds
+		{#if showUpload}
+			<form method="POST" action="?/upload" enctype="multipart/form-data" use:enhance={handleUploadEnhance} class="flex gap-3 items-end mb-2 p-3 bg-gray-50 rounded border">
+				<div>
+					<label class="block text-xs text-gray-600 mb-1">
+						Satellite photo
+						<input type="file" name="photo" accept="image/*" class="block text-sm" />
+					</label>
 				</div>
-			{/if}
-		</div>
+				<div>
+					<label class="block text-xs text-gray-600 mb-1">
+						Name
+						<input type="text" name="label" class="border rounded px-2 py-1 text-sm" />
+					</label>
+				</div>
+				<button class="bg-blue-600 text-white px-3 py-1.5 rounded text-sm">Upload</button>
+			</form>
+		{/if}
+
+		<GridCanvas
+			beds={data.beds}
+			photoUrl={selectedPhoto ? `/uploads/${selectedPhoto.filename}` : null}
+			onSaveBed={handleSaveBed}
+			onEditBed={(id) => { const bed = beds.find(b => b.id === id); if (bed) editBed(bed); }}
+		/>
 	{:else}
 		<!-- OSM Map -->
 		<LeafletMap existingBeds={beds} onSave={onMapBed} {zoomToBedId} onEditBed={(id) => {

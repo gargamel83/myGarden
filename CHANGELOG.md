@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.2.8
+
+### Added
+- **Grid Canvas** : composant `GridCanvas.svelte` remplace le canvas photo
+  - Fond vert pâle quadrillé (1 carreau = 1m) quand pas de photo
+  - Fond photo satellite quand disponible (onglet Plan fusionné)
+  - Zoom molette et pan glisser-déposer
+  - Barre d'échelle dynamique
+- **Tab Plan** fusionné avec l'upload photo (visible via toggle)
+
+### Changed
+- `garden/+page.svelte` : onglets Plan + Carte OSM, plus de canvas inline
+- Dessin de planches fonctionne sur grille ou photo
+
 ## v0.2.7
 
 ### Changed
