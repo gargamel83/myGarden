@@ -9,7 +9,7 @@
 		onEditBed,
 		onShowBedPlantations
 	}: {
-		existingBeds?: { id: number; polygon: string; color: string | null; name: string }[]
+		existingBeds?: { id: number; polygon: string; color: string | null; name: string; type: string }[]
 		onSave?: (polygon: string) => void
 		zoomToBedId?: number | null
 		onEditBed?: (bedId: number) => void
@@ -42,7 +42,7 @@
 			attribution: '&copy; OpenStreetMap'
 		}).addTo(map);
 
-		for (const bed of existingBeds) {
+		for (const bed of existingBeds.filter(b => b.type === 'geo')) {
 			try {
 				const coords = JSON.parse(bed.polygon);
 				if (Array.isArray(coords) && coords.length > 0) {

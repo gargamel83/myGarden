@@ -12,7 +12,7 @@
 		onSaveBed,
 		onEditBed
 	}: {
-		beds?: { id: number; polygon: string; color: string | null; name: string }[]
+		beds?: { id: number; polygon: string; color: string | null; name: string; type: string }[]
 		photoUrl?: string | null
 		photoNaturalW?: number
 		photoNaturalH?: number
@@ -90,8 +90,8 @@
 		const big = step * 5;
 
 		const fx = Math.floor(sx / step) * step, fy = Math.floor(sy / step) * step;
-		ctx.strokeStyle = '#d4e8c0';
-		ctx.lineWidth = 1 / zoom;
+		ctx.strokeStyle = '#d8e0d0';
+		ctx.lineWidth = 0.8 / zoom;
 		for (let wx = fx; wx <= ex; wx += step) {
 			const px = (wx - sx) * zoom;
 			ctx.beginPath(); ctx.moveTo(px, 0); ctx.lineTo(px, h); ctx.stroke();
@@ -102,8 +102,8 @@
 		}
 
 		const bfx = Math.floor(sx / big) * big, bfy = Math.floor(sy / big) * big;
-		ctx.strokeStyle = '#b8d498';
-		ctx.lineWidth = 1.5 / zoom;
+		ctx.strokeStyle = '#c8d8b8';
+		ctx.lineWidth = 1.2 / zoom;
 		for (let wx = bfx; wx <= ex; wx += big) {
 			const px = (wx - sx) * zoom;
 			ctx.beginPath(); ctx.moveTo(px, 0); ctx.lineTo(px, h); ctx.stroke();
@@ -113,7 +113,7 @@
 			ctx.beginPath(); ctx.moveTo(0, py); ctx.lineTo(w, py); ctx.stroke();
 		}
 
-		ctx.fillStyle = '#8ba86e';
+		ctx.fillStyle = '#a0b890';
 		ctx.font = `${Math.max(10, 12 / zoom)}px sans-serif`;
 		ctx.textAlign = 'center';
 		const labelY = Math.max(14, (10 - sy) * zoom);
@@ -159,7 +159,7 @@
 		ctx.setLineDash(dashed ? [5 / zoom, 5 / zoom] : []);
 		ctx.stroke();
 		if (pts.length > 2) {
-			ctx.fillStyle = color + '26';
+			ctx.fillStyle = '#d4c5a980';
 			ctx.fill();
 		}
 		ctx.setLineDash([]);
@@ -187,23 +187,23 @@
 			ctx.save();
 			ctx.translate(ox, oy);
 			ctx.scale(s, s);
-			for (const bed of beds) {
+			for (const bed of beds.filter(b => b.type === 'pixel')) {
 				try {
 					const pts = JSON.parse(bed.polygon) as [number, number][];
-					drawPoly(ctx, pts, bed.color || '#4ade80', false, 3);
+					drawPoly(ctx, pts, bed.color || '#4ade80', false, 2);
 				} catch { /* empty */ }
 			}
-			if (currentPolygon.length > 0) drawPoly(ctx, currentPolygon, '#fbbf24', true, 2);
+		if (currentPolygon.length > 0) drawPoly(ctx, currentPolygon, '#fbbf24', true, 1.5);
 			ctx.restore();
 		} else {
 			ctx.save();
 			ctx.translate(-viewX * zoom, -viewY * zoom);
 			ctx.scale(zoom, zoom);
 			drawGridLines(ctx);
-			for (const bed of beds) {
+			for (const bed of beds.filter(b => b.type === 'pixel')) {
 				try {
 					const pts = JSON.parse(bed.polygon) as [number, number][];
-					drawPoly(ctx, pts, bed.color || '#4ade80', false, 3 / zoom);
+					drawPoly(ctx, pts, bed.color || '#4ade80', false, 2 / zoom);
 				} catch { /* empty */ }
 			}
 			if (currentPolygon.length > 0) drawPoly(ctx, currentPolygon, '#fbbf24', true, 2 / zoom);
@@ -285,6 +285,26 @@
 	}
 
 	function startDrawing() { drawing = true; currentPolygon = []; }
+
+	function zoomIn() {
+		if (photoLoaded) return;
+		const { w, h } = getSize();
+		const cx = w / 2, cy = h / 2;
+		const wx = cx / zoom + viewX, wy = cy / zoom + viewY;
+		zoom = Math.min(50, zoom * 1.4);
+		viewX = wx - cx / zoom; viewY = wy - cy / zoom;
+		schedule();
+	}
+
+	function zoomOut() {
+		if (photoLoaded) return;
+		const { w, h } = getSize();
+		const cx = w / 2, cy = h / 2;
+		const wx = cx / zoom + viewX, wy = cy / zoom + viewY;
+		zoom = Math.max(0.1, zoom / 1.4);
+		viewX = wx - cx / zoom; viewY = wy - cy / zoom;
+		schedule();
+	}
 </script>
 
 <div bind:this={container} class="relative border rounded overflow-hidden" style="height: 65vh; min-height: 400px;">
@@ -305,7 +325,7 @@
 			<button class="bg-green-600 text-white px-3 py-1 rounded text-sm shadow hover:bg-green-700" onclick={startDrawing}>
 				+ Add a bed
 			</button>
-			{#each beds as bed}
+			{#each beds.filter(b => b.type === 'pixel') as bed}
 				{#if bed.id}
 					<button
 						class="px-2 py-1 rounded text-xs shadow hover:bg-gray-100 bg-white/80"
@@ -328,6 +348,10 @@
 	{#if !photoLoaded}
 		<div class="absolute bottom-1 left-2 text-[10px] text-gray-400 pointer-events-none select-none">
 			Scroll to zoom · Drag to pan
+		</div>
+		<div class="absolute top-2 right-2 flex flex-col gap-1">
+			<button class="w-8 h-8 bg-white/80 hover:bg-white rounded shadow flex items-center justify-center text-lg font-bold leading-none select-none" onclick={zoomIn} title="Zoom in">+</button>
+			<button class="w-8 h-8 bg-white/80 hover:bg-white rounded shadow flex items-center justify-center text-lg font-bold leading-none select-none" onclick={zoomOut} title="Zoom out">−</button>
 		</div>
 	{/if}
 </div>
