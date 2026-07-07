@@ -179,6 +179,7 @@
 		return async ({ result }: { result: any }) => {
 			if (result.type === 'success') {
 				toast('Photo added');
+				await invalidate('app:garden');
 			}
 		};
 	}
@@ -262,22 +263,28 @@
 
 		<!-- Canvas -->
 		<div class="relative border rounded overflow-hidden bg-gray-100">
-			<canvas
-				bind:this={canvas}
-				onclick={handleCanvasClick}
-				class="max-w-full cursor-crosshair"
-			></canvas>
-			{#if !drawingMode}
-				<div class="absolute top-2 left-2">
-					<button class="bg-green-600 text-white px-3 py-1 rounded text-sm" onclick={() => { drawingMode = true; currentPolygon = []; renderOverlay(); }}>
-						Add a bed
-					</button>
-				</div>
+			{#if selectedPhoto}
+				<canvas
+					bind:this={canvas}
+					onclick={handleCanvasClick}
+					class="max-w-full cursor-crosshair"
+				></canvas>
+				{#if !drawingMode}
+					<div class="absolute top-2 left-2">
+						<button class="bg-green-600 text-white px-3 py-1 rounded text-sm" onclick={() => { drawingMode = true; currentPolygon = []; renderOverlay(); }}>
+							Add a bed
+						</button>
+					</div>
+				{:else}
+					<div class="absolute top-2 left-2 bg-black/70 text-white px-3 py-1 rounded text-sm">
+						Click to add points.
+						<button class="text-green-300 underline" onclick={finishPolygon}>Finish</button>
+						<button class="text-red-300 underline ml-2" onclick={cancelDrawing}>Cancel</button>
+					</div>
+				{/if}
 			{:else}
-				<div class="absolute top-2 left-2 bg-black/70 text-white px-3 py-1 rounded text-sm">
-					Click to add points.
-					<button class="text-green-300 underline" onclick={finishPolygon}>Finish</button>
-					<button class="text-red-300 underline ml-2" onclick={cancelDrawing}>Cancel</button>
+				<div class="flex items-center justify-center h-48 text-gray-400 text-sm">
+					Upload a satellite photo above to start drawing beds
 				</div>
 			{/if}
 		</div>

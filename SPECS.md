@@ -127,3 +127,83 @@ Web application for managing a vegetable garden.
 - No DB schema modification (no migration generated)
 - Logger writes to stdout AND `/app/data/logs/app.log` (in Docker) or `/app/data/logs/error.log` for errors
 - Modal close pattern: `e.target === e.currentTarget` check (no `stopPropagation` on inner div), `role="none"` on inner containers
+
+---
+
+### Session 3 (Iterations 3-6 — v0.1.1 to v0.2.4)
+- **Date** : June 11 — July 7, 2026
+- **Agent** : opencode CLI
+- **Model** : big-pickle (opencode/big-pickle)
+- **Branch** : `main` (feature branches merged via PRs)
+
+---
+
+## v0.1.1 — Tests, CI & Fixes
+
+| # | Feature | Modified Files |
+|---|---------|----------------|
+| 1 | **Vitest setup** — 44 tests (unitaires + intégration DB) | `vitest.config.ts`, `src/__tests__/*` |
+| 2 | **CI GitHub Actions** — `ci.yml` avec `check` + `test` + `build` | `.github/workflows/ci.yml` |
+| 3 | **Fix filtre plantes** — remplace `window.location.href` par `goto()` | `plants/+page.svelte` |
+| 4 | **Fix suppression plante** — `redirect` → retour `success` + navigation client | `plants/[id]/+page.server.ts` |
+| 5 | **Fix type de sol** — uniformisé en `<select>` avec valeurs contraintes | `garden/+page.svelte` |
+| 6 | **Fix TypeScript** — 7 erreurs typecheck (`string` → `PlantStatus`) | `lib/types.ts`, `+page.svelte` |
+
+## v0.2.0 — Logger Amélioré & Performance
+
+### Logger
+| # | Feature | Modified Files |
+|---|---------|----------------|
+| 1 | **Seuil `LOG_LEVEL`** — TRACE..ERROR configurable via `.env` | `lib/server/logger.ts` |
+| 2 | **Format JSON** — `LOG_FORMAT=json` pour parsing machine | `lib/server/logger.ts` |
+| 3 | **Ring buffer** — 1000 entrées, `getLogs()` pour API | `lib/server/logger.ts` |
+| 4 | **API `/api/log`** — retourne les logs, filtre `?level=` | `routes/api/log/+page.server.ts` |
+| 5 | **LogPanel UI** — accessible depuis nav, filtrage niveau, auto-scroll, polling 2s | `lib/components/LogPanel.svelte` |
+| 6 | **Types `LogLevel` / `LOG_LEVELS`** — partagés client/serveur | `lib/types.ts` |
+
+### Performance
+| # | Feature | Modified Files |
+|---|---------|----------------|
+| 7 | **Indexes DB** — 6 indexes (`plants.family`, `plants.common_name`, `plants.sun_exposure`, `plantations.garden_bed_id`, `plantations.plant_id`, `plantations.status`) | `db/schema.ts`, migration |
+| 8 | **`loading="lazy"`** — toutes les images (liste plantes, galerie, lightbox, plantations) | Tous les templates |
+| 9 | **N+1 dashboard** — `inArray()` remplace les requêtes per-plant (∼58 → 1) | `routes/+page.server.ts` |
+| 10 | **N+1 jardin** — historique planches chargé en batch | `routes/garden/+page.server.ts` |
+| 11 | **N+1 rotation** — `getAllPlants()` mis en cache (module-level) | `lib/server/rotation.ts` |
+| 12 | **Pagination plantes** — `PAGE_SIZE=20`, bouton "Show more" | `plants/+page.svelte` |
+| 13 | **JSON.parse serveur** — photos parsées côté serveur dans `load()` | `plants/[id]/+page.server.ts` |
+| 14 | **Clés `{#each}`** — sur toutes les listes principales | Dashboard, plantations |
+
+## v0.2.1 — Statistiques Avancées
+
+| # | Feature | Modified Files |
+|---|---------|----------------|
+| 1 | **Taux de réussite** — ratio plantations récoltées / totales | `routes/+page.server.ts`, `+page.svelte` |
+| 2 | **Durée cycle moyenne** — jours entre semis et récolte | `routes/+page.server.ts` |
+| 3 | **Histogramme plantations/mois** — répartition annuelle | `routes/+page.svelte` |
+| 4 | **Distribution par famille botanique** — proportion des familles plantées | `routes/+page.server.ts` |
+| 5 | **Utilisation des planches par année** — heatmap des planches occupées | `routes/+page.server.ts` |
+
+## v0.2.2 — Cache & Resize Images
+
+| # | Feature | Modified Files |
+|---|---------|----------------|
+| 1 | **Resize WebP** — uploads convertis en 1600×1200 (quality 80) via `sharp` | `lib/server/images.ts`, `routes/garden/+page.server.ts` |
+| 2 | **Cache headers** — `Cache-Control: public, max-age=86400, immutable` sur `/uploads/` | `hooks.server.ts` |
+| 3 | **Tests resize** — 5 nouveaux tests (cache headers + sharp) | `src/__tests__/*` |
+
+## v0.2.3 — Notifications
+
+| # | Feature | Modified Files |
+|---|---------|----------------|
+| 1 | **4 types de notification** — `sowing` (semis à venir), `harvest` (récolte), `rotation` (alerte rotation), `stale` (plantation planifiée depuis >14j sans action) | `lib/server/notifications.ts` |
+| 2 | **API notifications** — `GET /api/notifications` (génération + liste), `POST /api/notifications/[id]/read`, `POST /api/notifications/read-all` | `routes/api/notifications/*` |
+| 3 | **UI cloche** — badge compteur dans nav, dropdown 20 dernières, marquage individuel/tout lu | `lib/components/NotificationBell.svelte`, `routes/+layout.svelte` |
+| 4 | **Persistance DB** — table `notifications`, contrainte unique (type + plantation_id), limite 20 en dropdown | `db/schema.ts`, migration |
+| 5 | **Tests notifications** — 4 tests (insertion, contrainte unique, marquage lu, limite 20) | `src/__tests__/*` |
+
+## v0.2.4 — Pagination Plantations & Canvas Double Buffer
+
+| # | Feature | Modified Files |
+|---|---------|----------------|
+| 1 | **Pagination plantations** — `PAGE_SIZE=30`, bouton "Show more" dans la vue liste, calendrier conserve toutes les données | `routes/plantations/+page.svelte` |
+| 2 | **Canvas double buffer** — `OffscreenCanvas` pour le fond (image satellite + planches), overlay seul redessiné au clic, `$effect` réactif | `routes/garden/+page.svelte` |

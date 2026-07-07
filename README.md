@@ -2,6 +2,8 @@
 
 Web application for managing a vegetable garden — cultivation beds, plantings, crop rotation, plant knowledge base.
 
+> **Version** : 0.2.4 — [CHANGELOG](CHANGELOG.md)
+
 ---
 
 ## Specifications
@@ -12,9 +14,10 @@ Web application for managing a vegetable garden — cultivation beds, plantings,
 |---|---|
 | **Garden organization** | Upload satellite photo or interactive OSM map ; canvas double buffer for smooth polygon drawing ; each bed has: name, dimensions, orientation, soil type, exposure |
 | **Planting management** | CRUD linked to a bed ; sowing → transplanting → harvesting cycles ; visual calendar (all data) ; paginated list (30/page) ; per-bed history |
+| **Notifications** | 🔔 bell in navbar with count badge, dropdown of latest 20, mark read individually or all, 4 types (sowing, harvest, rotation, stale) |
 | **Plant knowledge base** | 58 pre-filled sheets (periods, exposure, soil, companion planting, photos) ; search and filters ; detail pages with advice |
 | **Crop rotation** | Suggestions based on bed history ; botanical families ; alerts if rotation is too short |
-| **Dashboard** | Seasonal overview ; sowing/harvest alerts ; statistics (beds, plantings, sheets) |
+| **Dashboard** | Seasonal overview ; sowing/harvest alerts ; advanced statistics (success rate, cycle duration, monthly histogram, family distribution) |
 
 ### Stack
 

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import { invalidate, goto } from '$app/navigation';
+	import { invalidate } from '$app/navigation';
 	import { toast } from '$lib/toast.svelte';
 
 	let { data, form } = $props();
@@ -16,8 +16,16 @@
 
 	const PAGE_SIZE = 20;
 	let visibleCount = $state(PAGE_SIZE);
-	let plants = $derived(data.plants.slice(0, visibleCount));
-	let hasMore = $derived(visibleCount < data.plants.length);
+	let filteredPlants = $derived(
+		data.plants.filter(p => {
+			if (search && !p.commonName.toLowerCase().includes(search.toLowerCase()) && !p.latinName?.toLowerCase().includes(search.toLowerCase())) return false;
+			if (family && p.family !== family) return false;
+			if (exposure && p.sunExposure !== exposure) return false;
+			return true;
+		})
+	);
+	let visiblePlants = $derived(filteredPlants.slice(0, visibleCount));
+	let hasMore = $derived(visibleCount < filteredPlants.length);
 
 	function showMore() {
 		visibleCount += PAGE_SIZE;
@@ -39,15 +47,6 @@
 	let formRowSpacing = $state('');
 	let formCompanions = $state('');
 	let formAntagonists = $state('');
-
-	function filterUrl() {
-		const params = new URLSearchParams();
-		if (search) params.set('q', search);
-		if (family) params.set('family', family);
-		if (exposure) params.set('exposure', exposure);
-		const qs = params.toString();
-		goto(qs ? `/plants?${qs}` : '/plants');
-	}
 
 	function handleCreateEnhance() {
 		return async ({ result, formData }: { result: any; formData: FormData }) => {
@@ -117,32 +116,31 @@
 			bind:value={search}
 			placeholder="Search for a plant..."
 			class="border rounded px-3 py-2 flex-1 min-w-[200px]"
-			onkeydown={(e) => e.key === 'Enter' && filterUrl()}
-		/>
-		<select bind:value={family} class="border rounded px-3 py-2" onchange={filterUrl}>
+			/>
+		<select bind:value={family} class="border rounded px-3 py-2">
 			<option value="">All families</option>
 			{#each data.families as f}
 				<option value={f}>{f}</option>
 			{/each}
 		</select>
-		<select bind:value={exposure} class="border rounded px-3 py-2" onchange={filterUrl}>
+		<select bind:value={exposure} class="border rounded px-3 py-2">
 			<option value="">Any exposure</option>
 			<option value="plein_soleil">Full sun</option>
 			<option value="mi_ombre">Partial shade</option>
 			<option value="ombre">Shade</option>
 		</select>
-		<button class="bg-gray-200 px-4 py-2 rounded" onclick={() => { search = ''; family = ''; exposure = ''; filterUrl(); }}>
+		<button class="bg-gray-200 px-4 py-2 rounded" onclick={() => { search = ''; family = ''; exposure = ''; visibleCount = PAGE_SIZE; }}>
 			Reset
 		</button>
 	</div>
 
 	<!-- Grid -->
-	{#if data.plants.length === 0}
+	{#if filteredPlants.length === 0}
 		<p class="text-gray-500 text-center py-8">No plants found.</p>
 	{/if}
 
 	<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-		{#each plants as plant (plant.id)}
+		{#each visiblePlants as plant (plant.id)}
 			<a href="/plants/{plant.id}" class="border rounded-lg p-4 hover:shadow-lg transition block">
 				{#if plant.firstPhoto}
 					<img src={plant.firstPhoto} alt="" loading="lazy" class="w-full h-28 object-cover rounded mb-3" />
@@ -208,7 +206,7 @@
 	{#if hasMore}
 		<div class="text-center pt-4">
 			<button class="bg-green-600 text-white px-6 py-2 rounded text-sm" onclick={showMore}>
-				Show {Math.min(PAGE_SIZE, data.plants.length - visibleCount)} more…
+				Show {Math.min(PAGE_SIZE, filteredPlants.length - visibleCount)} more…
 			</button>
 		</div>
 	{/if}

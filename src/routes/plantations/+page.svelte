@@ -72,6 +72,13 @@
 		showForm = true;
 	}
 
+	$effect(() => {
+		if (formPlantId) {
+			const plant = data.plants.find(p => String(p.id) === formPlantId);
+			if (plant) formPlantName = plant.commonName;
+		}
+	});
+
 	function firstPhoto(photos: string | null): string | null {
 		try {
 			const a = JSON.parse(photos || '[]');

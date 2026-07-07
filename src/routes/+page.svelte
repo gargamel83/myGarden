@@ -135,7 +135,7 @@
 	{/if}
 
 	<!-- Advanced statistics -->
-	{#if data.advanced}
+	{#if data.advanced && (data.advanced.successRate > 0 || data.advanced.completedCycles > 0 || (data.advanced.plantationsByMonth && data.advanced.plantationsByMonth.some((m: any) => m.count > 0)) || (data.advanced.familyDistribution && data.advanced.familyDistribution.length > 0) || (data.advanced.bedUtilization && data.advanced.bedUtilization.some((b: any) => b.occupiedMonths > 0)))}
 		{@const a = data.advanced}
 		<div class="border rounded-lg p-4">
 			<h2 class="font-bold text-lg mb-3">📊 Advanced statistics</h2>

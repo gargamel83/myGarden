@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.2.5
+
+### Fixed
+- **Antagonistes plantes** : remplace le lookup par nom exact par une correspondance floue (`startsWith`) — "Chou" trouve maintenant "Chou cabus" au lieu d'être silencieusement ignoré
+- **Upload photo satellite** : ajout de `invalidate('app:garden')` dans le callback `use:enhance` — le sélecteur de photo s'affiche immédiatement après upload sans refresh manuel
+- **Filtres plantes** : remplace `goto()` par un filtrage client réactif (`$derived`) — plus de perte de l'état "Show more" au changement de filtre
+- **Plant name auto-rempli** : un `$effect` synchronise le champ "Plant name" avec la sélection du menu déroulant des plantes dans le formulaire de plantations
+- **Canvas zone vide** : affiche un message d'invite "Upload a satellite photo above" quand aucune photo n'est sélectionnée
+- **Stats avancées** : la section est masquée quand toutes les valeurs sont à zéro (aucune donnée)
+
 ## v0.2.4
 
 ### Added

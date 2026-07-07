@@ -21,15 +21,21 @@ export const load: PageServerLoad = async ({ params, depends }) => {
 		const companionIds = plant.companions ? JSON.parse(plant.companions) : [];
 		const antagonistIds = plant.antagonists ? JSON.parse(plant.antagonists) : [];
 
+		const allPlants = db.select().from(plants).all();
+
+		function lookupNames(names: string[]): typeof plants.$inferSelect[] {
+			return names.map(name => {
+				const exact = allPlants.find(p => p.commonName === name);
+				if (exact) return exact;
+				return allPlants.find(p => p.commonName.startsWith(name));
+			}).filter((p): p is typeof plants.$inferSelect => p !== undefined);
+		}
+
 		if (companionIds.length > 0) {
-			companions = db.select().from(plants)
-				.where(inArray(plants.commonName, companionIds))
-				.all();
+			companions = lookupNames(companionIds);
 		}
 		if (antagonistIds.length > 0) {
-			antagonists = db.select().from(plants)
-				.where(inArray(plants.commonName, antagonistIds))
-				.all();
+			antagonists = lookupNames(antagonistIds);
 		}
 	} catch { /* silent */ }
 
