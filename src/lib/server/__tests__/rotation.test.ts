@@ -1,4 +1,21 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+vi.mock('../db', () => ({
+	db: {
+		select: vi.fn(() => ({
+			from: vi.fn(() => ({
+				all: vi.fn(() => [
+					{ id: 1, commonName: 'Tomate', family: 'Solanaceae', sunExposure: 'plein_soleil', soilType: 'riche' },
+					{ id: 2, commonName: 'Laitue', family: 'Asteraceae', sunExposure: 'mi_ombre', soilType: 'meuble' },
+					{ id: 3, commonName: 'Épinard', family: 'Chenopodiaceae', sunExposure: 'ombre', soilType: 'riche' },
+					{ id: 4, commonName: 'Carotte', family: 'Apiaceae', sunExposure: 'plein_soleil', soilType: 'léger' },
+					{ id: 5, commonName: 'Fraisier', family: 'Rosaceae', sunExposure: 'plein_soleil', soilType: null },
+				])
+			}))
+		}))
+	}
+}));
+
 import { FAMILY_ROTATION_GAP, getNextFamilySuggestions } from '../rotation';
 
 describe('FAMILY_ROTATION_GAP', () => {
@@ -97,5 +114,97 @@ describe('getNextFamilySuggestions', () => {
 		expect(suggestions).toContain('Cucurbitaceae');
 		expect(suggestions).toContain('Brassicaceae');
 		expect(suggestions).toContain('Chenopodiaceae');
+	});
+});
+
+describe('getBedAdvice', () => {
+	beforeEach(() => {
+		vi.resetModules();
+		vi.clearAllMocks();
+	});
+
+	it('should return all plants when both params are null', async () => {
+		const { getBedAdvice } = await import('../rotation');
+		const result = getBedAdvice(null, null);
+		expect(result).toHaveLength(5);
+	});
+
+	it('should filter by plein_soleil and include compatible mi_ombre', async () => {
+		const { getBedAdvice } = await import('../rotation');
+		const result = getBedAdvice(null, 'plein_soleil');
+		const names = result.map(p => p.commonName);
+		expect(names).toContain('Tomate');
+		expect(names).toContain('Laitue');
+		expect(names).toContain('Carotte');
+		expect(names).toContain('Fraisier');
+		expect(names).not.toContain('Épinard');
+	});
+
+	it('should filter by ombre and include compatible mi_ombre', async () => {
+		const { getBedAdvice } = await import('../rotation');
+		const result = getBedAdvice(null, 'ombre');
+		const names = result.map(p => p.commonName);
+		expect(names).toContain('Laitue');
+		expect(names).toContain('Épinard');
+		expect(names).not.toContain('Tomate');
+		expect(names).not.toContain('Carotte');
+		expect(names).not.toContain('Fraisier');
+	});
+
+	it('should filter by soil type riche', async () => {
+		const { getBedAdvice } = await import('../rotation');
+		const result = getBedAdvice('riche', null);
+		const names = result.map(p => p.commonName);
+		expect(names).toContain('Tomate');
+		expect(names).toContain('Épinard');
+		expect(names).toContain('Fraisier');
+		expect(names).not.toContain('Laitue');
+		expect(names).not.toContain('Carotte');
+	});
+
+	it('should apply both soil and sun filters together', async () => {
+		const { getBedAdvice } = await import('../rotation');
+		const result = getBedAdvice('riche', 'plein_soleil');
+		const names = result.map(p => p.commonName);
+		expect(names).toContain('Tomate');
+		expect(names).toContain('Fraisier');
+		expect(names).not.toContain('Épinard');
+		expect(names).not.toContain('Laitue');
+		expect(names).not.toContain('Carotte');
+	});
+
+	it('should not filter out plants with null soilType', async () => {
+		const { getBedAdvice } = await import('../rotation');
+		const result = getBedAdvice('léger', null);
+		const names = result.map(p => p.commonName);
+		expect(names).toContain('Carotte');
+		expect(names).toContain('Fraisier');
+		expect(names).not.toContain('Tomate');
+		expect(names).not.toContain('Laitue');
+		expect(names).not.toContain('Épinard');
+	});
+});
+
+describe('getAllPlants', () => {
+	beforeEach(() => {
+		vi.resetModules();
+		vi.clearAllMocks();
+	});
+
+	it('should return plants from DB', async () => {
+		const { getAllPlants } = await import('../rotation');
+		const result = getAllPlants();
+		expect(result).toHaveLength(5);
+		expect(result[0].commonName).toBe('Tomate');
+	});
+
+	it('should cache result after first call', async () => {
+		const { getAllPlants } = await import('../rotation');
+		const { db } = await import('../db');
+
+		getAllPlants();
+		getAllPlants();
+
+		expect(db.select).toHaveBeenCalledTimes(1);
 	});
 });

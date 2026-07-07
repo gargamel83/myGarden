@@ -1,4 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { mkdtempSync, readFileSync, rmSync, existsSync } from 'fs';
+import { join } from 'path';
+import { tmpdir } from 'os';
 
 beforeEach(() => {
 	vi.resetModules();
@@ -99,5 +102,123 @@ describe('ring buffer', () => {
 		logger.info('msg');
 		const all = getLogs();
 		expect(all.length).toBeGreaterThan(0);
+	});
+});
+
+describe('parseLevel', () => {
+	it('should show TRACE messages when LOG_LEVEL=TRACE', async () => {
+		vi.stubEnv('LOG_LEVEL', 'TRACE');
+		const spy = vi.spyOn(console, 'log').mockImplementation(() => {});
+		const { logger } = await import('../logger');
+		logger.trace('trace msg');
+		expect(spy).toHaveBeenCalled();
+		spy.mockRestore();
+		vi.unstubAllEnvs();
+	});
+
+	it('should suppress INFO when LOG_LEVEL=ERROR', async () => {
+		vi.stubEnv('LOG_LEVEL', 'ERROR');
+		const spyLog = vi.spyOn(console, 'log').mockImplementation(() => {});
+		const spyWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		const spyError = vi.spyOn(console, 'error').mockImplementation(() => {});
+		const { logger } = await import('../logger');
+		logger.info('info');
+		logger.warn('warn');
+		logger.error('error');
+		expect(spyLog).not.toHaveBeenCalled();
+		expect(spyWarn).not.toHaveBeenCalled();
+		expect(spyError).toHaveBeenCalled();
+		spyLog.mockRestore();
+		spyWarn.mockRestore();
+		spyError.mockRestore();
+		vi.unstubAllEnvs();
+	});
+
+	it('should suppress DEBUG when LOG_LEVEL=INFO', async () => {
+		vi.stubEnv('LOG_LEVEL', 'INFO');
+		const spy = vi.spyOn(console, 'log').mockImplementation(() => {});
+		const { logger } = await import('../logger');
+		logger.debug('debug msg');
+		logger.info('info msg');
+		const calls = spy.mock.calls.map(c => c[0]);
+		expect(calls.some((c: string) => c.includes('info msg'))).toBe(true);
+		expect(calls.some((c: string) => c.includes('debug msg'))).toBe(false);
+		spy.mockRestore();
+		vi.unstubAllEnvs();
+	});
+
+	it('should only show WARN and ERROR when LOG_LEVEL=WARN', async () => {
+		vi.stubEnv('LOG_LEVEL', 'WARN');
+		const spyLog = vi.spyOn(console, 'log').mockImplementation(() => {});
+		const spyWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		const spyError = vi.spyOn(console, 'error').mockImplementation(() => {});
+		const { logger } = await import('../logger');
+		logger.info('info');
+		logger.warn('warn');
+		logger.error('error');
+		expect(spyLog).not.toHaveBeenCalled();
+		expect(spyWarn).toHaveBeenCalled();
+		expect(spyError).toHaveBeenCalled();
+		spyLog.mockRestore();
+		spyWarn.mockRestore();
+		spyError.mockRestore();
+		vi.unstubAllEnvs();
+	});
+});
+
+describe('file logging', () => {
+	it('should write to app.log and error.log for ERROR', async () => {
+		const tmpDir = mkdtempSync(join(tmpdir(), 'logger-test-'));
+		vi.stubEnv('NODE_ENV', 'production');
+		vi.stubEnv('LOG_DIR', tmpDir);
+		const { logger } = await import('../logger');
+		logger.error('test error');
+		const appLog = readFileSync(join(tmpDir, 'app.log'), 'utf8');
+		const errorLog = readFileSync(join(tmpDir, 'error.log'), 'utf8');
+		expect(appLog).toContain('test error');
+		expect(errorLog).toContain('test error');
+		rmSync(tmpDir, { recursive: true, force: true });
+		vi.unstubAllEnvs();
+	});
+
+	it('should only write to app.log for WARN (not error.log)', async () => {
+		const tmpDir = mkdtempSync(join(tmpdir(), 'logger-test-'));
+		vi.stubEnv('NODE_ENV', 'production');
+		vi.stubEnv('LOG_DIR', tmpDir);
+		const { logger } = await import('../logger');
+		logger.warn('test warn');
+		const appLog = readFileSync(join(tmpDir, 'app.log'), 'utf8');
+		expect(appLog).toContain('test warn');
+		expect(existsSync(join(tmpDir, 'error.log'))).toBe(false);
+		rmSync(tmpDir, { recursive: true, force: true });
+		vi.unstubAllEnvs();
+	});
+
+	it('should create log directory if missing', async () => {
+		const baseDir = mkdtempSync(join(tmpdir(), 'logger-test-'));
+		const logDir = join(baseDir, 'nested', 'logs');
+		vi.stubEnv('NODE_ENV', 'production');
+		vi.stubEnv('LOG_DIR', logDir);
+		const { logger } = await import('../logger');
+		logger.info('test');
+		const appLog = readFileSync(join(logDir, 'app.log'), 'utf8');
+		expect(appLog).toContain('test');
+		rmSync(baseDir, { recursive: true, force: true });
+		vi.unstubAllEnvs();
+	});
+});
+
+describe('formatJson', () => {
+	it('should include data field in JSON output when provided', async () => {
+		vi.stubEnv('LOG_FORMAT', 'json');
+		const spy = vi.spyOn(console, 'log').mockImplementation(() => {});
+		const { logger } = await import('../logger');
+		logger.info('with data', { key: 'value' });
+		const call = spy.mock.calls[0][0] as string;
+		const parsed = JSON.parse(call);
+		expect(parsed.message).toBe('with data');
+		expect(parsed.data).toEqual({ key: 'value' });
+		spy.mockRestore();
+		vi.unstubAllEnvs();
 	});
 });
