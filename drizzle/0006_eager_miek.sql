@@ -1,0 +1,1 @@
+CREATE INDEX `idx_notifications_is_read` ON `notifications` (`is_read`);

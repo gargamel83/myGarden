@@ -43,6 +43,13 @@
       "when": 1781811821451,
       "tag": "0005_parallel_storm",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1783447381192,
+      "tag": "0006_eager_miek",
+      "breakpoints": true
     }
   ]
 }

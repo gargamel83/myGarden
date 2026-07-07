@@ -3,6 +3,9 @@
 	import { invalidate, goto } from '$app/navigation';
 	import { toast } from '$lib/toast.svelte';
 	import Lightbox from '$lib/components/Lightbox.svelte';
+	import type { SubmitFunction } from '@sveltejs/kit';
+	import { EXPOSURE_LABELS, SOIL_LABELS, WATERING_LABELS, type SunExposure, type SoilType, type Watering } from '$lib/types';
+	import { monthsInRange, serializeCommaSeparated } from '$lib/utils';
 
 	let { data } = $props();
 
@@ -58,40 +61,10 @@
 		if (plant.antagonists) editAntagonists = JSON.parse(plant.antagonists).join(', ');
 	} catch {}
 
-	const exposureLabels: Record<string, string> = {
-		plein_soleil: '☀️ Full sun',
-		mi_ombre: '🌤 Partial shade',
-		ombre: '🌑 Shade'
-	};
-
-	const soilLabels: Record<string, string> = {
-		riche: 'Rich (loam/manure)',
-		meuble: 'Loose (sandy-loam)',
-		lourd: 'Heavy (clay)',
-		léger: 'Light (sandy)'
-	};
-
-	const wateringLabels: Record<string, string> = {
-		faible: '💧 Low',
-		moyen: '💧💧 Medium',
-		élevé: '💧💧💧 High'
-	};
-
 	const monthLabels = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
 
-	function monthsBetween(start: string | null, end: string | null): boolean[] {
-		if (!start || !end) return [];
-		const s = parseInt(start.split('-')[0], 10);
-		const e = parseInt(end.split('-')[0], 10);
-		return monthLabels.map((_, m) => {
-			const month = m + 1;
-			if (e >= s) return month >= s && month <= e;
-			return month >= s || month <= e;
-		});
-	}
-
-	function handleUpdateEnhance() {
-		return async ({ result, formData }: { result: any; formData: FormData }) => {
+	const handleUpdateEnhance: SubmitFunction = (_input) => {
+		return async ({ result, formData }) => {
 			if (result.type === 'success') {
 				editing = false;
 				toast('Plant updated');
@@ -103,8 +76,8 @@
 		};
 	}
 
-	function handleDeleteEnhance() {
-		return async ({ result }: { result: any }) => {
+	const handleDeleteEnhance: SubmitFunction = (_input) => {
+		return async ({ result }) => {
 			if (result.type === 'success') {
 				toast('Plant deleted');
 				await goto('/plants');
@@ -112,16 +85,16 @@
 		};
 	}
 
-	function onPlantSubmit({ formData }: { formData: FormData }) {
+	const onPlantSubmit: SubmitFunction = ({ formData }) => {
 		const companions = formData.get('companions') as string;
 		const antagonists = formData.get('antagonists') as string;
 		if (companions) {
-			formData.set('companions', JSON.stringify(companions.split(',').map(s => s.trim()).filter(Boolean)));
+			formData.set('companions', serializeCommaSeparated(companions));
 		}
 		if (antagonists) {
-			formData.set('antagonists', JSON.stringify(antagonists.split(',').map(s => s.trim()).filter(Boolean)));
+			formData.set('antagonists', serializeCommaSeparated(antagonists));
 		}
-		return async ({ result }: { result: any }) => {
+		return async ({ result }) => {
 			if (result.type === 'success') {
 				editing = false;
 				toast('Plant updated');
@@ -339,7 +312,7 @@
 						<div>
 							<p class="text-sm font-medium text-gray-600">Sowing</p>
 							<div class="flex gap-0.5 h-4 mt-1">
-								{#each monthsBetween(plant.sowingStart, plant.sowingEnd) as active, i}
+								{#each monthsInRange(plant.sowingStart, plant.sowingEnd) as active, i}
 									<div class="flex-1 rounded {active ? 'bg-green-500' : 'bg-gray-100'}" title={monthLabels[i]}></div>
 								{/each}
 							</div>
@@ -352,7 +325,7 @@
 						<div>
 							<p class="text-sm font-medium text-gray-600">Transplanting</p>
 							<div class="flex gap-0.5 h-4 mt-1">
-								{#each monthsBetween(plant.plantingStart, plant.plantingEnd) as active, i}
+								{#each monthsInRange(plant.plantingStart, plant.plantingEnd) as active, i}
 									<div class="flex-1 rounded {active ? 'bg-blue-500' : 'bg-gray-100'}" title={monthLabels[i]}></div>
 								{/each}
 							</div>
@@ -365,7 +338,7 @@
 						<div>
 							<p class="text-sm font-medium text-gray-600">Harvest</p>
 							<div class="flex gap-0.5 h-4 mt-1">
-								{#each monthsBetween(plant.harvestStart, plant.harvestEnd) as active, i}
+								{#each monthsInRange(plant.harvestStart, plant.harvestEnd) as active, i}
 									<div class="flex-1 rounded {active ? 'bg-amber-500' : 'bg-gray-100'}" title={monthLabels[i]}></div>
 								{/each}
 							</div>
@@ -380,9 +353,9 @@
 			<div class="border rounded-lg p-4">
 				<h2 class="font-bold text-lg mb-3">Requirements</h2>
 				<dl class="space-y-2 text-sm">
-					{#if plant.sunExposure}<div class="flex justify-between"><dt class="text-gray-500">Exposure</dt><dd>{exposureLabels[plant.sunExposure] || plant.sunExposure}</dd></div>{/if}
-					{#if plant.soilType}<div class="flex justify-between"><dt class="text-gray-500">Soil</dt><dd>{soilLabels[plant.soilType] || plant.soilType}</dd></div>{/if}
-					{#if plant.watering}<div class="flex justify-between"><dt class="text-gray-500">Watering</dt><dd>{wateringLabels[plant.watering] || plant.watering}</dd></div>{/if}
+					{#if plant.sunExposure}<div class="flex justify-between"><dt class="text-gray-500">Exposure</dt><dd>{EXPOSURE_LABELS[plant.sunExposure as SunExposure] || plant.sunExposure}</dd></div>{/if}
+					{#if plant.soilType}<div class="flex justify-between"><dt class="text-gray-500">Soil</dt><dd>{SOIL_LABELS[plant.soilType as SoilType] || plant.soilType}</dd></div>{/if}
+					{#if plant.watering}<div class="flex justify-between"><dt class="text-gray-500">Watering</dt><dd>{WATERING_LABELS[plant.watering as Watering] || plant.watering}</dd></div>{/if}
 					{#if plant.spacing}<div class="flex justify-between"><dt class="text-gray-500">Spacing</dt><dd>{plant.spacing} cm</dd></div>{/if}
 					{#if plant.rowSpacing}<div class="flex justify-between"><dt class="text-gray-500">Rows</dt><dd>{plant.rowSpacing} cm</dd></div>{/if}
 				</dl>

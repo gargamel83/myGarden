@@ -38,7 +38,20 @@ export const STATUS_BAR_COLORS: Record<PlantStatus, string> = {
 };
 
 export const EXPOSURE_LABELS: Record<SunExposure, string> = {
-	plein_soleil: 'Full sun',
-	mi_ombre: 'Partial shade',
-	ombre: 'Shade'
+	plein_soleil: '☀️ Full sun',
+	mi_ombre: '🌤 Partial shade',
+	ombre: '🌑 Shade'
+};
+
+export const SOIL_LABELS: Record<SoilType, string> = {
+	riche: 'Rich (loam/manure)',
+	meuble: 'Loose (sandy-loam)',
+	lourd: 'Heavy (clay)',
+	léger: 'Light (sandy)'
+};
+
+export const WATERING_LABELS: Record<Watering, string> = {
+	faible: '💧 Low',
+	moyen: '💧💧 Medium',
+	élevé: '💧💧💧 High'
 };

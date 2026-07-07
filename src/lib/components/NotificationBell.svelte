@@ -1,12 +1,5 @@
 <script lang="ts">
-	interface AppNotification {
-		id: number;
-		type: string;
-		message: string;
-		link: string | null;
-		isRead: boolean;
-		createdAt: string;
-	}
+	import type { AppNotification } from '$lib/server/notifications';
 
 	let { onnavigate }: { onnavigate?: (url: string) => void } = $props();
 

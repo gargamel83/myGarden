@@ -75,7 +75,9 @@ export const notifications = sqliteTable('notifications', {
 	link: text('link'),
 	isRead: integer('is_read', { mode: 'boolean' }).notNull().default(false),
 	createdAt: text('created_at').notNull().$default(() => new Date().toISOString())
-});
+}, (table) => ({
+	isReadIdx: index('idx_notifications_is_read').on(table.isRead)
+}));
 
 export const gardenPhotos = sqliteTable('garden_photos', {
 	id: integer('id').primaryKey({ autoIncrement: true }),

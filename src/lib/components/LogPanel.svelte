@@ -1,13 +1,7 @@
 <script lang="ts">
 	import { LOG_LEVELS } from '$lib/types';
 	import type { LogLevel } from '$lib/types';
-
-	interface LogEntry {
-		timestamp: string;
-		level: LogLevel;
-		message: string;
-		data?: unknown;
-	}
+	import type { LogEntry } from '$lib/server/logger';
 
 	let { onclose }: { onclose: () => void } = $props();
 

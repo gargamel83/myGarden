@@ -17,19 +17,19 @@
 	} = $props();
 
 	let mapContainer: HTMLDivElement;
-	let map: any = $state(null);
-	let L: any = $state(null);
+	let map: L.Map | null = $state(null);
+	let L: typeof import('leaflet') | null = $state(null);
 	let drawing = $state(false);
 	let currentPoints = $state<[number, number][]>([]);
-	let markers: any[] = [];
-	let polygonLayer: any = null;
+	let markers: L.CircleMarker[] = [];
+	let polygonLayer: L.Polygon | L.Polyline | null = null;
 	let searchQuery = $state('');
 	let searching = $state(false);
-	let searchResults = $state<any[]>([]);
+	let searchResults = $state<{ lat: string; lon: string; display_name: string }[]>([]);
 	let showResults = $state(false);
 
-	let geoMarker: any = null;
-	let bedLayers = new Map<number, any>();
+	let geoMarker: L.CircleMarker | null = null;
+	let bedLayers = new Map<number, L.Polygon>();
 
 	onMount(async () => {
 		const leaflet = (await import('leaflet')).default;
@@ -74,7 +74,7 @@
 			// prevent default zoom when not on a polygon
 		});
 
-		map.on('click', (e: any) => {
+		map.on('click', (e: L.LeafletMouseEvent) => {
 			if (!drawing || !L) return;
 			currentPoints = [...currentPoints, [e.latlng.lat, e.latlng.lng]];
 			redraw();
@@ -106,7 +106,7 @@
 		searching = false;
 	}
 
-	function goToResult(r: any) {
+	function goToResult(r: { lat: string; lon: string; display_name: string }) {
 		if (!map) return;
 		map.setView([parseFloat(r.lat), parseFloat(r.lon)], 15);
 		showResults = false;
@@ -127,6 +127,7 @@
 
 		function onPosition(pos: GeolocationPosition) {
 			clearTimeout(timeout);
+			if (!map || !L) return;
 			const { latitude, longitude } = pos.coords;
 			map.setView([latitude, longitude], 16);
 			if (geoMarker) map.removeLayer(geoMarker);

@@ -3,6 +3,8 @@
 	import { enhance } from '$app/forms';
 	import { invalidate } from '$app/navigation';
 	import { toast } from '$lib/toast.svelte';
+	import Modal from '$lib/components/Modal.svelte';
+	import type { SubmitFunction } from '@sveltejs/kit';
 
 	let { data } = $props();
 
@@ -148,8 +150,8 @@
 		showForm = true;
 	}
 
-	function handleSaveEnhance() {
-		return async ({ result }: { result: any }) => {
+	const handleSaveEnhance: SubmitFunction = (_input) => {
+		return async ({ result }) => {
 			if (result.type === 'success') {
 				const isEdit = !!editingBed?.id;
 				showForm = false;
@@ -164,8 +166,8 @@
 		};
 	}
 
-	function handleDeleteEnhance() {
-		return async ({ result }: { result: any }) => {
+	const handleDeleteEnhance: SubmitFunction = (_input) => {
+		return async ({ result }) => {
 			if (result.type === 'success') {
 				confirmDeleteId = null;
 				showForm = false;
@@ -175,8 +177,8 @@
 		};
 	}
 
-	function handleUploadEnhance() {
-		return async ({ result }: { result: any }) => {
+	const handleUploadEnhance: SubmitFunction = (_input) => {
+		return async ({ result }) => {
 			if (result.type === 'success') {
 				toast('Photo added');
 				await invalidate('app:garden');
@@ -353,12 +355,9 @@
 </div>
 
 <!-- Bed edit dialog -->
-{#if showForm && editingBed}
-
-	<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-	<div class="fixed inset-0 bg-black/50 flex items-center justify-center" onclick={(e) => { if (e.target === e.currentTarget) showForm = false; }} onkeydown={(e) => e.key === 'Escape' && (showForm = false)} role="dialog" aria-modal="true" tabindex="-1">
-		<div class="bg-white rounded-lg p-6 w-96" role="none">
-			<form method="POST" action="?/saveBed" use:enhance={handleSaveEnhance} onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()}>
+<Modal open={showForm && !!editingBed} onclose={() => showForm = false} class="w-96">
+	{#if editingBed}
+	<form method="POST" action="?/saveBed" use:enhance={handleSaveEnhance}>
 				<input type="hidden" name="id" value={editingBed.id || ''} />
 				<input type="hidden" name="polygon" value={editingBed.polygon} />
 				<input type="hidden" name="coordinatesType" value={tab === 'map' ? 'geo' : 'pixel'} />
@@ -475,19 +474,16 @@
 					</div>
 				</div>
 			</form>
-		</div>
-	</div>
-{/if}
+	{/if}
+</Modal>
 
 <!-- Plantations d'une bande -->
-{#if showPlantations}
+<Modal open={!!showPlantations} onclose={() => showPlantations = null} class="w-[500px] max-h-[80vh] overflow-y-auto">
+	{#if showPlantations}
 	{@const bed = showPlantations}
 	{@const list = data.bedPlantations[bed.id] || []}
 	{@const stats = { total: list.length, active: list.filter(p => p.status !== 'harvested' && p.status !== 'cancelled').length }}
-	<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-	<div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onclick={(e) => { if (e.target === e.currentTarget) showPlantations = null; }} onkeydown={(e) => e.key === 'Escape' && (showPlantations = null)} role="dialog" aria-modal="true" tabindex="-1">
-		<div class="bg-white rounded-lg p-6 w-[500px] max-h-[80vh] overflow-y-auto" role="none">
-			<div class="flex items-center justify-between mb-4">
+	<div class="flex items-center justify-between mb-4">
 				<h2 class="text-lg font-bold">{bed.name}</h2>
 				<div class="flex items-center gap-2 text-sm text-gray-500">
 					{stats.active > 0 ? `${stats.active} active${stats.active > 1 ? 's' : ''}` : ''}
@@ -545,23 +541,17 @@
 					</a>
 				</div>
 			</div>
-		</div>
-	</div>
-{/if}
+	{/if}
+</Modal>
 
-{#if confirmDeleteId}
-	<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-	<div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onclick={(e) => { if (e.target === e.currentTarget) confirmDeleteId = null; }} onkeydown={(e) => e.key === 'Escape' && (confirmDeleteId = null)} role="dialog" aria-modal="true" tabindex="-1">
-		<div class="bg-white rounded-lg p-6 w-80 shadow-xl" role="none">
-			<form method="POST" action="?/deleteBed" use:enhance={handleDeleteEnhance}>
-				<input type="hidden" name="id" value={confirmDeleteId} />
-				<h3 class="font-bold text-lg mb-2">Delete bed</h3>
-				<p class="text-sm text-gray-600 mb-5">This action is irreversible. All linked plantations will also be deleted.</p>
-				<div class="flex justify-end gap-2">
-					<button type="button" class="px-4 py-2 border rounded text-sm" onclick={() => confirmDeleteId = null}>Cancel</button>
-					<button type="submit" class="px-4 py-2 bg-red-600 text-white rounded text-sm">Delete</button>
-				</div>
-			</form>
+<Modal open={!!confirmDeleteId} onclose={() => confirmDeleteId = null} class="w-80 shadow-xl">
+	<form method="POST" action="?/deleteBed" use:enhance={handleDeleteEnhance}>
+		<input type="hidden" name="id" value={confirmDeleteId} />
+		<h3 class="font-bold text-lg mb-2">Delete bed</h3>
+		<p class="text-sm text-gray-600 mb-5">This action is irreversible. All linked plantations will also be deleted.</p>
+		<div class="flex justify-end gap-2">
+			<button type="button" class="px-4 py-2 border rounded text-sm" onclick={() => confirmDeleteId = null}>Cancel</button>
+			<button type="submit" class="px-4 py-2 bg-red-600 text-white rounded text-sm">Delete</button>
 		</div>
-	</div>
-{/if}
+	</form>
+</Modal>
