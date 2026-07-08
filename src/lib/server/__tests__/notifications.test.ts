@@ -8,8 +8,6 @@ import { join } from 'path';
 import * as schema from '../db/schema';
 import { eq, sql } from 'drizzle-orm';
 
-// --- Mock setup ---
-// Use a mutable ref so the hoisted vi.mock can point to the test DB created in beforeAll
 const testDbRef = vi.hoisted(() => ({ current: null as any }));
 
 vi.mock('../db', () => ({
@@ -22,10 +20,10 @@ vi.mock('../rotation', () => ({
 
 import { generateNotifications, getNotifications, markAllRead } from '../notifications';
 
-// --- Test DB setup ---
 let tmpDir: string;
 let sqlite: Database.Database;
 let db: ReturnType<typeof drizzle>;
+let uid: number;
 
 beforeAll(() => {
 	tmpDir = mkdtempSync('/tmp/monjardin-test-');
@@ -36,6 +34,8 @@ beforeAll(() => {
 	db = drizzle(sqlite, { schema });
 
 	migrate(db, { migrationsFolder: 'drizzle' });
+
+	uid = db.insert(schema.users).values({ username: 'test', passwordHash: 'x', createdAt: new Date().toISOString() }).returning({ id: schema.users.id }).get()!.id;
 
 	testDbRef.current = db;
 });
@@ -48,6 +48,7 @@ afterAll(() => {
 describe('notifications API', () => {
 	it('should insert and retrieve notifications', () => {
 		db.insert(schema.notifications).values({
+			userId: uid,
 			type: 'test',
 			key: 'test-1',
 			message: 'test notification',
@@ -63,6 +64,7 @@ describe('notifications API', () => {
 	it('should respect unique key constraint', () => {
 		expect(() => {
 			db.insert(schema.notifications).values({
+				userId: uid,
 				type: 'test',
 				key: 'test-1',
 				message: 'duplicate',
@@ -84,6 +86,7 @@ describe('notifications API', () => {
 	it('should only return top 20 latest', () => {
 		for (let i = 0; i < 25; i++) {
 			db.insert(schema.notifications).values({
+				userId: uid,
 				type: 'bulk',
 				key: `bulk-${i}`,
 				message: `bulk ${i}`,
@@ -114,12 +117,12 @@ describe('generateNotifications, getNotifications, markAllRead', () => {
 			vi.setSystemTime(new Date('2026-07-07T12:00:00Z'));
 
 			db.insert(schema.plants).values({ id: 1, commonName: 'Tomate', family: 'Solanaceae', sowingStart: '07-20' }).run();
-			db.insert(schema.gardenBeds).values({ id: 1, name: 'Bed A', polygon: '[]', type: 'pixel' }).run();
-			db.insert(schema.plantations).values({ id: 1, gardenBedId: 1, plantId: 1, plantName: 'Tomate', status: 'planned' }).run();
+			db.insert(schema.gardenBeds).values({ id: 1, userId: uid, name: 'Bed A', polygon: '[]', type: 'pixel' }).run();
+			db.insert(schema.plantations).values({ id: 1, userId: uid, gardenBedId: 1, plantId: 1, plantName: 'Tomate', status: 'planned' }).run();
 
-			await generateNotifications();
+			await generateNotifications(uid);
 
-			const result = getNotifications();
+			const result = getNotifications(uid);
 			expect(result.notifications).toHaveLength(1);
 			expect(result.notifications[0].type).toBe('sowing');
 			expect(result.notifications[0].key).toBe('sowing-1');
@@ -133,12 +136,12 @@ describe('generateNotifications, getNotifications, markAllRead', () => {
 			vi.setSystemTime(new Date('2026-07-07T12:00:00Z'));
 
 			db.insert(schema.plants).values({ id: 1, commonName: 'Carotte', family: 'Apiaceae', harvestStart: '07-15' }).run();
-			db.insert(schema.gardenBeds).values({ id: 1, name: 'Bed A', polygon: '[]', type: 'pixel' }).run();
-			db.insert(schema.plantations).values({ id: 1, gardenBedId: 1, plantId: 1, plantName: 'Carotte', status: 'growing' }).run();
+			db.insert(schema.gardenBeds).values({ id: 1, userId: uid, name: 'Bed A', polygon: '[]', type: 'pixel' }).run();
+			db.insert(schema.plantations).values({ id: 1, userId: uid, gardenBedId: 1, plantId: 1, plantName: 'Carotte', status: 'growing' }).run();
 
-			await generateNotifications();
+			await generateNotifications(uid);
 
-			const result = getNotifications();
+			const result = getNotifications(uid);
 			expect(result.notifications).toHaveLength(1);
 			expect(result.notifications[0].type).toBe('harvest');
 			expect(result.notifications[0].key).toBe('harvest-1');
@@ -153,18 +156,19 @@ describe('generateNotifications, getNotifications, markAllRead', () => {
 
 			const twentyDaysAgo = new Date('2026-06-17T12:00:00Z').toISOString();
 
-			db.insert(schema.gardenBeds).values({ id: 1, name: 'Bed A', polygon: '[]', type: 'pixel' }).run();
+			db.insert(schema.gardenBeds).values({ id: 1, userId: uid, name: 'Bed A', polygon: '[]', type: 'pixel' }).run();
 			db.insert(schema.plantations).values({
 				id: 1,
+				userId: uid,
 				gardenBedId: 1,
 				plantName: 'Laitue',
 				status: 'planned',
 				createdAt: twentyDaysAgo
 			}).run();
 
-			await generateNotifications();
+			await generateNotifications(uid);
 
-			const result = getNotifications();
+			const result = getNotifications(uid);
 			expect(result.notifications).toHaveLength(1);
 			expect(result.notifications[0].type).toBe('stale');
 			expect(result.notifications[0].key).toBe('stale-1');
@@ -178,14 +182,14 @@ describe('generateNotifications, getNotifications, markAllRead', () => {
 			vi.setSystemTime(new Date('2026-07-07T12:00:00Z'));
 
 			db.insert(schema.plants).values({ id: 1, commonName: 'Tomate', family: 'Solanaceae', sowingStart: '07-20' }).run();
-			db.insert(schema.gardenBeds).values({ id: 1, name: 'Bed A', polygon: '[]', type: 'pixel' }).run();
-			db.insert(schema.plantations).values({ id: 1, gardenBedId: 1, plantId: 1, plantName: 'Tomate', status: 'planned' }).run();
+			db.insert(schema.gardenBeds).values({ id: 1, userId: uid, name: 'Bed A', polygon: '[]', type: 'pixel' }).run();
+			db.insert(schema.plantations).values({ id: 1, userId: uid, gardenBedId: 1, plantId: 1, plantName: 'Tomate', status: 'planned' }).run();
 
-			await generateNotifications();
-			expect(getNotifications().notifications).toHaveLength(1);
+			await generateNotifications(uid);
+			expect(getNotifications(uid).notifications).toHaveLength(1);
 
-			await generateNotifications();
-			expect(getNotifications().notifications).toHaveLength(1);
+			await generateNotifications(uid);
+			expect(getNotifications(uid).notifications).toHaveLength(1);
 		});
 
 		it('should not generate a sowing notification when start date is beyond 30 days', async () => {
@@ -193,12 +197,12 @@ describe('generateNotifications, getNotifications, markAllRead', () => {
 			vi.setSystemTime(new Date('2026-07-07T12:00:00Z'));
 
 			db.insert(schema.plants).values({ id: 1, commonName: 'Haricot', family: 'Fabaceae', sowingStart: '09-01' }).run();
-			db.insert(schema.gardenBeds).values({ id: 1, name: 'Bed A', polygon: '[]', type: 'pixel' }).run();
-			db.insert(schema.plantations).values({ id: 1, gardenBedId: 1, plantId: 1, plantName: 'Haricot', status: 'planned' }).run();
+			db.insert(schema.gardenBeds).values({ id: 1, userId: uid, name: 'Bed A', polygon: '[]', type: 'pixel' }).run();
+			db.insert(schema.plantations).values({ id: 1, userId: uid, gardenBedId: 1, plantId: 1, plantName: 'Haricot', status: 'planned' }).run();
 
-			await generateNotifications();
+			await generateNotifications(uid);
 
-			const result = getNotifications();
+			const result = getNotifications(uid);
 			expect(result.notifications).toHaveLength(0);
 			expect(result.unreadCount).toBe(0);
 		});
@@ -209,9 +213,10 @@ describe('generateNotifications, getNotifications, markAllRead', () => {
 
 			const twentyDaysAgo = new Date('2026-06-17T12:00:00Z').toISOString();
 
-			db.insert(schema.gardenBeds).values({ id: 1, name: 'Bed A', polygon: '[]', type: 'pixel' }).run();
+			db.insert(schema.gardenBeds).values({ id: 1, userId: uid, name: 'Bed A', polygon: '[]', type: 'pixel' }).run();
 			db.insert(schema.plantations).values({
 				id: 1,
+				userId: uid,
 				gardenBedId: 1,
 				plantName: 'Laitue',
 				status: 'planned',
@@ -219,9 +224,9 @@ describe('generateNotifications, getNotifications, markAllRead', () => {
 				createdAt: twentyDaysAgo
 			}).run();
 
-			await generateNotifications();
+			await generateNotifications(uid);
 
-			const result = getNotifications();
+			const result = getNotifications(uid);
 			expect(result.notifications).toHaveLength(0);
 			expect(result.unreadCount).toBe(0);
 		});
@@ -231,13 +236,13 @@ describe('generateNotifications, getNotifications, markAllRead', () => {
 		it('should return unread first, then ordered by createdAt descending', () => {
 			const base = new Date('2026-07-07T12:00:00Z');
 			db.insert(schema.notifications).values([
-				{ type: 'test', key: 'n1', message: 'old read', isRead: true, createdAt: new Date(base.getTime() - 2000).toISOString() },
-				{ type: 'test', key: 'n2', message: 'new unread', isRead: false, createdAt: base.toISOString() },
-				{ type: 'test', key: 'n3', message: 'old unread', isRead: false, createdAt: new Date(base.getTime() - 1000).toISOString() },
-				{ type: 'test', key: 'n4', message: 'new read', isRead: true, createdAt: new Date(base.getTime() - 500).toISOString() }
+				{ userId: uid, type: 'test', key: 'n1', message: 'old read', isRead: true, createdAt: new Date(base.getTime() - 2000).toISOString() },
+				{ userId: uid, type: 'test', key: 'n2', message: 'new unread', isRead: false, createdAt: base.toISOString() },
+				{ userId: uid, type: 'test', key: 'n3', message: 'old unread', isRead: false, createdAt: new Date(base.getTime() - 1000).toISOString() },
+				{ userId: uid, type: 'test', key: 'n4', message: 'new read', isRead: true, createdAt: new Date(base.getTime() - 500).toISOString() }
 			]).run();
 
-			const result = getNotifications();
+			const result = getNotifications(uid);
 			expect(result.notifications.map(n => n.key)).toEqual(['n2', 'n3', 'n4', 'n1']);
 			expect(result.unreadCount).toBe(2);
 		});
@@ -245,6 +250,7 @@ describe('generateNotifications, getNotifications, markAllRead', () => {
 		it('should limit to 20 results', () => {
 			for (let i = 0; i < 25; i++) {
 				db.insert(schema.notifications).values({
+					userId: uid,
 					type: 'test',
 					key: `limit-${i}`,
 					message: `n${i}`,
@@ -252,22 +258,22 @@ describe('generateNotifications, getNotifications, markAllRead', () => {
 				}).run();
 			}
 
-			const result = getNotifications();
+			const result = getNotifications(uid);
 			expect(result.notifications).toHaveLength(20);
 		});
 
 		it('should return 0 unread when all notifications are read', () => {
 			db.insert(schema.notifications).values([
-				{ type: 'test', key: 'r1', message: 'r1', isRead: true, createdAt: new Date().toISOString() },
-				{ type: 'test', key: 'r2', message: 'r2', isRead: true, createdAt: new Date().toISOString() }
+				{ userId: uid, type: 'test', key: 'r1', message: 'r1', isRead: true, createdAt: new Date().toISOString() },
+				{ userId: uid, type: 'test', key: 'r2', message: 'r2', isRead: true, createdAt: new Date().toISOString() }
 			]).run();
 
-			const result = getNotifications();
+			const result = getNotifications(uid);
 			expect(result.unreadCount).toBe(0);
 		});
 
 		it('should return empty arrays when no notifications exist', () => {
-			const result = getNotifications();
+			const result = getNotifications(uid);
 			expect(result.notifications).toEqual([]);
 			expect(result.unreadCount).toBe(0);
 		});
@@ -276,12 +282,12 @@ describe('generateNotifications, getNotifications, markAllRead', () => {
 	describe('markAllRead', () => {
 		it('should mark all unread notifications as read', () => {
 			db.insert(schema.notifications).values([
-				{ type: 'test', key: 'mr1', message: 'mr1', isRead: false, createdAt: new Date().toISOString() },
-				{ type: 'test', key: 'mr2', message: 'mr2', isRead: true, createdAt: new Date().toISOString() },
-				{ type: 'test', key: 'mr3', message: 'mr3', isRead: false, createdAt: new Date().toISOString() }
+				{ userId: uid, type: 'test', key: 'mr1', message: 'mr1', isRead: false, createdAt: new Date().toISOString() },
+				{ userId: uid, type: 'test', key: 'mr2', message: 'mr2', isRead: true, createdAt: new Date().toISOString() },
+				{ userId: uid, type: 'test', key: 'mr3', message: 'mr3', isRead: false, createdAt: new Date().toISOString() }
 			]).run();
 
-			markAllRead();
+			markAllRead(uid);
 
 			const all = db.select().from(schema.notifications).orderBy(schema.notifications.key).all();
 			expect(all.every(n => n.isRead)).toBe(true);
@@ -289,24 +295,24 @@ describe('generateNotifications, getNotifications, markAllRead', () => {
 
 		it('should set unreadCount to 0 after marking all read', () => {
 			db.insert(schema.notifications).values([
-				{ type: 'test', key: 'mr4', message: 'mr4', isRead: false, createdAt: new Date().toISOString() },
-				{ type: 'test', key: 'mr5', message: 'mr5', isRead: false, createdAt: new Date().toISOString() }
+				{ userId: uid, type: 'test', key: 'mr4', message: 'mr4', isRead: false, createdAt: new Date().toISOString() },
+				{ userId: uid, type: 'test', key: 'mr5', message: 'mr5', isRead: false, createdAt: new Date().toISOString() }
 			]).run();
 
-			markAllRead();
+			markAllRead(uid);
 
-			const result = getNotifications();
+			const result = getNotifications(uid);
 			expect(result.unreadCount).toBe(0);
 		});
 
 		it('should be idempotent when all notifications are already read', () => {
 			db.insert(schema.notifications).values([
-				{ type: 'test', key: 'mr6', message: 'mr6', isRead: true, createdAt: new Date().toISOString() }
+				{ userId: uid, type: 'test', key: 'mr6', message: 'mr6', isRead: true, createdAt: new Date().toISOString() }
 			]).run();
 
-			expect(() => markAllRead()).not.toThrow();
+			expect(() => markAllRead(uid)).not.toThrow();
 
-			const result = getNotifications();
+			const result = getNotifications(uid);
 			expect(result.unreadCount).toBe(0);
 		});
 	});

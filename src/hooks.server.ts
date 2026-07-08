@@ -1,28 +1,20 @@
 import type { Handle } from '@sveltejs/kit';
 import { building } from '$app/environment';
 import { logger } from '$lib/server/logger';
-
-const PASSWORD = building ? '' : process.env.LOGIN_PASSWORD;
-
-function hash(s: string): string {
-	let h = 0;
-	for (let i = 0; i < s.length; i++) {
-		h = ((h << 5) - h) + s.charCodeAt(i);
-		h = h & h;
-	}
-	return h.toString(36);
-}
+import { getSessionUser, COOKIE_NAME } from '$lib/server/auth';
 
 export const handle: Handle = async ({ event, resolve }) => {
-	const token = event.cookies.get('session');
-	const expected = PASSWORD ? hash('monjardin-' + PASSWORD) : '';
+	const token = event.cookies.get(COOKIE_NAME);
+	const user = getSessionUser(token);
 
-	if (expected && token !== expected && !event.url.pathname.startsWith('/login')) {
+	if (!user && !event.url.pathname.startsWith('/login') && !event.url.pathname.startsWith('/register')) {
 		return new Response(null, {
 			status: 302,
 			headers: { location: '/login' }
 		});
 	}
+
+	event.locals.user = user;
 
 	const { pathname } = event.url;
 	const method = event.request.method;

@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.4.0
+
+### Added
+- **Multi-user** : table `users` avec hash bcrypt-like (scrypt natif Node.js), table `sessions` avec token aléatoire
+- **Page d'inscription** (`/register`) : création de compte avec username + password (min 3/6 caractères)
+- **Login** : username + password (plus de password global), session persistée 1 an
+- **Logout** : bouton dans la navbar, suppression de session côté serveur
+- **Isolement des données** : `userId` ajouté sur `gardenBeds`, `plantations`, `notifications`, `gardenPhotos` — chaque utilisateur ne voit que ses données
+- **Migration automatique** : les données existantes sont associées à l'utilisateur admin (id=1) créé par la migration
+
+### Changed
+- `hooks.server.ts` : vérification session via DB, `event.locals.user` disponible partout
+- `getRotationAlerts()` accepte un `userId` optionnel pour filtrer les alertes par utilisateur
+- Tous les `load` et `actions` serveur filtrent par `userId`
+- Tests mis à jour : création d'un user test dans `beforeAll`, `userId` sur tous les inserts
+
 ## v0.3.0
 
 ### Added

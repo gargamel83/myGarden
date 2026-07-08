@@ -5,7 +5,7 @@
 - **ORM** : Drizzle (SQLite via `better-sqlite3`)
 - **CSS** : Tailwind CSS
 - **Map** : Leaflet (OSM) + Canvas/SVG for drawing
-- **Auth** : Single-user, password in `.env`
+- **Auth** : Multi-user, scrypt password hashing, sessions in DB
 - **Deployment** : Docker
 - **i18n** : JSON files (`src/lib/i18n/en.json`, `fr.json`), zero dependencies
 
@@ -61,7 +61,7 @@ Types: `feat`, `fix`, `docs`, `refactor`, `style`, `chore`, `perf`, `test`
 - Read `SPECS.md` for detailed specs
 - Always run `npx drizzle-kit push` after schema modification
 - After schema change: `generate` → `push`
-- Auth uses `@sveltejs/kit` hooks (`handle`) in `src/hooks.server.ts`
+- Auth uses `@sveltejs/kit` hooks (`handle`) in `src/hooks.server.ts`. Session token stored in cookie, verified against `sessions` table in `getSessionUser()`
 - No UI library — Tailwind only
 - **Every commit MUST include**: tests + CHANGELOG.md update + README.md if needed
 - **Always ask before committing** — never commit without explicit approval

@@ -1,7 +1,26 @@
 import { sqliteTable, text, integer, real, index } from 'drizzle-orm/sqlite-core';
 
+export const users = sqliteTable('users', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	username: text('username').notNull().unique(),
+	passwordHash: text('password_hash').notNull(),
+	createdAt: text('created_at').notNull().$default(() => new Date().toISOString())
+});
+
+export const sessions = sqliteTable('sessions', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	userId: integer('user_id').notNull().references(() => users.id),
+	token: text('token').notNull().unique(),
+	expiresAt: text('expires_at').notNull(),
+	createdAt: text('created_at').notNull().$default(() => new Date().toISOString())
+}, (table) => ({
+	userIdIdx: index('idx_sessions_user_id').on(table.userId),
+	tokenIdx: index('idx_sessions_token').on(table.token)
+}));
+
 export const gardenBeds = sqliteTable('garden_beds', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
+	userId: integer('user_id').notNull().references(() => users.id),
 	name: text('name').notNull(),
 	polygon: text('polygon').notNull(), // JSON array of [x,y] or [lng,lat] points
 	type: text('type').default('pixel'), // 'pixel' or 'geo'
@@ -48,6 +67,7 @@ export const plants = sqliteTable('plants', {
 
 export const plantations = sqliteTable('plantations', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
+	userId: integer('user_id').notNull().references(() => users.id),
 	gardenBedId: integer('garden_bed_id').notNull().references(() => gardenBeds.id),
 	plantId: integer('plant_id').references(() => plants.id),
 	plantName: text('plant_name').notNull(),
@@ -69,6 +89,7 @@ export const plantations = sqliteTable('plantations', {
 
 export const notifications = sqliteTable('notifications', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
+	userId: integer('user_id').notNull().references(() => users.id),
 	type: text('type').notNull(),
 	key: text('key').notNull().unique(),
 	message: text('message').notNull(),
@@ -81,6 +102,7 @@ export const notifications = sqliteTable('notifications', {
 
 export const gardenPhotos = sqliteTable('garden_photos', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
+	userId: integer('user_id').notNull().references(() => users.id),
 	label: text('label').notNull(),
 	filename: text('filename').notNull(),
 	width: integer('width'),

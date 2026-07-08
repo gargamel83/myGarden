@@ -9,10 +9,11 @@ import { getRotationAlerts, getBedHistory, getBedAdvice } from '$lib/server/rota
 
 export const load: PageServerLoad = async (event) => {
 	event.depends('app:garden');
-	const photos = db.select().from(gardenPhotos).orderBy(gardenPhotos.createdAt).all();
-	const beds = db.select().from(gardenBeds).orderBy(gardenBeds.createdAt).all();
+	const userId = event.locals.user!.id;
+	const photos = db.select().from(gardenPhotos).where(eq(gardenPhotos.userId, userId)).orderBy(gardenPhotos.createdAt).all();
+	const beds = db.select().from(gardenBeds).where(eq(gardenBeds.userId, userId)).orderBy(gardenBeds.createdAt).all();
 
-	const rotationAlerts = await getRotationAlerts();
+	const rotationAlerts = await getRotationAlerts(userId);
 	const bedIds = beds.map(b => b.id);
 
 	// Batch load all bed histories in a single query
@@ -60,6 +61,7 @@ export const load: PageServerLoad = async (event) => {
 	})
 		.from(plantations)
 		.leftJoin(plants, eq(plantations.plantId, plants.id))
+		.where(eq(plantations.userId, userId))
 		.orderBy(asc(plantations.createdAt))
 		.all();
 
@@ -81,7 +83,7 @@ export const load: PageServerLoad = async (event) => {
 };
 
 export const actions: Actions = {
-	upload: async ({ request }) => {
+	upload: async ({ request, locals }) => {
 		const data = await request.formData();
 		const label = data.get('label') as string;
 		const file = data.get('photo') as File;
@@ -101,6 +103,7 @@ export const actions: Actions = {
 		writeFileSync(`${uploadDir}/${filename}`, resized);
 
 		db.insert(gardenPhotos).values({
+			userId: locals.user!.id,
 			label: label || 'Garden photo',
 			filename,
 			width: 0,
@@ -110,7 +113,7 @@ export const actions: Actions = {
 		return { success: true, filename };
 	},
 
-	saveBed: async ({ request }) => {
+	saveBed: async ({ request, locals }) => {
 		const data = await request.formData();
 		const id = data.get('id') as string;
 		const name = data.get('name') as string;
@@ -129,6 +132,7 @@ export const actions: Actions = {
 		}
 
 		const bedData = {
+			userId: locals.user!.id,
 			name,
 			polygon,
 			type,
@@ -151,11 +155,15 @@ export const actions: Actions = {
 		return { success: true };
 	},
 
-	deleteBed: async ({ request }) => {
+	deleteBed: async ({ request, locals }) => {
 		const data = await request.formData();
 		const id = data.get('id') as string;
 		if (id) {
 			try {
+				const bed = db.select({ userId: gardenBeds.userId }).from(gardenBeds).where(eq(gardenBeds.id, parseInt(id))).get();
+				if (!bed || bed.userId !== locals.user!.id) {
+					return fail(403, { error: 'Not authorized' });
+				}
 				db.delete(gardenBeds).where(eq(gardenBeds.id, parseInt(id))).run();
 			} catch (e) {
 				const msg = (e as Error).message || '';

@@ -8,6 +8,7 @@ import { computeStatus } from '$lib/server/planting';
 
 export const load: PageServerLoad = async (event) => {
 	event.depends('app:plantations');
+	const userId = event.locals.user!.id;
 	const all = db.select({
 		plantation: plantations,
 		bedName: gardenBeds.name,
@@ -17,12 +18,13 @@ export const load: PageServerLoad = async (event) => {
 		.from(plantations)
 		.leftJoin(gardenBeds, eq(plantations.gardenBedId, gardenBeds.id))
 		.leftJoin(plants, eq(plantations.plantId, plants.id))
+		.where(eq(plantations.userId, userId))
 		.orderBy(plantations.createdAt)
 		.all();
 
-	const beds = db.select().from(gardenBeds).all();
+	const beds = db.select().from(gardenBeds).where(eq(gardenBeds.userId, userId)).all();
 	const plantList = db.select().from(plants).orderBy(asc(plants.commonName)).all();
-	const rotationAlerts = await getRotationAlerts();
+	const rotationAlerts = await getRotationAlerts(userId);
 
 	const bedNames = [...new Set(all.map(p => p.bedName).filter(Boolean))] as string[];
 
@@ -30,7 +32,7 @@ export const load: PageServerLoad = async (event) => {
 };
 
 export const actions: Actions = {
-	create: async ({ request }) => {
+	create: async ({ request, locals }) => {
 		const data = await request.formData();
 		const gardenBedId = data.get('gardenBedId') as string;
 		const plantName = data.get('plantName') as string;
@@ -47,6 +49,7 @@ export const actions: Actions = {
 		}
 
 		db.insert(plantations).values({
+			userId: locals.user!.id,
 			gardenBedId: parseInt(gardenBedId),
 			plantId: plantId ? parseInt(plantId) : null,
 			plantName,

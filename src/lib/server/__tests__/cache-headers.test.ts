@@ -4,6 +4,10 @@ vi.mock('$app/environment', () => ({ building: false }));
 vi.mock('$lib/server/logger', () => ({
 	logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), trace: vi.fn(), debug: vi.fn() }
 }));
+vi.mock('$lib/server/auth', () => ({
+	getSessionUser: () => ({ id: 1, username: 'test' }),
+	COOKIE_NAME: 'session'
+}));
 
 describe('cache headers', () => {
 	it('should set Cache-Control on /uploads/ responses', async () => {

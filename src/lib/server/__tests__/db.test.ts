@@ -12,6 +12,7 @@ import { getBedAdvice } from '../rotation';
 let tmpDir: string;
 let sqlite: Database.Database;
 let db: ReturnType<typeof drizzle>;
+let testUserId: number;
 
 beforeAll(() => {
 	tmpDir = mkdtempSync('/tmp/monjardin-test-');
@@ -22,6 +23,12 @@ beforeAll(() => {
 	db = drizzle(sqlite, { schema });
 
 	migrate(db, { migrationsFolder: 'drizzle' });
+
+	testUserId = db.insert(schema.users).values({
+		username: 'test',
+		passwordHash: 'test',
+		createdAt: new Date().toISOString()
+	}).returning({ id: schema.users.id }).get()!.id;
 });
 
 afterAll(() => {
@@ -32,6 +39,7 @@ afterAll(() => {
 describe('gardenBeds CRUD', () => {
 	it('should insert a bed', () => {
 		db.insert(schema.gardenBeds).values({
+			userId: testUserId,
 			name: 'Bed A',
 			polygon: JSON.stringify([[0, 0], [10, 0], [10, 10], [0, 10]]),
 			soilType: 'riche',
@@ -102,6 +110,7 @@ describe('plants CRUD', () => {
 describe('plantations with foreign keys', () => {
 	it('should create a plantation linked to a bed and plant', () => {
 		const bed = db.insert(schema.gardenBeds).values({
+			userId: testUserId,
 			name: 'Bed 1',
 			polygon: '[[0,0]]'
 		}).returning().get()!;
@@ -112,6 +121,7 @@ describe('plantations with foreign keys', () => {
 		}).returning().get()!;
 
 		db.insert(schema.plantations).values({
+			userId: testUserId,
 			gardenBedId: bed.id,
 			plantId: plant.id,
 			plantName: 'Carrot',
@@ -127,11 +137,13 @@ describe('plantations with foreign keys', () => {
 
 	it('should cascade-delete plantations when bed is deleted', () => {
 		const bed = db.insert(schema.gardenBeds).values({
+			userId: testUserId,
 			name: 'Bed Temporary',
 			polygon: '[[0,0]]'
 		}).returning().get()!;
 
 		db.insert(schema.plantations).values({
+			userId: testUserId,
 			gardenBedId: bed.id,
 			plantName: 'Test Plant',
 			status: 'planned'
@@ -147,6 +159,7 @@ describe('plantations with foreign keys', () => {
 describe('gardenPhotos CRUD', () => {
 	it('should insert and list photos', () => {
 		db.insert(schema.gardenPhotos).values({
+			userId: testUserId,
 			label: 'Garden overview',
 			filename: 'overview.jpg',
 			width: 1920,

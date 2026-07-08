@@ -6,12 +6,23 @@
 		"plantings": "Plantings",
 		"plants": "Plants",
 		"logs": "Logs",
-		"menu": "Menu"
+		"menu": "Menu",
+		"logout": "Log out"
 	},
 	"login": {
 		"title": "Log in",
+		"username": "Username",
 		"password": "Password",
-		"submit": "Log in"
+		"submit": "Log in",
+		"register": "Create an account"
+	},
+	"register": {
+		"title": "Create an account",
+		"username": "Username",
+		"password": "Password",
+		"confirm": "Confirm password",
+		"submit": "Create account",
+		"login": "Already have an account? Log in"
 	},
 	"dashboard": {
 		"title": "Dashboard",

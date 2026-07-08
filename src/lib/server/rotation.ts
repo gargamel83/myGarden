@@ -159,9 +159,11 @@ export function getBedAdvice(soilType: string | null, sunExposure: string | null
 	});
 }
 
-export async function getRotationAlerts(): Promise<RotationAlert[]> {
+export async function getRotationAlerts(userId?: number): Promise<RotationAlert[]> {
 	const alerts: RotationAlert[] = [];
-	const beds = db.select().from(gardenBeds).all();
+	const beds = userId
+		? db.select().from(gardenBeds).where(eq(gardenBeds.userId, userId)).all()
+		: db.select().from(gardenBeds).all();
 	const bedIds = beds.map(b => b.id);
 
 	// Batch load all histories in a single query

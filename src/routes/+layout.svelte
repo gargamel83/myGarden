@@ -2,6 +2,7 @@
 	import '../app.css';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
+	import { enhance } from '$app/forms';
 	import Toast from '$lib/components/Toast.svelte';
 	import LogPanel from '$lib/components/LogPanel.svelte';
 	import NotificationBell from '$lib/components/NotificationBell.svelte';
@@ -11,7 +12,7 @@
 	import { version } from '../../package.json';
 	import { applyTheme, loadTheme } from '$lib/themes';
 	import { localeStore, t } from '$lib/i18n';
-	let { children } = $props();
+	let { children, data } = $props();
 	let _locale = $localeStore;
 
 	let mobileOpen = $state(false);
@@ -78,6 +79,14 @@
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
 				</svg>
 			</button>
+			{#if data.user}
+				<span class="text-xs text-white/60 hidden md:inline">{data.user.username}</span>
+				<form method="POST" action="/logout" use:enhance class="inline">
+					<button class="text-xs text-white/70 hover:text-white px-2 py-1 rounded hover:bg-[var(--nav-hover)]">
+						{t('nav.logout')}
+					</button>
+				</form>
+			{/if}
 			<button
 				class="md:hidden p-1"
 				onclick={() => mobileOpen = !mobileOpen}

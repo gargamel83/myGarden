@@ -36,9 +36,30 @@
 	function handleSaveBed(polygon: string) {
 		editingBed = {
 			id: 0,
+			userId: 0,
 			name: '',
 			polygon,
 			type: 'pixel',
+			color: '#64748b',
+			soilType: null,
+			sunExposure: null,
+			length: null,
+			width: null,
+			orientation: null,
+			notes: null,
+			createdAt: '',
+			updatedAt: ''
+		};
+		showForm = true;
+	}
+
+	function onMapBed(polygon: string) {
+		editingBed = {
+			id: 0,
+			userId: 0,
+			name: '',
+			polygon,
+			type: 'geo',
 			color: '#64748b',
 			soilType: null,
 			sunExposure: null,
@@ -99,24 +120,6 @@
 		};
 	}
 
-	function onMapBed(polygon: string) {
-		editingBed = {
-			id: 0,
-			name: '',
-			polygon,
-			type: 'geo',
-			color: '#64748b',
-			soilType: null,
-			sunExposure: null,
-			length: null,
-			width: null,
-			orientation: null,
-			notes: null,
-			createdAt: '',
-			updatedAt: ''
-		};
-		showForm = true;
-	}
 </script>
 
 <div class="space-y-6">

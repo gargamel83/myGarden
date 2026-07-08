@@ -1,36 +1,39 @@
 import { fail, redirect } from '@sveltejs/kit';
-import type { Actions } from './$types.js';
+import type { Actions, PageServerLoad } from './$types.js';
 import { logger } from '$lib/server/logger';
+import { authenticateUser, createSession, COOKIE_NAME } from '$lib/server/auth';
 
-function hash(s: string): string {
-	let h = 0;
-	for (let i = 0; i < s.length; i++) {
-		h = ((h << 5) - h) + s.charCodeAt(i);
-		h = h & h;
+export const load: PageServerLoad = async (event) => {
+	if (event.locals.user) {
+		throw redirect(303, '/');
 	}
-	return h.toString(36);
-}
+};
 
 export const actions: Actions = {
 	login: async ({ request, cookies }) => {
 		const data = await request.formData();
+		const username = data.get('username') as string;
 		const password = data.get('password') as string;
-		const expected = process.env.LOGIN_PASSWORD;
 
-		if (!password || password !== expected) {
-			logger.warn('Login failed');
-			return fail(401, { error: 'Incorrect password' });
+		if (!username || !password) {
+			return fail(400, { error: 'Username and password required' });
 		}
 
-		const token = hash('monjardin-' + password);
-		cookies.set('session', token, {
+		const user = authenticateUser(username, password);
+		if (!user) {
+			logger.warn('Login failed for', username);
+			return fail(401, { error: 'Invalid username or password' });
+		}
+
+		const token = createSession(user.id);
+		cookies.set(COOKIE_NAME, token, {
 			path: '/',
 			httpOnly: true,
 			sameSite: 'strict',
 			maxAge: 60 * 60 * 24 * 365
 		});
 
-		logger.info('Login successful');
+		logger.info('Login successful:', username);
 		throw redirect(303, '/');
 	}
 };

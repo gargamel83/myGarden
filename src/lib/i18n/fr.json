@@ -6,12 +6,23 @@
 		"plantings": "Plantations",
 		"plants": "Plantes",
 		"logs": "Journaux",
-		"menu": "Menu"
+		"menu": "Menu",
+		"logout": "Déconnexion"
 	},
 	"login": {
 		"title": "Connexion",
+		"username": "Nom d'utilisateur",
 		"password": "Mot de passe",
-		"submit": "Se connecter"
+		"submit": "Se connecter",
+		"register": "Créer un compte"
+	},
+	"register": {
+		"title": "Créer un compte",
+		"username": "Nom d'utilisateur",
+		"password": "Mot de passe",
+		"confirm": "Confirmer le mot de passe",
+		"submit": "Créer le compte",
+		"login": "Déjà un compte ? Se connecter"
 	},
 	"dashboard": {
 		"title": "Tableau de bord",

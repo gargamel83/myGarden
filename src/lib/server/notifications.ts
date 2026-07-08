@@ -1,6 +1,6 @@
 import { db } from './db';
 import { notifications, plants, plantations, gardenBeds } from './db/schema';
-import { eq, inArray, and, lte, sql } from 'drizzle-orm';
+import { eq, inArray, and, sql } from 'drizzle-orm';
 import { getRotationAlerts } from './rotation';
 
 export interface AppNotification {
@@ -13,7 +13,7 @@ export interface AppNotification {
 	createdAt: string;
 }
 
-export async function generateNotifications(): Promise<void> {
+export async function generateNotifications(userId: number): Promise<void> {
 	const today = new Date();
 	const currentMonth = today.getMonth() + 1;
 	const currentDay = today.getDate();
@@ -21,17 +21,18 @@ export async function generateNotifications(): Promise<void> {
 	const now = today.toISOString();
 
 	const existing = new Set(
-		db.select({ key: notifications.key }).from(notifications).all().map(n => n.key)
+		db.select({ key: notifications.key }).from(notifications).where(eq(notifications.userId, userId)).all().map(n => n.key)
 	);
 
-	const toInsert: { type: string; key: string; message: string; link: string | null; createdAt: string }[] = [];
+	const toInsert: { userId: number; type: string; key: string; message: string; link: string | null; createdAt: string }[] = [];
 
 	// 1. Rotation warnings
-	const rotationAlerts = await getRotationAlerts();
+	const rotationAlerts = await getRotationAlerts(userId);
 	for (const alert of rotationAlerts) {
 		const key = `rotation-${alert.bedId}`;
 		if (existing.has(key)) continue;
 		toInsert.push({
+			userId,
 			type: 'rotation',
 			key,
 			message: alert.message,
@@ -41,7 +42,7 @@ export async function generateNotifications(): Promise<void> {
 	}
 
 	// 2. Upcoming sowings
-	const allPlantations = db.select().from(plantations).all();
+	const allPlantations = db.select().from(plantations).where(eq(plantations.userId, userId)).all();
 	const refPlantIds = [...new Set(allPlantations.filter(p => p.plantId).map(p => p.plantId as number))];
 	const plantMap = new Map(
 		db.select().from(plants).where(inArray(plants.id, refPlantIds)).all()
@@ -59,6 +60,7 @@ export async function generateNotifications(): Promise<void> {
 					const key = `sowing-${p.id}`;
 					if (existing.has(key)) continue;
 					toInsert.push({
+						userId,
 						type: 'sowing',
 						key,
 						message: `${plant.commonName} sowing starts in ${daysLeft} day${daysLeft > 1 ? 's' : ''}`,
@@ -83,6 +85,7 @@ export async function generateNotifications(): Promise<void> {
 					const key = `harvest-${p.id}`;
 					if (existing.has(key)) continue;
 					toInsert.push({
+						userId,
 						type: 'harvest',
 						key,
 						message: `${plant.commonName} harvest ${daysLeft <= 0 ? 'started!' : `in ${daysLeft} day${daysLeft > 1 ? 's' : ''}`}`,
@@ -101,6 +104,7 @@ export async function generateNotifications(): Promise<void> {
 			const key = `stale-${p.id}`;
 			if (existing.has(key)) continue;
 			toInsert.push({
+				userId,
 				type: 'stale',
 				key,
 				message: `${p.plantName} has been planned for over 14 days without starting`,
@@ -116,14 +120,15 @@ export async function generateNotifications(): Promise<void> {
 	}
 }
 
-export function getNotifications(): { notifications: AppNotification[]; unreadCount: number } {
+export function getNotifications(userId: number): { notifications: AppNotification[]; unreadCount: number } {
 	const all = db.select().from(notifications)
+		.where(eq(notifications.userId, userId))
 		.orderBy(sql`${notifications.isRead} ASC, ${notifications.createdAt} DESC`)
 		.limit(20)
 		.all();
 	const unreadCount = db.select({ count: sql<number>`count(*)` })
 		.from(notifications)
-		.where(eq(notifications.isRead, false))
+		.where(and(eq(notifications.userId, userId), eq(notifications.isRead, false)))
 		.get()?.count || 0;
 	return {
 		notifications: all.map(n => ({ ...n, isRead: !!n.isRead })),
@@ -135,6 +140,6 @@ export function markRead(id: number): void {
 	db.update(notifications).set({ isRead: true }).where(eq(notifications.id, id)).run();
 }
 
-export function markAllRead(): void {
-	db.update(notifications).set({ isRead: true }).run();
+export function markAllRead(userId: number): void {
+	db.update(notifications).set({ isRead: true }).where(eq(notifications.userId, userId)).run();
 }

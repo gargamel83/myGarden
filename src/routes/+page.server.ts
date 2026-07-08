@@ -6,10 +6,12 @@ import type { PageServerLoad } from './$types.js';
 
 export const load: PageServerLoad = async (event) => {
 	event.depends('app:dashboard');
-	const bedCount = db.select({ count: sql<number>`count(*)` }).from(gardenBeds).get()?.count || 0;
+	const userId = event.locals.user!.id;
+	const bedCount = db.select({ count: sql<number>`count(*)` }).from(gardenBeds).where(eq(gardenBeds.userId, userId)).get()?.count || 0;
 	const plantCount = db.select({ count: sql<number>`count(*)` }).from(plants).get()?.count || 0;
 
 	const allPlantations = db.select().from(plantations)
+		.where(eq(plantations.userId, userId))
 		.orderBy(plantations.createdAt)
 		.all();
 
@@ -59,7 +61,7 @@ export const load: PageServerLoad = async (event) => {
 		}
 	}
 
-	const beds = db.select().from(gardenBeds).all();
+	const beds = db.select().from(gardenBeds).where(eq(gardenBeds.userId, userId)).all();
 	const totalArea = beds.reduce((sum, b) => sum + ((b.length || 0) * (b.width || 0)), 0);
 	const avgBedSize = bedCount > 0 ? totalArea / bedCount : 0;
 
@@ -90,7 +92,7 @@ export const load: PageServerLoad = async (event) => {
 		}).length;
 	});
 
-	const rotationAlerts = await getRotationAlerts();
+	const rotationAlerts = await getRotationAlerts(userId);
 	const recentActivity = [...allPlantations].reverse().slice(0, 5);
 
 	// --- New advanced stats ---
