@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.3.0
+
+### Added
+- **Internationalisation (i18n)** : système sans dépendance, fichiers JSON hiérarchiques (`en.json`, `fr.json`), clés par page, pluriels en objet `{one, other}`
+- **Fonction `t(path, params?)`** : résolution réactive via `localeStore` (Svelte writable), fallback anglais, interpolation `{param}`, support pluriel via `count`
+- **Composant `LocaleSwitcher.svelte`** : sélecteur EN/FR/DE/PT dans la navbar, stockage localStorage, dropdown avec texte (pas de drapeaux)
+- **Traductions françaises complètes** : toutes les pages (dashboard, jardin, plantations, plantes, login), composants (LogPanel, NotificationBell), statuts, expositions, sols, arrosage
+- **Intégration `t()`** : layout navbar, dashboard, garden (planches + onboard), plantations (liste + calendrier + formulaire), plantes (liste + détail + formulaire), login, LogPanel, NotificationBell
+
+### Changed
+- `+layout.svelte` : liens nav traduisibles, LocaleSwitcher ajouté à droite du ThemeSwitcher
+- `AGENTS.md` : section i18n ajoutée, mise à jour commandes, suppression itérations (dans CHANGELOG)
+- `types.ts` : `STATUS_LABELS`, `EXPOSURE_LABELS`, `SOIL_LABELS`, `WATERING_LABELS` dépréciés en faveur de `t('status.*')`, `t('exposure.*')`, etc.
+
 ## v0.2.9
 
 ### Added

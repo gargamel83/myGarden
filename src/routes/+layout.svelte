@@ -6,10 +6,13 @@
 	import LogPanel from '$lib/components/LogPanel.svelte';
 	import NotificationBell from '$lib/components/NotificationBell.svelte';
 	import ThemeSwitcher from '$lib/components/ThemeSwitcher.svelte';
+	import LocaleSwitcher from '$lib/components/LocaleSwitcher.svelte';
 	import { setToastHandler } from '$lib/toast.svelte';
 	import { version } from '../../package.json';
 	import { applyTheme, loadTheme } from '$lib/themes';
+	import { localeStore, t } from '$lib/i18n';
 	let { children } = $props();
+	let _locale = $localeStore;
 
 	let mobileOpen = $state(false);
 	let showLogs = $state(false);
@@ -24,10 +27,10 @@
 	});
 
 	const links = [
-		{ href: '/', label: 'Dashboard' },
-		{ href: '/garden', label: 'Garden' },
-		{ href: '/plantations', label: 'Plantings' },
-		{ href: '/plants', label: 'Plants' }
+		{ href: '/', label: () => t('nav.dashboard') },
+		{ href: '/garden', label: () => t('nav.garden') },
+		{ href: '/plantations', label: () => t('nav.plantings') },
+		{ href: '/plants', label: () => t('nav.plants') }
 	];
 
 	$effect(() => {
@@ -48,7 +51,7 @@
 <!-- Navigation -->
 <nav class="bg-[var(--nav-bg)] text-white">
 	<div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-		<a href="/" class="font-bold text-lg">MonJardin <span class="text-[var(--nav-accent)] text-xs font-normal">v{version}</span></a>
+		<a href="/" class="font-bold text-lg">{t('nav.brand')} <span class="text-[var(--nav-accent)] text-xs font-normal">v{version}</span></a>
 
 		<div class="hidden md:flex items-center gap-1">
 			{#each links as link}
@@ -56,13 +59,14 @@
 					href={link.href}
 					class="px-3 py-1.5 rounded text-sm transition-colors {$page.url.pathname === link.href ? 'bg-[var(--nav-active)] font-medium' : 'hover:bg-[var(--nav-hover)]'}"
 				>
-					{link.label}
+					{link.label()}
 				</a>
 			{/each}
 		</div>
 
 		<div class="flex items-center gap-1">
 			<ThemeSwitcher />
+			<LocaleSwitcher />
 			<NotificationBell onnavigate={(url) => { goto(url); }} />
 			<button
 				class="p-1.5 rounded hover:bg-[var(--nav-hover)] text-sm"
@@ -98,7 +102,7 @@
 					class="block px-3 py-2 rounded text-sm transition-colors {$page.url.pathname === link.href ? 'bg-[var(--nav-active)] font-medium' : 'hover:bg-[var(--nav-hover)]'}"
 					onclick={() => mobileOpen = false}
 				>
-					{link.label}
+					{link.label()}
 				</a>
 			{/each}
 		</div>

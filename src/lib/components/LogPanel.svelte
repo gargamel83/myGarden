@@ -2,6 +2,8 @@
 	import { LOG_LEVELS } from '$lib/types';
 	import type { LogLevel } from '$lib/types';
 	import type { LogEntry } from '$lib/server/logger';
+	import { localeStore, t } from '$lib/i18n';
+	let _locale = $localeStore;
 
 	let { onclose }: { onclose: () => void } = $props();
 
@@ -53,7 +55,7 @@
 	<div class="bg-white rounded-lg shadow-xl w-[800px] max-w-[95vw] h-[80vh] flex flex-col" role="none">
 		<!-- Header -->
 		<div class="flex items-center justify-between p-4 border-b shrink-0">
-			<h2 class="font-bold text-lg">Logs</h2>
+			<h2 class="font-bold text-lg">{t('logPanel.title')}</h2>
 			<button class="text-gray-400 hover:text-gray-600 text-xl leading-none" onclick={onclose} aria-label="Close">&times;</button>
 		</div>
 
@@ -72,16 +74,16 @@
 			<div class="ml-auto flex items-center gap-2 text-xs text-gray-500">
 				<label class="flex items-center gap-1 cursor-pointer">
 					<input type="checkbox" bind:checked={autoScroll} class="accent-gray-800" />
-					Auto-scroll
+					{t('logPanel.autoScroll')}
 				</label>
-				<button class="text-blue-600 hover:underline" onclick={fetchLogs}>Refresh</button>
+				<button class="text-blue-600 hover:underline" onclick={fetchLogs}>{t('logPanel.refresh')}</button>
 			</div>
 		</div>
 
 		<!-- Log entries -->
 		<div id="log-scroll" class="flex-1 overflow-y-auto p-2 space-y-0.5 font-mono text-xs">
 			{#if logs.length === 0}
-				<p class="text-gray-400 text-center py-8">No logs at this level.</p>
+				<p class="text-gray-400 text-center py-8">{t('logPanel.none')}</p>
 			{:else}
 				{#each logs as entry, i (entry.timestamp + entry.level + entry.message)}
 					{@const color = levelColors[entry.level] || 'text-gray-600'}

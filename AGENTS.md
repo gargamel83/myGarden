@@ -7,71 +7,64 @@
 - **Map** : Leaflet (OSM) + Canvas/SVG for drawing
 - **Auth** : Single-user, password in `.env`
 - **Deployment** : Docker
+- **i18n** : JSON files (`src/lib/i18n/en.json`, `fr.json`), zero dependencies
 
 ## Architecture
 - `/src/lib/server/db/` — Drizzle client + schemas
-- `/src/lib/components/` — Reusable components
+- `/src/lib/components/` — Reusable components (Svelte 5 `$props()` / `$state()`)
+- `/src/lib/i18n/` — Translations + locale store + `t()` function
 - `/src/routes/` — SvelteKit pages (layout, api, pages)
 - `/drizzle/` — Migrations
+- `/src/lib/types.ts` — Union types (`PlantStatus`, `SunExposure`, etc.)
 
 ## Commands
 ```bash
-npm run dev          # Dev server (port 5173)
-npm run build        # Production build
-npm run preview      # Preview production build
-npx drizzle-kit push # Apply schema to DB
+npm run dev            # Dev server (port 5173)
+npm run build          # Production build
+npm run preview        # Preview production build
+npm run check          # TypeScript check
+npm run test           # Vitest (unit + integration)
+npm run test:watch     # Vitest watch mode
+npx drizzle-kit push   # Apply schema to DB
 npx drizzle-kit generate # Generate migration
-npm run db:seed      # Seed plant database (58 sheets)
+npm run db:seed        # Seed plant database (58 sheets) — uses `npx tsx`
 docker compose up --build # Docker prod (fallback data-docker-v0.0.0)
-./scripts/docker-up.sh --build  # Docker prod with auto DATA_DIR from package.json
+./scripts/docker-up.sh --build # Docker prod with auto DATA_DIR from package.json
 ```
 
 ## DB / Schema
-- SQLite file stored in `data/monjardin.db` (gitignored)
-- Set `LOGIN_PASSWORD=xxx` in `.env` before running
-- Default dev without `.env` = no auth (pass-through)
-- Migration workflow: edit schema → `npx drizzle-kit generate` → `npx drizzle-kit push`
-- Docker uses a versioned data directory: `data-docker-vX.X.X/` (read from `package.json` via `scripts/docker-up.sh`)
-- `DB_PATH` env var overrides the database path (used by `migrate.js` and `db/index.ts`)
-- `DATA_DIR` env var overrides the mounted directory in Docker (defaults to `data-docker-v0.0.0` if not provided)
+- SQLite file in `data/monjardin.db` (gitignored). `DB_PATH` env var overrides path
+- Set `LOGIN_PASSWORD=xxx` in `.env`. Without it → no auth (dev mode)
+- Migration: edit schema → `npx drizzle-kit generate` → `npx drizzle-kit push`
+- Docker uses versioned data dir `data-docker-vX.X.X/` (read from `package.json` via `scripts/docker-up.sh`)
+- `DATA_DIR` env var overrides mounted directory in Docker
 
-## Iterations
-
-### Iteration 1 — DONE
-- Single-user auth (`.env` password)
-- Garden organization: satellite photo upload + interactive OSM map (Leaflet); polygon drawing (beds); geolocation, Nominatim geocoding; each bed has: name, dimensions, orientation, soil type, exposure
-- Planting management: CRUD, sowing → transplanting → harvesting cycles, calendar/timeline, auto-deduced status from dates, per-bed history, plantings displayed in map polygons
-- Dashboard: seasonal overview, sowing/harvest/rotation alerts, statistics, active plantings
-- Knowledge base: 58 pre-filled sheets (periods, exposure, soil, companion planting, Wikimedia photos); search and filters; detail page with reorderable photo gallery
-- Rotation engine: suggestions based on bed history, botanical families, alerts if rotation is too short
-- UX: toast notifications, confirmation dialogs, responsive navigation with hamburger, fade animations, resetForm/closeForm
-- Application logger: TRACE/DEBUG/INFO/WARN/ERROR, console in dev, persistent files in Docker
-- Docker: multi-stage, auto migration with reconciliation, versioned data directory (scripts/docker-up.sh)
-
-### Iteration 2 — DONE
-- **No more full page reload**: `fetch() + reload()` replaced by `<form> + use:enhance + invalidate()` on all pages (garden, plantations, plants, login)
-- **Form validation**: `required` fields, server errors displayed via toasts
-- **Personalized bed advice**: `getBedAdvice()` function based on soil and exposure, displayed in the edit modal
-- **Dashboard stats**: total area, top 5 crops (bars), monthly occupancy (histogram)
-- **Improved calendar**: bed filter, month navigation, tooltips, current month highlighted
-- **Photo lightbox**: reusable component with keyboard navigation (←/→/Esc)
-- **Accessibility**: Escape on modals, `role="dialog"` + `aria-modal`
-- **Strict TypeScript**: union types in `$lib/types.ts`, no more `as any`, centralized labels
+## i18n
+- `src/lib/i18n/index.ts` exports `t(path, params?)`, `localeStore` (Svelte writable), `setLocale()`, `getLocale()`
+- Keys are hierarchical: `nav.dashboard`, `status.sown`, `common.cancel`
+- Fallback to `en.json` if key missing in active locale
+- Add `import { localeStore, t } from '$lib/i18n'` + `let _locale = $localeStore` in components that use `t()`
+- New locale: create `xx.json`, import in `index.ts`, add to `localeData` record, add to `LocaleSwitcher.svelte` locales array
 
 ## Conventional Commits
-All commit messages follow the format:
 ```
 <type>(<scope>): <description>
 ```
 Types: `feat`, `fix`, `docs`, `refactor`, `style`, `chore`, `perf`, `test`
-- Scope is optional but encouraged (e.g.: `plantations`, `docker`, `carte`, `auth`)
-- Description in French, imperative present, no capital letter, no period at the end
-- No breaking change without explicit discussion
+- Scope optional (e.g. `plantations`, `docker`, `carte`, `i18n`, `auth`)
+- Description in French, imperative present, no capital letter, no period
 
-## Rules for the agent
-- Read `SPECS.md` for the detailed specifications
-- Always run `npx drizzle-kit push` after a schema modification
-- Migrations are in `/drizzle/`
-- Auth uses `@sveltejs/kit` hooks (`handle`) to protect routes
+## Pending Bugs
+- **LocaleSwitcher dropdown ne s'ouvre pas au clic**. Cause suspectée : hydration mismatch SSR/client. Le SSR initialise `current = 'en'` (pas de localStorage), mais si localStorage contient `'fr'`, la réhydratation peut casser les event handlers. Tentatives : `$effect` + subscribe, `$state` local + `$effect` post-mount. Rien n'a fonctionné. À revoir.
+
+## Rules
+- Read `SPECS.md` for detailed specs
+- Always run `npx drizzle-kit push` after schema modification
+- After schema change: `generate` → `push`
+- Auth uses `@sveltejs/kit` hooks (`handle`) in `src/hooks.server.ts`
 - No UI library — Tailwind only
-- **Chaque commit DOIT inclure** : les tests, la MAJ du CHANGELOG et la MAJ du README si nécessaire
+- **Every commit MUST include**: tests + CHANGELOG.md update + README.md if needed
+- **Always ask before committing** — never commit without explicit approval
+- Use sub-agents (Task tool) for parallelizable work whenever possible
+- Use fixed versions (no `latest`) in docker configs
+- Svelte 5: `$props()`, `$state()`, `$derived()`, `$effect()`, `@render children`, `{#snippet}` / `{@snippet}`

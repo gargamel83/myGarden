@@ -12,7 +12,7 @@
 		onSaveBed,
 		onEditBed
 	}: {
-		beds?: { id: number; polygon: string; color: string | null; name: string; type: string }[]
+		beds?: { id: number; polygon: string; color: string | null; name: string; type: string | null }[]
 		photoUrl?: string | null
 		photoNaturalW?: number
 		photoNaturalH?: number

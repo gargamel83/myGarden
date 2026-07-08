@@ -7,6 +7,8 @@
 	import type { SubmitFunction } from '@sveltejs/kit';
 import { firstPhoto } from '$lib/utils';
 import Modal from '$lib/components/Modal.svelte';
+import { localeStore, t } from '$lib/i18n';
+let _locale = $localeStore;
 
 	let { data } = $props();
 
@@ -85,11 +87,11 @@ import Modal from '$lib/components/Modal.svelte';
 	const handleFormEnhance: SubmitFunction = (_input) => {
 		return async ({ result }) => {
 			if (result.type === 'success') {
-				toast(editId ? 'Planting updated' : 'Planting created');
+				toast(editId ? t('plantations.updated') : t('plantations.created'));
 				closeForm();
 				await invalidate('app:plantations');
 			} else if (result.type === 'failure') {
-				toast(result.data?.error || 'Error', 'error');
+				toast(result.data?.error || t('common.error'), 'error');
 			}
 		};
 	}
@@ -97,7 +99,7 @@ import Modal from '$lib/components/Modal.svelte';
 	const handleStatusEnhance: SubmitFunction = (_input) => {
 		return async ({ result }) => {
 			if (result.type === 'success') {
-				toast('Status updated');
+				toast(t('plantations.statusUpdated'));
 				await invalidate('app:plantations');
 			}
 		};
@@ -107,7 +109,7 @@ import Modal from '$lib/components/Modal.svelte';
 		return async ({ result }) => {
 			if (result.type === 'success') {
 				confirmDeleteId = null;
-				toast('Planting deleted');
+				toast(t('plantations.deleted'));
 				await invalidate('app:plantations');
 			}
 		};
@@ -187,9 +189,9 @@ import Modal from '$lib/components/Modal.svelte';
 
 <div class="space-y-6">
 	<div class="flex items-center justify-between">
-		<h1 class="text-2xl font-bold">Plantings</h1>
+		<h1 class="text-2xl font-bold">{t('plantations.title')}</h1>
 		<button class="bg-[var(--btn-bg)] text-white px-4 py-2 rounded" onclick={() => { resetForm(); showForm = true; }}>
-			+ New planting
+			{t('plantations.newPlanting')}
 		</button>
 	</div>
 
@@ -199,25 +201,25 @@ import Modal from '$lib/components/Modal.svelte';
 			class="px-4 py-2 -mb-px border-b-2 {view === 'list' ? 'border-[var(--tab-border)] text-[var(--tab-text)] font-medium' : 'border-transparent text-gray-500'}"
 			onclick={() => view = 'list'}
 		>
-			List
+			{t('plantations.list')}
 		</button>
 		<button
 			class="px-4 py-2 -mb-px border-b-2 {view === 'timeline' ? 'border-[var(--tab-border)] text-[var(--tab-text)] font-medium' : 'border-transparent text-gray-500'}"
 			onclick={() => view = 'timeline'}
 		>
-			Calendar
+			{t('plantations.calendar')}
 		</button>
 	</div>
 
 	<!-- Rotation alerts -->
 	{#if data.rotationAlerts.length > 0}
 		<div class="space-y-2">
-			<h2 class="font-bold text-lg">Rotation alerts</h2>
+			<h2 class="font-bold text-lg">{t('plantations.rotationAlerts')}</h2>
 			{#each data.rotationAlerts as alert}
 				<div class="border-l-4 px-4 py-2 {alert.type === 'warning' ? 'border-red-500 bg-red-50' : 'border-blue-500 bg-blue-50'}">
 					<p class="text-sm"><strong>{alert.bedName} :</strong> {alert.message}</p>
 					{#if alert.suggestedPlants}
-						<p class="text-xs text-gray-500 mt-1">Suggestions: {alert.suggestedPlants.join(', ')}</p>
+						<p class="text-xs text-gray-500 mt-1">{t('garden.suggestions', { plants: alert.suggestedPlants.join(', ') })}</p>
 					{/if}
 				</div>
 			{/each}
@@ -227,7 +229,7 @@ import Modal from '$lib/components/Modal.svelte';
 	{#if view === 'list'}
 		<!-- List view -->
 		{#if data.plantations.length === 0}
-			<p class="text-gray-500 text-center py-8">No plantations yet.</p>
+			<p class="text-gray-500 text-center py-8">{t('plantations.none')}</p>
 		{/if}
 
 		<div class="grid gap-3">
@@ -248,29 +250,29 @@ import Modal from '$lib/components/Modal.svelte';
 						<p class="text-sm text-gray-500">{p.bedName || '—'}</p>
 						<div class="flex gap-3 text-xs text-gray-400 mt-1">
 							{#if p.plantation.sowingDate}
-								<span>Sowing: {p.plantation.sowingDate}</span>
+								<span>{t('timeline.sowing', { date: p.plantation.sowingDate })}</span>
 							{/if}
 							{#if p.plantation.plantingDate}
-								<span>Transplanting: {p.plantation.plantingDate}</span>
+								<span>{t('timeline.transplanting', { date: p.plantation.plantingDate })}</span>
 							{/if}
 							{#if p.plantation.harvestDate}
-								<span>Harvest: {p.plantation.harvestDate}</span>
+								<span>{t('timeline.harvest', { date: p.plantation.harvestDate })}</span>
 							{/if}
 						</div>
 					</div>
 					<div class="flex items-center gap-2">
 						<span class="px-2 py-1 rounded text-xs font-medium {statusColors[p.plantation.status as PlantStatus]}">
-							{statusLabels[p.plantation.status as PlantStatus]}
+							{t('status.' + p.plantation.status)}
 						</span>
 						<button class="text-xs text-blue-600 px-2 py-1 rounded hover:bg-blue-50" onclick={() => editPlantation(p)}>
-							Edit
+							{t('plantations.edit')}
 						</button>
 						{#if nextStatus(p.plantation.status)}
 							<form method="POST" action="?/updateStatus" use:enhance={handleStatusEnhance} class="inline">
 								<input type="hidden" name="id" value={p.plantation.id} />
 								<input type="hidden" name="status" value={nextStatus(p.plantation.status)!} />
 								<button type="submit" class="text-xs bg-blue-600 text-white px-2 py-1 rounded">
-									Move to {statusLabels[nextStatus(p.plantation.status) as PlantStatus]}
+									{t('plantations.moveTo', { status: t('status.' + nextStatus(p.plantation.status)!) })}
 								</button>
 							</form>
 						{/if}
@@ -284,7 +286,7 @@ import Modal from '$lib/components/Modal.svelte';
 		</div>
 		{#if hasMore}
 			<button onclick={showMore} class="w-full py-2 border rounded text-sm text-gray-600 hover:bg-gray-50">
-				Show more ({data.plantations.length - visibleCount} remaining)
+				{t('plantations.showMore', { count: data.plantations.length - visibleCount })}
 			</button>
 		{/if}
 	{:else}
@@ -292,12 +294,12 @@ import Modal from '$lib/components/Modal.svelte';
 		<!-- Timeline controls -->
 			<div class="flex items-center justify-between gap-3">
 				<div class="flex items-center gap-1">
-				<button class="p-1 rounded border text-sm hover:bg-gray-100" onclick={() => timelineOffset -= 6} title="Previous months">◀</button>
-				<button class="p-1 rounded border text-sm hover:bg-gray-100" onclick={() => timelineOffset = 0} title="Today">Today</button>
-				<button class="p-1 rounded border text-sm hover:bg-gray-100" onclick={() => timelineOffset += 6} title="Next months">▶</button>
+				<button class="p-1 rounded border text-sm hover:bg-gray-100" onclick={() => timelineOffset -= 6} title={t('plantations.previous')}>◀</button>
+				<button class="p-1 rounded border text-sm hover:bg-gray-100" onclick={() => timelineOffset = 0} title={t('plantations.today')}>{t('plantations.today')}</button>
+				<button class="p-1 rounded border text-sm hover:bg-gray-100" onclick={() => timelineOffset += 6} title={t('plantations.next')}>▶</button>
 				</div>
 				<select bind:value={filterBed} class="border rounded px-2 py-1 text-sm">
-					<option value="">All beds</option>
+					<option value="">{t('plantations.allBeds')}</option>
 				{#each data.bedNames as name}
 					<option value={name}>{name}</option>
 				{/each}
@@ -318,7 +320,7 @@ import Modal from '$lib/components/Modal.svelte';
 					</div>
 
 					{#if data.plantations.length === 0}
-						<p class="text-gray-400 text-center py-8 text-sm">No plantations to display.</p>
+						<p class="text-gray-400 text-center py-8 text-sm">{t('plantations.noDisplay')}</p>
 					{:else}
 						{#each bedGroups as [bedName, plantList] (bedName)}
 							<div class="mb-4">
@@ -340,11 +342,11 @@ import Modal from '$lib/components/Modal.svelte';
 										</div>
 										{#if style}
 											<div class="absolute h-5 top-1 rounded cursor-pointer transition-opacity group-hover:opacity-90" style="background: {barColor(p)}; opacity: 0.7; {style}"
-												title="{p.plantation.plantName} ({p.bedName})
-				Sowing: {p.plantation.sowingDate || '—'}
-Transplanting: {p.plantation.plantingDate || '—'}
-Harvest: {p.plantation.harvestDate || '—'}
-{p.plantation.variety ? 'Variety: ' + p.plantation.variety : ''}">
+												title="{t('calendar.title', { name: p.plantation.plantName || '', bed: p.bedName || '' })}
+				{t('timeline.sowing', { date: p.plantation.sowingDate || '—' })}
+{t('timeline.transplanting', { date: p.plantation.plantingDate || '—' })}
+{t('timeline.harvest', { date: p.plantation.harvestDate || '—' })}
+{p.plantation.variety ? t('calendar.variety', { name: p.plantation.variety }) : ''}">
 											</div>
 										{/if}
 									</div>
@@ -357,10 +359,10 @@ Harvest: {p.plantation.harvestDate || '—'}
 
 			<!-- Legend -->
 			<div class="flex gap-4 text-xs text-gray-500">
-				<span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-gray-400"></span> Planned</span>
-				<span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-blue-500"></span> Sown</span>
-				<span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-[var(--bar-fill)]"></span> Transplanted</span>
-				<span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-[var(--bar-fill)]"></span> Harvested</span>
+				<span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-gray-400"></span> {t('plantations.legendPlanned')}</span>
+				<span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-blue-500"></span> {t('plantations.legendSown')}</span>
+				<span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-[var(--bar-fill)]"></span> {t('plantations.legendTransplanted')}</span>
+				<span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-[var(--bar-fill)]"></span> {t('plantations.legendHarvested')}</span>
 			</div>
 	{/if}
 </div>
@@ -371,13 +373,13 @@ Harvest: {p.plantation.harvestDate || '—'}
 				{#if editId}
 					<input type="hidden" name="id" value={editId} />
 				{/if}
-				<h2 class="text-lg font-bold mb-4">{editId ? 'Edit' : 'New'} planting</h2>
+				<h2 class="text-lg font-bold mb-4">{editId ? t('plantations.editPlanting') : t('plantations.newPlanting')}</h2>
 				<div class="space-y-3">
 					<div>
-						<label class="block text-sm text-gray-600">
-							Bed *
-							<select name="gardenBedId" bind:value={formBedId} required class="w-full border rounded px-2 py-1">
-								<option value="">Select a bed</option>
+					<label class="block text-sm text-gray-600">
+						{t('plantations.bed')}
+						<select name="gardenBedId" bind:value={formBedId} required class="w-full border rounded px-2 py-1">
+							<option value="">{t('plantations.selectBed')}</option>
 								{#each data.beds as bed}
 									<option value={bed.id}>{bed.name}</option>
 								{/each}
@@ -386,7 +388,7 @@ Harvest: {p.plantation.harvestDate || '—'}
 					</div>
 					<div>
 						<label class="block text-sm text-gray-600">
-							Plant (base)
+							{t('plantations.plant')}
 							<select name="plantId" bind:value={formPlantId} class="w-full border rounded px-2 py-1">
 								<option value="">—</option>
 								{#each data.plants as plant}
@@ -397,51 +399,51 @@ Harvest: {p.plantation.harvestDate || '—'}
 					</div>
 					<div>
 						<label class="block text-sm text-gray-600">
-							Plant name *
+							{t('plantations.plantName')}
 							<input type="text" name="plantName" bind:value={formPlantName} required class="w-full border rounded px-2 py-1" />
 						</label>
 					</div>
 					<div>
 						<label class="block text-sm text-gray-600">
-							Variety
+							{t('plantations.variety')}
 							<input type="text" name="variety" bind:value={formVariety} class="w-full border rounded px-2 py-1" />
 						</label>
 					</div>
 					<div class="grid grid-cols-3 gap-2">
 						<div>
 							<label class="block text-sm text-gray-600">
-								Sowing
+								{t('plantations.sowing')}
 								<input type="date" name="sowingDate" bind:value={formSowing} class="w-full border rounded px-2 py-1 text-sm" />
 							</label>
 						</div>
 						<div>
 							<label class="block text-sm text-gray-600">
-								Transplanting
+								{t('plantations.transplanting')}
 								<input type="date" name="plantingDate" bind:value={formPlanting} class="w-full border rounded px-2 py-1 text-sm" />
 							</label>
 						</div>
 						<div>
 							<label class="block text-sm text-gray-600">
-								Harvest
+								{t('plantations.harvest')}
 								<input type="date" name="harvestDate" bind:value={formHarvest} class="w-full border rounded px-2 py-1 text-sm" />
 							</label>
 						</div>
 					</div>
 					<div>
 						<label class="block text-sm text-gray-600">
-							Quantity
+							{t('plantations.quantity')}
 							<input type="number" name="quantity" bind:value={formQuantity} class="w-full border rounded px-2 py-1" />
 						</label>
 					</div>
 					<div>
 						<label class="block text-sm text-gray-600">
-							Notes
+							{t('plantations.notes')}
 							<textarea name="notes" bind:value={formNotes} class="w-full border rounded px-2 py-1"></textarea>
 						</label>
 					</div>
 					<div class="flex gap-2 justify-end pt-2">
-						<button type="button" class="px-4 py-2 border rounded" onclick={closeForm}>Cancel</button>
-						<button type="submit" class="px-4 py-2 bg-[var(--btn-bg)] text-white rounded">{editId ? 'Save' : 'Create'}</button>
+						<button type="button" class="px-4 py-2 border rounded" onclick={closeForm}>{t('plantations.cancel')}</button>
+						<button type="submit" class="px-4 py-2 bg-[var(--btn-bg)] text-white rounded">{editId ? t('plantations.save') : t('plantations.create')}</button>
 					</div>
 				</div>
 			</form>
@@ -450,11 +452,11 @@ Harvest: {p.plantation.harvestDate || '—'}
 <Modal open={!!confirmDeleteId} onclose={() => confirmDeleteId = null} class="w-80 shadow-xl">
 	<form method="POST" action="?/delete" use:enhance={handleDeleteEnhance}>
 		<input type="hidden" name="id" value={confirmDeleteId} />
-		<h3 class="font-bold text-lg mb-2">Delete planting</h3>
-		<p class="text-sm text-gray-600 mb-5">This action is irreversible.</p>
+		<h3 class="font-bold text-lg mb-2">{t('plantations.delete')}</h3>
+		<p class="text-sm text-gray-600 mb-5">{t('plantations.deleteConfirm')}</p>
 		<div class="flex justify-end gap-2">
-			<button type="button" class="px-4 py-2 border rounded text-sm" onclick={() => confirmDeleteId = null}>Cancel</button>
-			<button type="submit" class="px-4 py-2 bg-red-600 text-white rounded text-sm">Delete</button>
+			<button type="button" class="px-4 py-2 border rounded text-sm" onclick={() => confirmDeleteId = null}>{t('common.cancel')}</button>
+			<button type="submit" class="px-4 py-2 bg-red-600 text-white rounded text-sm">{t('common.delete')}</button>
 		</div>
 	</form>
 </Modal>

@@ -9,7 +9,7 @@
 		onEditBed,
 		onShowBedPlantations
 	}: {
-		existingBeds?: { id: number; polygon: string; color: string | null; name: string; type: string }[]
+		existingBeds?: { id: number; polygon: string; color: string | null; name: string; type: string | null }[]
 		onSave?: (polygon: string) => void
 		zoomToBedId?: number | null
 		onEditBed?: (bedId: number) => void

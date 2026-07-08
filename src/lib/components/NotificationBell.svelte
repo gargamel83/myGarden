@@ -1,5 +1,7 @@
 <script lang="ts">
 	import type { AppNotification } from '$lib/server/notifications';
+	import { localeStore, t } from '$lib/i18n';
+	let _locale = $localeStore;
 
 	let { onnavigate }: { onnavigate?: (url: string) => void } = $props();
 
@@ -74,14 +76,14 @@
 		<div class="fixed inset-0 z-40" onclick={closeDropdown} onkeydown={(e) => e.key === 'Escape' && closeDropdown()} role="none"></div>
 		<div class="absolute right-0 top-full mt-1 z-50 w-80 bg-white border rounded-lg shadow-xl max-h-96 flex flex-col">
 			<div class="flex items-center justify-between p-3 border-b shrink-0">
-				<h3 class="font-bold text-sm">Notifications</h3>
+				<h3 class="font-bold text-sm">{t('notifications.title')}</h3>
 				{#if unreadCount > 0}
-					<button class="text-xs text-blue-600 hover:underline" onclick={markAllAsRead}>Mark all read</button>
+					<button class="text-xs text-blue-600 hover:underline" onclick={markAllAsRead}>{t('notifications.markAllRead')}</button>
 				{/if}
 			</div>
 			<div class="overflow-y-auto flex-1">
 				{#if notifications.length === 0}
-					<p class="text-gray-400 text-xs text-center py-6">No notifications</p>
+					<p class="text-gray-400 text-xs text-center py-6">{t('notifications.none')}</p>
 				{:else}
 					{#each notifications as n (n.id)}
 						<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
@@ -103,7 +105,7 @@
 				{/if}
 			</div>
 			<a href="/" class="block text-center text-xs text-blue-600 hover:underline py-2 border-t shrink-0" onclick={() => open = false}>
-				Go to dashboard
+				{t('notifications.goToDashboard')}
 			</a>
 		</div>
 	{/if}

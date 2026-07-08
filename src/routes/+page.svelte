@@ -1,6 +1,8 @@
 <script lang="ts">
-	import { STATUS_LABELS, STATUS_COLORS } from '$lib/types';
+	import { STATUS_COLORS } from '$lib/types';
 	import type { PlantStatus } from '$lib/types';
+	import { localeStore, t } from '$lib/i18n';
+	let _locale = $localeStore;
 
 	let { data } = $props();
 	let stats = $derived(data.stats);
@@ -12,39 +14,38 @@
 	let topCrops = $derived(data.topCrops || []);
 	let occupationByMonth = $derived(data.occupationByMonth || []);
 
-	const statusLabels = STATUS_LABELS;
 	const statusColors = STATUS_COLORS;
 
 	function daysText(days: number): string {
-		if (days === 0) return 'Today';
-		if (days < 0) return `${-days} day${-days > 1 ? 's' : ''} ago`;
-		return `In ${days} day${days > 1 ? 's' : ''}`;
+		if (days === 0) return t('dashboard.today');
+		if (days < 0) return t('dashboard.daysAgo', { count: -days });
+		return t('dashboard.inDays', { count: days });
 	}
 </script>
 
 <div class="space-y-8">
-	<h1 class="text-2xl font-bold">Dashboard</h1>
+	<h1 class="text-2xl font-bold">{t('dashboard.title')}</h1>
 
 	<!-- Stats cards -->
 	<div class="grid grid-cols-2 md:grid-cols-4 gap-3">
 		<a href="/garden" class="block bg-[var(--bg-subtle)] border border-[var(--border-card)] rounded-lg p-4 text-center hover:bg-slate-100">
 			<p class="text-3xl font-bold text-[var(--text-primary)]">{stats.bedCount}</p>
-			<p class="text-xs text-gray-600 mt-1">Beds</p>
+			<p class="text-xs text-gray-600 mt-1">{t('dashboard.beds')}</p>
 			{#if stats.totalArea > 0}
 				<p class="text-[10px] text-gray-400 mt-0.5">{stats.totalArea} m²</p>
 			{/if}
 		</a>
 		<a href="/plantations" class="block bg-blue-50 border border-blue-200 rounded-lg p-4 text-center hover:bg-blue-100">
 			<p class="text-3xl font-bold text-blue-700">{stats.activeCount}</p>
-			<p class="text-xs text-gray-600 mt-1">Active</p>
+			<p class="text-xs text-gray-600 mt-1">{t('dashboard.active')}</p>
 		</a>
 		<a href="/plantations" class="block bg-[var(--bg-subtle)] border border-[var(--border-card)] rounded-lg p-4 text-center hover:bg-slate-100">
 			<p class="text-3xl font-bold text-[var(--text-primary)]">{stats.plannedCount}</p>
-			<p class="text-xs text-gray-600 mt-1">Planned</p>
+			<p class="text-xs text-gray-600 mt-1">{t('dashboard.planned')}</p>
 		</a>
 		<a href="/plantations" class="block bg-purple-50 border border-purple-200 rounded-lg p-4 text-center hover:bg-purple-100">
 			<p class="text-3xl font-bold text-purple-700">{stats.harvestedCount}</p>
-			<p class="text-xs text-gray-600 mt-1">Harvested</p>
+			<p class="text-xs text-gray-600 mt-1">{t('dashboard.harvested')}</p>
 		</a>
 	</div>
 
@@ -52,14 +53,14 @@
 		<!-- Alertes semis -->
 		{#if sowingAlerts.length > 0}
 			<div class="border rounded-lg p-4">
-				<a href="/plantations" class="font-bold text-lg mb-2 text-blue-700 block hover:underline">🌱 Upcoming sowings</a>
+				<a href="/plantations" class="font-bold text-lg mb-2 text-blue-700 block hover:underline">{t('dashboard.upcomingSowings')}</a>
 				<div class="space-y-2">
 					{#each sowingAlerts as a (a.plantation.id)}
 						<a href="/plants/{a.plant?.id || ''}" class="flex justify-between text-sm hover:bg-blue-50 -mx-2 px-2 py-1 rounded">
 							<div>
 								<span class="font-medium">{a.plant?.commonName || a.plantation.plantName}</span>
 								{#if a.plant?.sowingStart}
-									<span class="text-gray-400 ml-1">(from {a.plant.sowingStart})</span>
+									<span class="text-gray-400 ml-1">({t('dashboard.from', { date: a.plant.sowingStart })})</span>
 								{/if}
 							</div>
 							<span class="text-blue-600">{daysText(a.daysLeft)}</span>
@@ -72,7 +73,7 @@
 		<!-- Alertes récolte -->
 		{#if harvestAlerts.length > 0}
 			<div class="border rounded-lg p-4">
-				<a href="/plantations" class="font-bold text-lg mb-2 text-[var(--text-primary)] block hover:underline">🧑‍🌾 Upcoming harvests</a>
+				<a href="/plantations" class="font-bold text-lg mb-2 text-[var(--text-primary)] block hover:underline">{t('dashboard.upcomingHarvests')}</a>
 				<div class="space-y-2">
 					{#each harvestAlerts as a (a.plantation.id)}
 						<a href="/plants/{a.plant?.id || ''}" class="flex justify-between text-sm hover:bg-slate-50 -mx-2 px-2 py-1 rounded">
@@ -93,7 +94,7 @@
 	<!-- Top cultures -->
 	{#if data.topCrops && data.topCrops.length > 0}
 		<div class="border rounded-lg p-4">
-			<h2 class="font-bold text-lg mb-3">Top crops</h2>
+			<h2 class="font-bold text-lg mb-3">{t('dashboard.topCrops')}</h2>
 			<div class="space-y-2">
 				{#each data.topCrops as crop (crop.name)}
 					<div class="flex items-center gap-2">
@@ -111,13 +112,13 @@
 	<!-- Occupation mensuelle -->
 	{#if data.occupationByMonth}
 		<div class="border rounded-lg p-4">
-			<h2 class="font-bold text-lg mb-3">Monthly occupancy</h2>
+			<h2 class="font-bold text-lg mb-3">{t('dashboard.monthlyOccupancy')}</h2>
 			<div class="flex items-end gap-1 h-24">
 				{#each data.occupationByMonth as count, i}
 					{@const max = Math.max(1, ...data.occupationByMonth)}
 					<div class="flex-1 flex flex-col items-center">
 						<div class="w-full bg-blue-200 rounded-t" style="height: {(count / max) * 100}%"></div>
-						<span class="text-[10px] text-gray-500 mt-1">{['J','F','M','A','M','J','J','A','S','O','N','D'][i]}</span>
+						<span class="text-[10px] text-gray-500 mt-1">{t('monthLabelsShort')[i]}</span>
 					</div>
 				{/each}
 			</div>
@@ -127,7 +128,7 @@
 	<!-- Alertes rotation -->
 	{#if rotationAlerts.length > 0}
 		<a href="/garden" class="block border-l-4 border-red-500 bg-red-50 px-4 py-3 hover:bg-red-100">
-			<h2 class="font-bold text-sm text-red-700">⚠️ Rotation alerts</h2>
+			<h2 class="font-bold text-sm text-red-700">{t('dashboard.rotationAlerts')}</h2>
 			{#each rotationAlerts as a (a.bedId)}
 				<p class="text-xs text-gray-600 mt-1">{a.message}</p>
 			{/each}
@@ -138,28 +139,25 @@
 	{#if data.advanced && (data.advanced.successRate > 0 || data.advanced.completedCycles > 0 || (data.advanced.plantationsByMonth && data.advanced.plantationsByMonth.some((m: any) => m.count > 0)) || (data.advanced.familyDistribution && data.advanced.familyDistribution.length > 0) || (data.advanced.bedUtilization && data.advanced.bedUtilization.some((b: any) => b.occupiedMonths > 0)))}
 		{@const a = data.advanced}
 		<div class="border rounded-lg p-4">
-			<h2 class="font-bold text-lg mb-3">📊 Advanced statistics</h2>
+			<h2 class="font-bold text-lg mb-3">{t('dashboard.advancedStats')}</h2>
 			<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
 
-				<!-- Taux de réussite -->
 				<div class="border rounded p-3">
-					<p class="text-xs text-gray-500 mb-1">Success rate</p>
+					<p class="text-xs text-gray-500 mb-1">{t('dashboard.successRate')}</p>
 					<p class="text-2xl font-bold text-[var(--text-primary)]">{a.successRate}%</p>
-					<p class="text-xs text-gray-400">plantations harvested</p>
+					<p class="text-xs text-gray-400">{t('dashboard.plantationsHarvested')}</p>
 				</div>
 
-				<!-- Durée cycle moyenne -->
 				<div class="border rounded p-3">
-					<p class="text-xs text-gray-500 mb-1">Avg. cycle</p>
-					<p class="text-2xl font-bold text-blue-700">{a.avgCycleDays} days</p>
-					<p class="text-xs text-gray-400">from sowing to harvest</p>
+					<p class="text-xs text-gray-500 mb-1">{t('dashboard.avgCycle')}</p>
+					<p class="text-2xl font-bold text-blue-700">{a.avgCycleDays} {t('dashboard.days')}</p>
+					<p class="text-xs text-gray-400">{t('dashboard.fromSowingToHarvest')}</p>
 				</div>
 
-				<!-- Nb de cycles complétés -->
 				<div class="border rounded p-3">
-					<p class="text-xs text-gray-500 mb-1">Completed cycles</p>
+					<p class="text-xs text-gray-500 mb-1">{t('dashboard.completedCycles')}</p>
 					<p class="text-2xl font-bold text-purple-700">{a.completedCycles}</p>
-					<p class="text-xs text-gray-400">with full dates</p>
+					<p class="text-xs text-gray-400">{t('dashboard.withFullDates')}</p>
 				</div>
 
 			</div>
@@ -168,7 +166,7 @@
 			{#if a.plantationsByMonth && a.plantationsByMonth.length > 0}
 				{@const maxCount = Math.max(1, ...a.plantationsByMonth.map(m => m.count))}
 				<div class="mt-4">
-					<p class="text-sm font-semibold text-gray-700 mb-2">New plantations / month</p>
+					<p class="text-sm font-semibold text-gray-700 mb-2">{t('dashboard.newPlantationsPerMonth')}</p>
 					<div class="flex items-end gap-1 h-20">
 						{#each a.plantationsByMonth as m (m.month)}
 							<div class="flex-1 flex flex-col items-center">
@@ -183,7 +181,7 @@
 			<!-- Distribution par famille botanique -->
 			{#if a.familyDistribution && a.familyDistribution.length > 0}
 				<div class="mt-4">
-					<p class="text-sm font-semibold text-gray-700 mb-2">Botanical families</p>
+					<p class="text-sm font-semibold text-gray-700 mb-2">{t('dashboard.botanicalFamilies')}</p>
 					<div class="space-y-1.5">
 						{#each a.familyDistribution as f (f.family)}
 							{@const pct = Math.round((f.count / a.familyDistribution.reduce((s, x) => s + x.count, 0)) * 100)}
@@ -202,7 +200,7 @@
 			<!-- Utilisation des planches -->
 			{#if a.bedUtilization && a.bedUtilization.length > 0}
 				<div class="mt-4">
-					<p class="text-sm font-semibold text-gray-700 mb-2">Bed utilization {new Date().getFullYear()}</p>
+					<p class="text-sm font-semibold text-gray-700 mb-2">{t('dashboard.bedUtilization', { year: String(new Date().getFullYear()) })}</p>
 					<div class="space-y-1.5">
 						{#each a.bedUtilization as b (b.bedId)}
 							<div class="flex items-center gap-2 text-xs">
@@ -222,18 +220,18 @@
 	<!-- Plantations actives -->
 	{#if active.length > 0}
 		<div>
-			<a href="/plantations" class="font-bold text-lg mb-3 block hover:underline">In progress</a>
+			<a href="/plantations" class="font-bold text-lg mb-3 block hover:underline">{t('dashboard.inProgress')}</a>
 			<div class="grid gap-2">
 				{#each active as p (p.id)}
 					<a href="/plantations" class="border rounded p-3 flex items-center justify-between text-sm hover:bg-gray-50">
 						<div>
 							<span class="font-medium">{p.plantName}</span>
 							{#if p.sowingDate}
-								<span class="text-gray-400 ml-2">Sowing: {p.sowingDate}</span>
+								<span class="text-gray-400 ml-2">{t('timeline.sowing', { date: p.sowingDate })}</span>
 							{/if}
 						</div>
 						<span class="px-2 py-0.5 rounded text-xs font-medium {statusColors[p.status as PlantStatus]}">
-							{statusLabels[p.status as PlantStatus]}
+							{t(`status.${p.status}`)}
 						</span>
 					</a>
 				{/each}
@@ -244,16 +242,16 @@
 	<!-- Activité récente -->
 	{#if recentActivity.length > 0}
 		<div>
-			<h2 class="font-bold text-lg mb-3">Recent activity</h2>
+			<h2 class="font-bold text-lg mb-3">{t('dashboard.recentActivity')}</h2>
 			<div class="space-y-1 text-sm">
 				{#each recentActivity as a (a.id)}
 					<a href="/plantations" class="flex gap-2 text-gray-600 hover:bg-gray-50 -mx-2 px-2 py-1 rounded">
 						<span class="px-1.5 py-0.5 rounded text-xs font-medium {statusColors[a.status as PlantStatus]}">
-							{statusLabels[a.status as PlantStatus]}
+							{t(`status.${a.status}`)}
 						</span>
 						<span>{a.plantName}</span>
 						{#if a.sowingDate}
-							<span class="text-gray-400">sown {a.sowingDate}</span>
+							<span class="text-gray-400">{t('dashboard.sown', { date: a.sowingDate })}</span>
 						{/if}
 					</a>
 				{/each}
@@ -264,10 +262,10 @@
 	<!-- Empty state -->
 	{#if stats.bedCount === 0}
 		<div class="text-center py-12">
-			<p class="text-gray-500">Welcome to My Garden!</p>
+			<p class="text-gray-500">{t('dashboard.welcome')}</p>
 			<div class="flex justify-center gap-3 mt-4">
-				<a href="/garden" class="bg-[var(--btn-bg)] text-white px-6 py-2 rounded-lg">Add beds</a>
-				<a href="/plants" class="bg-blue-600 text-white px-6 py-2 rounded-lg">Explore plants</a>
+				<a href="/garden" class="bg-[var(--btn-bg)] text-white px-6 py-2 rounded-lg">{t('dashboard.addBeds')}</a>
+				<a href="/plants" class="bg-blue-600 text-white px-6 py-2 rounded-lg">{t('dashboard.explorePlants')}</a>
 			</div>
 		</div>
 	{/if}
