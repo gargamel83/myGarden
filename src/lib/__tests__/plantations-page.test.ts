@@ -76,7 +76,7 @@ describe('Plantations page - load', () => {
 			depends: vi.fn(),
 			locals: { user: { id: 9999 } }
 		};
-		const result = await load(event as any);
+		const result: any = await load(event as any);
 		expect(event.depends).toHaveBeenCalledWith('app:plantations');
 		expect(result.plantations).toEqual([]);
 		expect(result.beds).toEqual([]);
@@ -90,7 +90,7 @@ describe('Plantations page - load', () => {
 			depends: vi.fn(),
 			locals: { user: { id: userA.id } }
 		};
-		const result = await load(event as any);
+		const result: any = await load(event as any);
 		expect(result.plantations).toHaveLength(1);
 		expect(result.plantations[0].plantName).toBe('Tomato');
 		expect(result.plantations[0].bedName).toBe('Bed A');
@@ -107,7 +107,7 @@ describe('Plantations page - load', () => {
 			depends: vi.fn(),
 			locals: { user: { id: userB.id } }
 		};
-		const result = await load(event as any);
+		const result: any = await load(event as any);
 		expect(result.plantations).toHaveLength(0);
 		expect(result.beds).toHaveLength(0);
 		expect(result.plants.length).toBeGreaterThan(0);

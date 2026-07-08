@@ -26,7 +26,7 @@ let db: ReturnType<typeof drizzle>;
 let userId: number;
 
 function mkEvent(uid: number) {
-	return { depends: vi.fn(), locals: { user: { id: uid } } };
+	return { depends: vi.fn(), locals: { user: { id: uid } } } as any;
 }
 
 function insertBed(name: string, overrides: Partial<typeof schema.gardenBeds.$inferInsert> = {}) {
@@ -80,7 +80,7 @@ afterEach(() => {
 
 describe('dashboard page server load function', () => {
 	it('should return empty stats when user has no data', async () => {
-		const result = await load(mkEvent(userId));
+		const result: any = await load(mkEvent(userId));
 
 		expect(result.stats.bedCount).toBe(0);
 		expect(result.stats.plantCount).toBe(0);
@@ -108,7 +108,7 @@ describe('dashboard page server load function', () => {
 		insertBed('Bed A');
 		insertBed('Bed B');
 
-		const result = await load(mkEvent(userId));
+		const result: any = await load(mkEvent(userId));
 
 		expect(result.stats.bedCount).toBe(2);
 		expect(result.stats.totalArea).toBe(200);
@@ -127,7 +127,7 @@ describe('dashboard page server load function', () => {
 			{ userId: otherId, name: 'Other 2', polygon: '[[0,0],[5,0],[5,5],[0,5]]' }
 		]).run();
 
-		const result = await load(mkEvent(userId));
+		const result: any = await load(mkEvent(userId));
 
 		expect(result.stats.bedCount).toBe(1);
 	});
@@ -140,7 +140,7 @@ describe('dashboard page server load function', () => {
 		insertPlantation({ gardenBedId: bed.id, plantName: 'Bean', status: 'planned' });
 		insertPlantation({ gardenBedId: bed.id, plantName: 'Radish', status: 'cancelled' });
 
-		const result = await load(mkEvent(userId));
+		const result: any = await load(mkEvent(userId));
 
 		expect(result.stats.activeCount).toBe(3);
 		expect(result.stats.harvestedCount).toBe(1);
@@ -148,7 +148,7 @@ describe('dashboard page server load function', () => {
 	});
 
 	it('should return rotationAlerts', async () => {
-		const result = await load(mkEvent(userId));
+		const result: any = await load(mkEvent(userId));
 
 		expect(result).toHaveProperty('rotationAlerts');
 		expect(Array.isArray(result.rotationAlerts)).toBe(true);
@@ -163,7 +163,7 @@ describe('dashboard page server load function', () => {
 		insertPlantation({ gardenBedId: bed.id, plantName: 'Carrot', status: 'harvested' });
 		insertPlantation({ gardenBedId: bed.id, plantName: 'Bean', status: 'planned' });
 
-		const result = await load(mkEvent(userId));
+		const result: any = await load(mkEvent(userId));
 
 		expect(result.topCrops).toEqual([
 			{ name: 'Tomato', count: 3 },
@@ -179,7 +179,7 @@ describe('dashboard page server load function', () => {
 			insertPlantation({ gardenBedId: bed.id, plantName: `Plant ${i}`, status: 'active' });
 		}
 
-		const result = await load(mkEvent(userId));
+		const result: any = await load(mkEvent(userId));
 
 		expect(result.active).toHaveLength(10);
 		expect(result.stats.activeCount).toBe(15);

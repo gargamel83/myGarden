@@ -96,7 +96,7 @@ describe('garden page load', () => {
 		vi.mocked(getRotationAlerts).mockResolvedValue([]);
 		vi.mocked(getBedAdvice).mockReturnValue([]);
 
-		const result = await load(mockLoadEvent(testUserId) as any);
+		const result: any = await load(mockLoadEvent(testUserId) as any);
 		expect(result.photos).toEqual([]);
 		expect(result.beds).toEqual([]);
 		expect(result.rotationAlerts).toEqual([]);
@@ -114,7 +114,7 @@ describe('garden page load', () => {
 		]);
 		vi.mocked(getBedAdvice).mockReturnValue([{ commonName: 'Tomato' } as any]);
 
-		const result = await load(mockLoadEvent(testUserId) as any);
+		const result: any = await load(mockLoadEvent(testUserId) as any);
 		expect(result.photos).toHaveLength(1);
 		expect(result.photos[0].label).toBe('Garden view');
 		expect(result.beds).toHaveLength(1);
@@ -132,7 +132,7 @@ describe('garden page load', () => {
 		vi.mocked(getRotationAlerts).mockResolvedValue([]);
 		vi.mocked(getBedAdvice).mockReturnValue([]);
 
-		const result = await load(mockLoadEvent(otherUserId) as any);
+		const result: any = await load(mockLoadEvent(otherUserId) as any);
 		expect(result.photos).toEqual([]);
 		expect(result.beds).toEqual([]);
 	});
