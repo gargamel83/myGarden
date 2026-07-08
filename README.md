@@ -2,7 +2,7 @@
 
 Web application for managing a vegetable garden — cultivation beds, plantings, crop rotation, plant knowledge base.
 
-> **Version** : 0.2.9 — [CHANGELOG](CHANGELOG.md)
+> **Version** : 0.4.0 — [CHANGELOG](CHANGELOG.md)
 
 ---
 
@@ -45,24 +45,21 @@ Web application for managing a vegetable garden — cultivation beds, plantings,
 # 1. Install dependencies
 npm install
 
-# 2. Copy and configure the password
-cp .env.example .env   # then edit LOGIN_PASSWORD=my_password
-#   → If .env is missing or LOGIN_PASSWORD is empty, authentication is disabled (dev mode)
-
-# 3. Apply migrations
+# 2. Apply migrations
 npx drizzle-kit push
 
-# 4. (optional) Seed the database with plant sheets
+# 3. (optional) Seed the database with plant sheets
 npm run db:seed
 
 #   → Adds missing plants without touching existing ones
 #   → `npm run db:seed:force` updates all existing sheets
 
-# 5. Start the dev server
+# 4. Start the dev server
 npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173).
+Open [http://localhost:5173](http://localhost:5173).  
+The first user to register becomes the admin — existing data is automatically assigned to them.
 
 ### Docker Production
 
@@ -73,9 +70,7 @@ Open [http://localhost:5173](http://localhost:5173).
 
 ```bash
 # Launch (build + up) — versioned data directory automatically
-LOGIN_PASSWORD=my_password ./scripts/docker-up.sh --build -d
-#   → Default: password "change_me" (docker-compose.yml)
-#   → If `LOGIN_PASSWORD=` is empty, authentication is disabled
+./scripts/docker-up.sh --build -d
 
 # Logs
 docker compose logs -f
@@ -136,7 +131,6 @@ The log directory is configurable via the `LOG_DIR` environment variable (defaul
 | Symptom | Cause | Solution |
 |---|---|---|
 | `SQLITE_ERROR: no such table` | Migrations not applied | `npx drizzle-kit push` |
-| `LOGIN_PASSWORD` not set | No `.env` or LOGIN_PASSWORD missing | Create `.env` with `LOGIN_PASSWORD=xxx` ; if empty → no auth (dev) |
 | `readonly database` | DB file owned by root (Docker) | `sudo chown -R $(whoami) data-docker-v*/` |
 | Port already in use | Another service listening on 3000/5173 | `lsof -i :3000` then `kill` |
 | Plantation not found | Bed deleted but orphaned plantings remain | Check in database with `npx drizzle-kit studio` |
@@ -173,9 +167,9 @@ npm test
 npm run test:watch
 ```
 
-58 tests couvrent :
-- **Unitaires** : `types.ts`, `rotation.ts`, `planting.ts`, `toast.svelte.ts`, `logger.ts`, `cache-headers.ts`, `image-resize.ts`, `notifications.ts`
-- **Intégration DB** : `db.ts` (SQLite temporaire avec `better-sqlite3`, migrations Drizzle)
+187 tests couvrent :
+- **Unitaires** : `types.ts`, `rotation.ts`, `planting.ts`, `toast.svelte.ts`, `logger.ts`, `cache-headers.ts`, `image-resize.ts`, `notifications.ts`, `auth.ts`, `data-isolation.ts`, `pages-auth.ts`
+- **Intégration DB** : `db.ts`, `data-isolation.ts` (SQLite temporaire avec `better-sqlite3`, migrations Drizzle)
 
 Les tests d'intégration DB créent une base SQLite temporaire (`/tmp/monjardin-test-*`) et la détruisent après execution.
 
@@ -239,7 +233,9 @@ drizzle/
    0003_xxx.sql        # Added floweringStart/floweringEnd
     0004_xxx.sql        # Added indexes (plants.family, plants.common_name, plants.sun_exposure,
                         #   plantations.garden_bed_id, plantations.plant_id, plantations.status)
-    0005_xxx.sql        # Added notifications table
+     0005_xxx.sql        # Added notifications table
+     0006_manage_xxx.sql  # Added rootable/offset/width/height to garden_beds
+     0007_secret_echo.sql # Added users + sessions tables, userId FK on all tables
 ```
 
 
@@ -257,5 +253,5 @@ If the tables already exist (pre-existing database), the script reconciles the `
 - [ ] Email notifications (sowing, harvest)
 - [ ] Offline mode / PWA
 - [ ] CSV export of plantings
-- [ ] Multi-user
+- [x] Multi-user
 - [ ] Public API
