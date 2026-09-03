@@ -16,7 +16,8 @@ vi.mock('../server/db', () => ({
 vi.mock('../server/rotation', () => ({
 	getRotationAlerts: vi.fn(),
 	getBedHistory: vi.fn(),
-	getBedAdvice: vi.fn()
+	getBedAdvice: vi.fn(),
+	buildRotationPlan: vi.fn(() => ({ bedId: 0, bedName: '', entries: [] }))
 }));
 
 vi.mock('sharp', () => ({

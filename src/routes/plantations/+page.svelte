@@ -115,6 +115,39 @@ let _locale = $localeStore;
 		};
 	}
 
+	// ---- Harvest journal ----
+	let harvestOpenId = $state<number | null>(null);
+	let hWeight = $state('');
+	let hQuantity = $state('');
+	let hCondition = $state('');
+	let hNotes = $state('');
+	let hDate = $state(new Date().toISOString().split('T')[0]);
+
+	function toggleHarvest(id: number) {
+		harvestOpenId = harvestOpenId === id ? null : id;
+	}
+
+	const handleHarvestEnhance: SubmitFunction = (_input) => {
+		return async ({ result }) => {
+			if (result.type === 'success') {
+				hWeight = ''; hQuantity = ''; hCondition = ''; hNotes = '';
+				toast(t('plantations.harvestAdded'));
+				await invalidate('app:plantations');
+			} else if (result.type === 'failure') {
+				toast(result.data?.error || t('common.error'), 'error');
+			}
+		};
+	}
+
+	const handleHarvestDeleteEnhance: SubmitFunction = (_input) => {
+		return async ({ result }) => {
+			if (result.type === 'success') {
+				toast(t('plantations.harvestDeleted'));
+				await invalidate('app:plantations');
+			}
+		};
+	}
+
 	// Timeline computed values
 	function getMonths(): string[] {
 		const all: string[] = [];
@@ -235,7 +268,9 @@ let _locale = $localeStore;
 		<div class="grid gap-3">
 	{#each visiblePlantations as p (p.plantation.id)}
 			{@const pf = firstPhoto(p.plantPhotos)}
-			<div class="border rounded p-4 flex items-center justify-between">
+			{@const harvests = data.harvestsByPlantation[p.plantation.id] || []}
+			<div class="border rounded p-4">
+				<div class="flex items-center justify-between">
 				<div class="flex items-center gap-3">
 					{#if pf}
 						<img src={pf} alt="" loading="lazy" class="w-10 h-10 object-cover rounded shrink-0" />
@@ -267,6 +302,9 @@ let _locale = $localeStore;
 						<button class="text-xs text-blue-600 px-2 py-1 rounded hover:bg-blue-50" onclick={() => editPlantation(p)}>
 							{t('plantations.edit')}
 						</button>
+						<button class="text-xs text-green-700 px-2 py-1 rounded hover:bg-green-50" onclick={() => toggleHarvest(p.plantation.id)}>
+							{t('plantations.recordHarvest')}
+						</button>
 						{#if nextStatus(p.plantation.status)}
 							<form method="POST" action="?/updateStatus" use:enhance={handleStatusEnhance} class="inline">
 								<input type="hidden" name="id" value={p.plantation.id} />
@@ -281,6 +319,54 @@ let _locale = $localeStore;
 					</button>
 					</div>
 				</div>
+				</div>
+
+				{#if harvests.length > 0}
+					<div class="mt-2 pt-2 border-t text-xs text-gray-600">
+						<p class="font-medium text-gray-500 mb-1">{t('plantations.harvestHistory')}</p>
+						{#each harvests as h}
+							<div class="flex justify-between items-center">
+								<span>
+									{(h.harvestedAt || '').slice(0, 10)}
+									{#if h.weightKg !== null && h.weightKg !== undefined}<b>{h.weightKg} kg</b>{/if}
+									{#if h.quantity}<span>({h.quantity} pcs)</span>{/if}
+									{#if h.condition}<span class="text-gray-400">— {h.condition}</span>{/if}
+								</span>
+								<form method="POST" action="?/deleteHarvest" use:enhance={handleHarvestDeleteEnhance} class="inline">
+									<input type="hidden" name="id" value={h.id} />
+									<button type="submit" class="text-red-500 hover:underline">✕</button>
+								</form>
+							</div>
+						{/each}
+					</div>
+				{/if}
+
+				{#if harvestOpenId === p.plantation.id}
+					<form method="POST" action="?/addHarvest" use:enhance={handleHarvestEnhance} class="mt-3 pt-3 border-t grid grid-cols-2 gap-2 text-sm">
+						<input type="hidden" name="plantationId" value={p.plantation.id} />
+						<label class="block text-gray-600">
+							{t('plantations.weightKg')}
+							<input type="number" step="0.01" name="weightKg" bind:value={hWeight} class="w-full border rounded px-2 py-1" placeholder="0.5" />
+						</label>
+						<label class="block text-gray-600">
+							{t('plantations.quantity')}
+							<input type="number" name="quantity" bind:value={hQuantity} class="w-full border rounded px-2 py-1" placeholder="10" />
+						</label>
+						<label class="block text-gray-600">
+							{t('plantations.condition')}
+							<input type="text" name="condition" bind:value={hCondition} class="w-full border rounded px-2 py-1" placeholder={t('plantations.conditionPlaceholder')} />
+						</label>
+						<label class="block text-gray-600">
+							{t('plantations.date')}
+							<input type="date" name="harvestedAt" bind:value={hDate} class="w-full border rounded px-2 py-1" />
+						</label>
+						<label class="block text-gray-600 col-span-2">
+							{t('plantations.notes')}
+							<input type="text" name="notes" bind:value={hNotes} class="w-full border rounded px-2 py-1" />
+						</label>
+						<button type="submit" class="col-span-2 px-4 py-2 bg-green-600 text-white rounded">{t('plantations.saveHarvest')}</button>
+					</form>
+				{/if}
 			</div>
 			{/each}
 		</div>

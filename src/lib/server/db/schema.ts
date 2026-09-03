@@ -30,6 +30,7 @@ export const gardenBeds = sqliteTable('garden_beds', {
 	length: real('length'),
 	width: real('width'),
 	orientation: text('orientation'), // N, S, E, W, NE, NW, SE, SW
+	zone: text('zone'),
 	notes: text('notes'),
 	createdAt: text('created_at').notNull().$default(() => new Date().toISOString()),
 	updatedAt: text('updated_at').notNull().$default(() => new Date().toISOString())
@@ -94,6 +95,22 @@ export const plantations = sqliteTable('plantations', {
 	gardenBedIdIdx: index('idx_plantations_garden_bed_id').on(table.gardenBedId),
 	plantIdIdx: index('idx_plantations_plant_id').on(table.plantId),
 	statusIdx: index('idx_plantations_status').on(table.status)
+}));
+
+export const harvestRecords = sqliteTable('harvest_records', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	userId: integer('user_id').notNull().references(() => users.id),
+	plantationId: integer('plantation_id').notNull().references(() => plantations.id),
+	weightKg: real('weight_kg'),
+	quantity: integer('quantity'),
+	condition: text('condition'),
+	notes: text('notes'),
+	photo: text('photo'),
+	harvestedAt: text('harvested_at').notNull().$default(() => new Date().toISOString()),
+	createdAt: text('created_at').notNull().$default(() => new Date().toISOString())
+}, (table) => ({
+	plantationIdIdx: index('idx_harvest_records_plantation_id').on(table.plantationId),
+	userIdIdx: index('idx_harvest_records_user_id').on(table.userId)
 }));
 
 export const notifications = sqliteTable('notifications', {

@@ -13,11 +13,73 @@
 	let { data } = $props();
 
 	let photos = $derived(data.photos);
-	let beds = $derived(data.beds);
+	// svelte-ignore state_referenced_locally
+	let beds = $state(data.beds);
 	let selectedPhoto = $state<(typeof data.photos)[0] | null>(null);
 	let editingBed = $state<typeof beds[0] | null>(null);
 	let showForm = $state(false);
 	let showUpload = $state(true);
+	let filterZone = $state('');
+	let visibleBeds = $derived(filterZone ? beds.filter(b => b.zone === filterZone) : beds);
+
+	// ---- Undo/redo versioning of bed operations ----
+	type BedSnapshot = typeof beds;
+	let historyStack = $state<BedSnapshot[]>([]);
+	let redoStack = $state<BedSnapshot[]>([]);
+	let canUndo = $derived(historyStack.length > 0);
+	let canRedo = $derived(redoStack.length > 0);
+	let suppressSync = $state(false);
+
+	function snapshotBeds(): BedSnapshot {
+		return JSON.parse(JSON.stringify(beds));
+	}
+
+	function pushHistory(snapshot: BedSnapshot) {
+		historyStack.push(snapshot);
+		if (historyStack.length > 50) historyStack.shift();
+		redoStack = [];
+	}
+
+	// Keep local state aligned with the server unless mid-undo/redo
+	$effect(() => {
+		const current = data.beds;
+		if (!suppressSync) beds = current;
+	});
+
+	async function persistBeds(snap: BedSnapshot) {
+		try {
+			const res = await fetch('?/saveAllBeds', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ beds: snap })
+			});
+			if (!res.ok) toast(t('common.error'), 'error');
+		} catch {
+			toast(t('common.error'), 'error');
+		}
+	}
+
+	function applySnapshot(snap: BedSnapshot) {
+		suppressSync = true;
+		beds = JSON.parse(JSON.stringify(snap));
+	}
+
+	async function undo() {
+		const prev = historyStack.pop();
+		if (!prev) return;
+		redoStack.push(snapshotBeds());
+		applySnapshot(prev);
+		await persistBeds(prev);
+		suppressSync = false;
+	}
+	async function redo() {
+		const next = redoStack.pop();
+		if (!next) return;
+		historyStack.push(snapshotBeds());
+		applySnapshot(next);
+		await persistBeds(next);
+		suppressSync = false;
+	}
 
 	$effect(() => {
 		if (data.photos.length > 0 && !selectedPhoto) {
@@ -46,6 +108,7 @@
 			length: null,
 			width: null,
 			orientation: null,
+			zone: null,
 			notes: null,
 			createdAt: '',
 			updatedAt: ''
@@ -66,6 +129,7 @@
 			length: null,
 			width: null,
 			orientation: null,
+			zone: null,
 			notes: null,
 			createdAt: '',
 			updatedAt: ''
@@ -89,6 +153,7 @@
 	const handleSaveEnhance: SubmitFunction = (_input) => {
 		const wasEdit = !!editingBed?.id;
 		return async ({ result }) => {
+			pushHistory(snapshotBeds());
 			if (result.type === 'success') {
 				showForm = false;
 				editingBed = null;
@@ -102,6 +167,7 @@
 
 	const handleDeleteEnhance: SubmitFunction = (_input) => {
 		return async ({ result }) => {
+			pushHistory(snapshotBeds());
 			if (result.type === 'success') {
 				confirmDeleteId = null;
 				showForm = false;
@@ -125,6 +191,18 @@
 <div class="space-y-6">
 	<div class="flex items-center justify-between">
 		<h1 class="text-2xl font-bold">{t('garden.title')}</h1>
+		<div class="flex gap-2">
+			<button
+				class="px-3 py-1.5 rounded text-sm border {canUndo ? 'bg-gray-100 hover:bg-gray-200' : 'opacity-40 cursor-not-allowed'}"
+				disabled={!canUndo}
+				onclick={undo}
+			>↩ {t('garden.undo')}</button>
+			<button
+				class="px-3 py-1.5 rounded text-sm border {canRedo ? 'bg-gray-100 hover:bg-gray-200' : 'opacity-40 cursor-not-allowed'}"
+				disabled={!canRedo}
+				onclick={redo}
+			>↪ {t('garden.redo')}</button>
+		</div>
 	</div>
 
 	<!-- Tab switcher -->
@@ -181,7 +259,7 @@
 		{/if}
 
 		<GridCanvas
-			beds={data.beds}
+			beds={beds}
 			photoUrl={selectedPhoto ? `/uploads/${selectedPhoto.filename}` : null}
 			onSaveBed={handleSaveBed}
 			onEditBed={(id) => { const bed = beds.find(b => b.id === id); if (bed) editBed(bed); }}
@@ -198,8 +276,18 @@
 	{/if}
 
 	<!-- Bed list -->
+	{#if data.zones.length > 0}
+		<div class="flex gap-2 mb-3 flex-wrap">
+			<select bind:value={filterZone} class="border rounded px-3 py-1 text-sm">
+				<option value="">{t('garden.allZones')}</option>
+				{#each data.zones as z}
+					<option value={z}>{z}</option>
+				{/each}
+			</select>
+		</div>
+	{/if}
 	<div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-		{#each beds as bed}
+		{#each visibleBeds as bed}
 			{@const bPlantations = data.bedPlantations[bed.id] || []}
 			<button
 				class="border rounded p-3 text-left hover:shadow"
@@ -210,6 +298,9 @@
 					<span class="font-medium truncate">{bed.name}</span>
 					{#if bed.type === 'geo'}
 						<span class="text-xs text-gray-400 shrink-0">🌍</span>
+					{/if}
+					{#if bed.zone}
+						<span class="ml-auto text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-full shrink-0">{bed.zone}</span>
 					{/if}
 				</div>
 				<div class="text-xs text-gray-500 mt-1 space-y-0.5">
@@ -270,24 +361,48 @@
 						</div>
 					{/if}
 				{/if}
-				{#if editingBed.id}
-					{@const bedId = editingBed.id}
-					{@const history = data.bedHistories[bedId]}
-					{@const alert = data.rotationAlerts.find(a => a.bedId === bedId)}
-					{#if history && history.length > 0}
-						<div class="mb-4 p-3 bg-gray-50 rounded text-xs">
-							<p class="font-medium text-gray-700 mb-1">{t('garden.plantingHistory')}</p>
-							{#each history as h}
-								<div class="flex justify-between">
-									<span>{h.plantName}</span>
-									<span class="text-gray-400">{h.family || '—'}</span>
-								</div>
-							{/each}
-							{#if alert}
-								<p class="mt-2 text-{alert.type === 'warning' ? 'red' : 'blue'}-600">{alert.message}</p>
-							{/if}
-						</div>
-					{/if}
+						{#if editingBed.id}
+							{@const bedId = editingBed.id}
+							{@const history = data.bedHistories[bedId]}
+							{@const alert = data.rotationAlerts.find(a => a.bedId === bedId)}
+							{@const plan = data.rotationPlans[bedId]}
+						{#if history && history.length > 0}
+							<div class="mb-4 p-3 bg-gray-50 rounded text-xs">
+								<p class="font-medium text-gray-700 mb-1">{t('garden.plantingHistory')}</p>
+								{#each history as h}
+									<div class="flex justify-between">
+										<span>{h.plantName}</span>
+										<span class="text-gray-400">{h.family || '—'}</span>
+									</div>
+								{/each}
+								{#if alert}
+									<p class="mt-2 text-{alert.type === 'warning' ? 'red' : 'blue'}-600">{alert.message}</p>
+								{/if}
+							</div>
+						{/if}
+						{#if plan}
+							<div class="mb-4 p-3 bg-gray-50 rounded text-xs">
+								<p class="font-medium text-gray-700 mb-1">{t('garden.rotationPlan')}</p>
+								<table class="w-full text-left">
+									<thead>
+										<tr class="text-gray-400">
+											<th class="py-1 pr-2">{t('garden.year')}</th>
+											<th class="py-1 pr-2">{t('garden.family')}</th>
+											<th class="py-1">{t('garden.suggestedPlants')}</th>
+										</tr>
+									</thead>
+									<tbody>
+										{#each plan.entries as entry}
+											<tr>
+												<td class="py-1 pr-2 whitespace-nowrap">{entry.year}</td>
+												<td class="py-1 pr-2 font-medium">{entry.family}</td>
+												<td class="py-1 text-gray-600">{entry.plantNames.join(', ') || entry.notes}</td>
+											</tr>
+										{/each}
+									</tbody>
+								</table>
+							</div>
+						{/if}
 				{/if}
 				<div class="space-y-3">
 					<div>
@@ -349,6 +464,17 @@
 								<option value="lourd">{t('soil.lourd')}</option>
 								<option value="léger">{t('soil.léger')}</option>
 							</select>
+						</label>
+					</div>
+					<div>
+						<label class="block text-sm text-gray-600">
+							{t('garden.bed.zone')}
+							<input type="text" name="zone" bind:value={editingBed.zone} list="zone-list" class="w-full border rounded px-2 py-1" placeholder={t('garden.bed.zonePlaceholder')} />
+							<datalist id="zone-list">
+								{#each data.zones as z}
+									<option value={z}></option>
+								{/each}
+							</datalist>
 						</label>
 					</div>
 					<div>

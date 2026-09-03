@@ -1,0 +1,1 @@
+ALTER TABLE `garden_beds` ADD `zone` text;

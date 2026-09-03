@@ -1,5 +1,5 @@
 import { db } from '$lib/server/db';
-import { gardenBeds, gardenPhotos, plantations, plants, plantFavorites } from '$lib/server/db/schema';
+import { gardenBeds, gardenPhotos, plantations, plants, plantFavorites, harvestRecords } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 
 export interface ExportData {
@@ -31,6 +31,13 @@ export interface ExportData {
 			notes: string | null;
 			createdAt: string;
 			updatedAt: string;
+			harvests: Array<{
+				weightKg: number | null;
+				quantity: number | null;
+				condition: string | null;
+				notes: string | null;
+				harvestedAt: string;
+			}>;
 		}>;
 	}>;
 	gardenPhotos: Array<{
@@ -47,11 +54,28 @@ export function exportUserData(userId: number): ExportData {
 	const photos = db.select().from(gardenPhotos).where(eq(gardenPhotos.userId, userId)).all();
 	const favs = db.select().from(plantFavorites).where(eq(plantFavorites.userId, userId)).all();
 
+	const plantationIds = allPlantations.map(p => p.id);
+	const harvests = plantationIds.length > 0
+		? db.select().from(harvestRecords).where(eq(harvestRecords.userId, userId)).all()
+		: [];
+	const harvestsByPlantation: Record<number, typeof harvests> = {};
+	for (const h of harvests) {
+		if (!harvestsByPlantation[h.plantationId]) harvestsByPlantation[h.plantationId] = [];
+		harvestsByPlantation[h.plantationId].push(h);
+	}
+
 	const bedExport = beds.map(bed => {
 		const bedPlantations = allPlantations
 			.filter(p => p.gardenBedId === bed.id)
-			.map(({ plantId, plantName, variety, sowingDate, plantingDate, harvestDate, actualHarvestDate, status, quantity, notes, createdAt, updatedAt }) => ({
-				plantId, plantName, variety, sowingDate, plantingDate, harvestDate, actualHarvestDate, status, quantity, notes, createdAt, updatedAt
+			.map(({ id, plantId, plantName, variety, sowingDate, plantingDate, harvestDate, actualHarvestDate, status, quantity, notes, createdAt, updatedAt }) => ({
+				plantId, plantName, variety, sowingDate, plantingDate, harvestDate, actualHarvestDate, status, quantity, notes, createdAt, updatedAt,
+				harvests: (harvestsByPlantation[id] || []).map(h => ({
+					weightKg: h.weightKg,
+					quantity: h.quantity,
+					condition: h.condition,
+					notes: h.notes,
+					harvestedAt: h.harvestedAt
+				}))
 			}));
 		return {
 			name: bed.name,
@@ -105,7 +129,7 @@ export function importUserData(userId: number, data: ExportData): { beds: number
 
 			if (bed.plantations) {
 				for (const p of bed.plantations) {
-					db.insert(plantations).values({
+					const insertedP = db.insert(plantations).values({
 						userId,
 						gardenBedId: inserted.id,
 						plantId: p.plantId,
@@ -120,8 +144,22 @@ export function importUserData(userId: number, data: ExportData): { beds: number
 						notes: p.notes,
 						createdAt: p.createdAt || now,
 						updatedAt: p.updatedAt || now
-					}).run();
+					}).returning().get();
 					plantationCount++;
+
+					if (p.harvests) {
+						for (const h of p.harvests) {
+							db.insert(harvestRecords).values({
+								userId,
+								plantationId: insertedP.id,
+								weightKg: h.weightKg,
+								quantity: h.quantity,
+								condition: h.condition,
+								notes: h.notes,
+								harvestedAt: h.harvestedAt || now
+							}).run();
+						}
+					}
 				}
 			}
 		}

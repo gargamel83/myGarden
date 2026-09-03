@@ -258,3 +258,110 @@ export async function getRotationAlerts(userId?: number): Promise<RotationAlert[
 
 	return alerts;
 }
+
+export interface RotationPlanEntry {
+	year: number;
+	family: string;
+	plantNames: string[];
+	notes: string;
+}
+
+export interface RotationPlan {
+	bedId: number;
+	bedName: string;
+	entries: RotationPlanEntry[];
+}
+
+// Sequential family rotation over multiple years, respecting recommended gaps.
+// A classic sequence when families are unknown: leafy → root → legume → fruit → leafy...
+const DEFAULT_SEQUENCE = ['Fabaceae', 'Brassicaceae', 'Amaryllidaceae', 'Solanaceae', 'Apiaceae'];
+
+function familyGap(family: string | null): number {
+	return family ? (FAMILY_ROTATION_GAP[family] || 3) : 2;
+}
+
+function availableFamilies(history: BedPlantHistory[], year: number): string[] {
+	const all = getAllPlants();
+	const knownFamilies = new Set(all.map(p => p.family).filter((f): f is string => !!f));
+	// Families still "resting" during this year
+	const resting = new Set<string>();
+	const gap = 3;
+	for (const h of history) {
+		if (!h.family) continue;
+		const yearsSince = year - h.year;
+		if (yearsSince < familyGap(h.family)) resting.add(h.family);
+	}
+	// Exclude families planted the previous year (resting)
+	const candidates = [...knownFamilies].filter(f => !resting.has(f));
+	return candidates.length > 0 ? candidates : [...knownFamilies];
+}
+
+function pickPlantForFamily(family: string, available: string[]): string[] {
+	const all = getAllPlants();
+	return all.filter(p => p.family === family).map(p => p.commonName);
+}
+
+export function buildRotationPlan(
+	bedId: number,
+	bedName: string,
+	history: BedPlantHistory[],
+	years = 3
+): RotationPlan {
+	const entries: RotationPlanEntry[] = [];
+	const harvested = history.filter(p => p.status === 'harvested');
+
+	for (let i = 0; i < years; i++) {
+		const year = new Date().getFullYear() + i;
+
+		// Determine which families are acceptable this year
+		const resting = new Set<string>();
+		for (const h of history) {
+			if (!h.family) continue;
+			const yearsSince = year - h.year;
+			if (yearsSince < familyGap(h.family)) resting.add(h.family);
+		}
+
+		let chosenFamily: string | null = null;
+
+		// Prefer families not yet used in this plan (rotate through them)
+		const candidates = availableFamilies(history, year).filter(f => !resting.has(f));
+		const usedInPlan = entries.map(e => e.family);
+
+		// Try to avoid both resting and already-used families
+		const free = candidates.filter(f => !usedInPlan.includes(f));
+		const pool = free.length > 0 ? free : candidates;
+
+		// Bias toward the last harvested family's successor
+		if (harvested.length > 0) {
+			const lastFamily = harvested[harvested.length - 1].family || null;
+			const successors = getNextFamilySuggestions(lastFamily);
+			const preferred = successors.find(s => pool.includes(s));
+			if (preferred) chosenFamily = preferred;
+		}
+
+		if (!chosenFamily && pool.length > 0) {
+			// Pick a family not equal to the previous entry's family if possible
+			const prevFamily = entries.length > 0 ? entries[entries.length - 1].family : null;
+			const nonPrev = pool.filter(f => f !== prevFamily);
+			chosenFamily = (nonPrev[0] || pool[0]) as string;
+		}
+
+		if (!chosenFamily) {
+			entries.push({ year, family: '—', plantNames: [], notes: 'No plants available' });
+			continue;
+		}
+
+		const plantsForFamily = pickPlantForFamily(chosenFamily, []);
+		const note =
+			`${chosenFamily} — avoid replanting earlier than ${familyGap(chosenFamily)} year(s) after the previous ${chosenFamily}.`;
+
+		entries.push({
+			year,
+			family: chosenFamily,
+			plantNames: plantsForFamily.slice(0, 4),
+			notes: note
+		});
+	}
+
+	return { bedId, bedName, entries };
+}

@@ -5,7 +5,7 @@ import { fail } from '@sveltejs/kit';
 import { writeFileSync, existsSync, mkdirSync } from 'fs';
 import sharp from 'sharp';
 import type { PageServerLoad, Actions } from './$types.js';
-import { getRotationAlerts, getBedHistory, getBedAdvice } from '$lib/server/rotation';
+import { getRotationAlerts, getBedHistory, getBedAdvice, buildRotationPlan } from '$lib/server/rotation';
 
 export const load: PageServerLoad = async (event) => {
 	event.depends('app:garden');
@@ -79,7 +79,14 @@ export const load: PageServerLoad = async (event) => {
 		}
 	}
 
-	return { photos, beds, rotationAlerts, bedHistories, bedPlantations, bedAdvice };
+	const rotationPlans: Record<number, ReturnType<typeof buildRotationPlan>> = {};
+	for (const bed of beds) {
+		rotationPlans[bed.id] = buildRotationPlan(bed.id, bed.name, bedHistories[bed.id] || [], 3);
+	}
+
+	const zones = [...new Set(beds.map(b => b.zone).filter((z): z is string => !!z))].sort();
+
+	return { photos, beds, rotationAlerts, bedHistories, bedPlantations, bedAdvice, rotationPlans, zones };
 };
 
 export const actions: Actions = {
@@ -125,6 +132,7 @@ export const actions: Actions = {
 		const length = data.get('length') as string;
 		const width = data.get('width') as string;
 		const orientation = data.get('orientation') as string;
+		const zone = data.get('zone') as string;
 		const notes = data.get('notes') as string;
 
 		if (!name || !polygon) {
@@ -142,6 +150,7 @@ export const actions: Actions = {
 			length: length ? parseFloat(length) : null,
 			width: width ? parseFloat(width) : null,
 			orientation: orientation || null,
+			zone: zone || null,
 			notes: notes || null,
 			updatedAt: new Date().toISOString()
 		};
@@ -174,5 +183,58 @@ export const actions: Actions = {
 			}
 		}
 		return { success: true };
+	},
+
+	saveAllBeds: async ({ request, locals }) => {
+		try {
+			const body = await request.json();
+			const snap = body?.beds;
+			if (!Array.isArray(snap)) return fail(400, { error: 'Invalid payload' });
+
+			const userId = locals.user!.id;
+			const currentIds = new Set(
+				db.select({ id: gardenBeds.id }).from(gardenBeds).where(eq(gardenBeds.userId, userId)).all().map(r => r.id)
+			);
+			const incomingIds = new Set<number>();
+
+			db.transaction((tx) => {
+				for (const b of snap) {
+					const row = {
+						userId,
+						name: String(b.name ?? ''),
+						polygon: String(b.polygon ?? '[]'),
+						type: String(b.type ?? 'pixel'),
+						color: String(b.color ?? '#64748b'),
+						soilType: b.soilType ?? null,
+						sunExposure: b.sunExposure ?? null,
+						length: b.length ? parseFloat(String(b.length)) : null,
+						width: b.width ? parseFloat(String(b.width)) : null,
+						orientation: b.orientation ?? null,
+						zone: b.zone ?? null,
+						notes: b.notes ?? null,
+						updatedAt: new Date().toISOString()
+					};
+					if (b.id && currentIds.has(Number(b.id))) {
+						tx.update(gardenBeds).set(row).where(eq(gardenBeds.id, Number(b.id))).run();
+						incomingIds.add(Number(b.id));
+					} else {
+						const res = tx.insert(gardenBeds).values(row).run();
+						incomingIds.add(Number(res.lastInsertRowid));
+					}
+				}
+				// Remove beds that were deleted by this snapshot
+				for (const cid of currentIds) {
+					if (!incomingIds.has(cid)) {
+						try {
+							tx.delete(gardenBeds).where(eq(gardenBeds.id, cid)).run();
+						} catch { /* FK cascade may block; ignore */ }
+					}
+				}
+			});
+
+			return { success: true };
+		} catch (e) {
+			return fail(500, { error: (e as Error).message || 'Save all failed' });
+		}
 	}
 };

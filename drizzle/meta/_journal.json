@@ -64,6 +64,20 @@
       "when": 1788432134707,
       "tag": "0008_cynical_korg",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1788433092891,
+      "tag": "0009_fresh_speed_demon",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1788433348531,
+      "tag": "0010_petite_sentry",
+      "breakpoints": true
     }
   ]
 }
