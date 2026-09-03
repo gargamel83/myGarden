@@ -8,7 +8,7 @@ Web application for managing a vegetable garden.
 - **CSS** : Tailwind CSS
 - **Interactive map** : Leaflet (OSM)
 - **Polygon drawing** : Canvas/SVG
-- **Authentication** : Single-user, password in `.env`
+- **Authentication** : Multi-user, scrypt password hashing, sessions in DB
 - **Deployment** : Docker
 
 ---
@@ -135,6 +135,17 @@ Web application for managing a vegetable garden.
 - **Agent** : opencode CLI
 - **Model** : big-pickle (opencode/big-pickle)
 - **Branch** : `main` (feature branches merged via PRs)
+
+### Later Iterations (v0.2.5 — v0.4.0)
+- **v0.2.5** : fuzzy match antagonists, upload invalidation, client-side plant filters
+- **v0.2.7** : reusable `Modal.svelte`, shared types/utils, N+1 fixes, 123 tests
+- **v0.2.8** : `GridCanvas` replaces photo canvas, zoom/pan/scale bar
+- **v0.2.9** : 4 themes with CSS variables + `ThemeSwitcher.svelte`, type filtering pixel/geo
+- **v0.3.0** : full i18n (`t()`, `LocaleSwitcher`, fr/en) — see CHANGELOG
+- **v0.4.0** : multi-user auth (register/login/logout), data isolation via `userId`, auto-migration of existing data to admin user
+
+See `CHANGELOG.md` for the detailed per-version changelog.
+
 
 ---
 

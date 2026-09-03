@@ -8,6 +8,7 @@
 	import NotificationBell from '$lib/components/NotificationBell.svelte';
 	import ThemeSwitcher from '$lib/components/ThemeSwitcher.svelte';
 	import LocaleSwitcher from '$lib/components/LocaleSwitcher.svelte';
+	import DataTransfer from '$lib/components/DataTransfer.svelte';
 	import { setToastHandler } from '$lib/toast.svelte';
 	import { version } from '../../package.json';
 	import { applyTheme, loadTheme } from '$lib/themes';
@@ -80,6 +81,7 @@
 				</svg>
 			</button>
 			{#if data.user}
+				<DataTransfer />
 				<span class="text-xs text-white/60 hidden md:inline">{data.user.username}</span>
 				<form method="POST" action="/logout" use:enhance class="inline">
 					<button class="text-xs text-white/70 hover:text-white px-2 py-1 rounded hover:bg-[var(--nav-hover)]">

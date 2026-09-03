@@ -57,6 +57,13 @@
       "when": 1783508287353,
       "tag": "0007_secret_echo",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1788432134707,
+      "tag": "0008_cynical_korg",
+      "breakpoints": true
     }
   ]
 }

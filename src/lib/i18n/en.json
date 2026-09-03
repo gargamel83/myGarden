@@ -7,7 +7,13 @@
 		"plants": "Plants",
 		"logs": "Logs",
 		"menu": "Menu",
-		"logout": "Log out"
+		"logout": "Log out",
+		"dataTransfer": "Data",
+		"exportData": "Export data (JSON)",
+		"importData": "Import data (JSON)",
+		"importing": "Importing...",
+		"importSuccess": "Import complete: {beds} beds, {plantations} plantings, {photos} photos, {favorites} favorites",
+		"importFailed": "Import failed"
 	},
 	"login": {
 		"title": "Log in",
@@ -160,6 +166,7 @@
 		"anyExposure": "Any exposure",
 		"reset": "Reset",
 		"none": "No plants found.",
+		"favorites": "Favorites",
 		"showMore": "Show {count} more…",
 		"soil": "Soil: {type}",
 		"sowingBar": "Sowing",
@@ -210,7 +217,11 @@
 		"uploading": "Uploading...",
 		"otherSameFamily": "{count} other plant(s) from the same family",
 		"updated": "Plant updated",
-		"deleted": "Plant deleted"
+		"deleted": "Plant deleted",
+		"favorite": "Add to favorites",
+		"unfavorite": "Remove from favorites",
+		"favorited": "Added to favorites",
+		"unfavorited": "Removed from favorites"
 	},
 	"logPanel": {
 		"title": "Logs",

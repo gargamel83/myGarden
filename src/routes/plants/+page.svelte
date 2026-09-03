@@ -17,13 +17,17 @@ let _locale = $localeStore;
 	let family = $state(data.selectedFamily);
 	// svelte-ignore state_referenced_locally
 	let exposure = $state(data.selectedExposure);
+	// svelte-ignore state_referenced_locally
+	let favoritesOnly = $state(data.favoritesOnly);
 
 	let showForm = $state(false);
 
 	const PAGE_SIZE = 20;
 	let visibleCount = $state(PAGE_SIZE);
+	let favoriteSet = $derived(new Set(data.favoriteIds));
 	let filteredPlants = $derived(
 		data.plants.filter(p => {
+			if (favoritesOnly && !favoriteSet.has(p.id)) return false;
 			if (search && !p.commonName.toLowerCase().includes(search.toLowerCase()) && !p.latinName?.toLowerCase().includes(search.toLowerCase())) return false;
 			if (family && p.family !== family) return false;
 			if (exposure && p.sunExposure !== exposure) return false;
@@ -119,8 +123,11 @@ let _locale = $localeStore;
 			<option value="mi_ombre">{t('exposure.mi_ombre')}</option>
 			<option value="ombre">{t('exposure.ombre')}</option>
 		</select>
-		<button class="bg-gray-200 px-4 py-2 rounded" onclick={() => { search = ''; family = ''; exposure = ''; visibleCount = PAGE_SIZE; }}>
+		<button class="bg-gray-200 px-4 py-2 rounded" onclick={() => { search = ''; family = ''; exposure = ''; favoritesOnly = false; visibleCount = PAGE_SIZE; }}>
 			{t('plants.reset')}
+		</button>
+		<button class="px-4 py-2 rounded {favoritesOnly ? 'bg-yellow-400 text-black' : 'bg-gray-200'}" onclick={() => { favoritesOnly = !favoritesOnly; visibleCount = PAGE_SIZE; }}>
+			★ {t('plants.favorites')}
 		</button>
 	</div>
 
@@ -142,9 +149,14 @@ let _locale = $localeStore;
 							<p class="text-sm italic text-gray-500">{plant.latinName}</p>
 						{/if}
 					</div>
-					{#if plant.family}
-						<span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">{plant.family}</span>
-					{/if}
+					<div class="flex items-center gap-1">
+						{#if favoriteSet.has(plant.id)}
+							<span class="text-yellow-500 text-sm" title={t('plants.favorites')}>★</span>
+						{/if}
+						{#if plant.family}
+							<span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">{plant.family}</span>
+						{/if}
+					</div>
 				</div>
 
 				<div class="mt-3 space-y-1 text-xs text-gray-600">

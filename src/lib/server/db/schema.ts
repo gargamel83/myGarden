@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, real, index } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, integer, real, index, uniqueIndex } from 'drizzle-orm/sqlite-core';
 
 export const users = sqliteTable('users', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
@@ -63,6 +63,15 @@ export const plants = sqliteTable('plants', {
 	familyIdx: index('idx_plants_family').on(table.family),
 	commonNameIdx: index('idx_plants_common_name').on(table.commonName),
 	sunExposureIdx: index('idx_plants_sun_exposure').on(table.sunExposure)
+}));
+
+export const plantFavorites = sqliteTable('plant_favorites', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	userId: integer('user_id').notNull().references(() => users.id),
+	plantId: integer('plant_id').notNull().references(() => plants.id),
+	createdAt: text('created_at').notNull().$default(() => new Date().toISOString())
+}, (table) => ({
+	userPlantIdx: uniqueIndex('idx_plant_favorites_user_plant').on(table.userId, table.plantId)
 }));
 
 export const plantations = sqliteTable('plantations', {

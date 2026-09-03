@@ -1,18 +1,27 @@
 import { db } from '$lib/server/db';
-import { plants } from '$lib/server/db/schema';
-import { eq, inArray } from 'drizzle-orm';
+import { plants, plantFavorites } from '$lib/server/db/schema';
+import { eq, and, inArray } from 'drizzle-orm';
 import { error, fail } from '@sveltejs/kit';
 import { writeFileSync, existsSync, mkdirSync } from 'fs';
 import sharp from 'sharp';
 import type { PageServerLoad, Actions } from './$types.js';
 
-export const load: PageServerLoad = async ({ params, depends }) => {
+export const load: PageServerLoad = async ({ params, locals, depends }) => {
 	depends('app:plant');
 	const id = parseInt(params.id);
 	if (isNaN(id)) error(404, 'Plant not found');
 
 	const plant = db.select().from(plants).where(eq(plants.id, id)).get();
 	if (!plant) error(404, 'Plant not found');
+
+	const userId = locals.user?.id;
+	let isFavorite = false;
+	if (userId) {
+		const fav = db.select().from(plantFavorites)
+			.where(and(eq(plantFavorites.userId, userId), eq(plantFavorites.plantId, id)))
+			.get();
+		isFavorite = !!fav;
+	}
 
 	let companions: typeof plants.$inferSelect[] = [];
 	let antagonists: typeof plants.$inferSelect[] = [];
@@ -45,7 +54,7 @@ export const load: PageServerLoad = async ({ params, depends }) => {
 		.all()
 		.filter(p => p.id !== plant.id);
 
-	return { plant, companions, antagonists, sameFamily };
+	return { plant, companions, antagonists, sameFamily, isFavorite };
 };
 
 export const actions: Actions = {
@@ -127,5 +136,24 @@ export const actions: Actions = {
 		}).where(eq(plants.id, id)).run();
 
 		return { success: true, url: `/uploads/${filename}` };
+	},
+
+	favorite: async ({ locals, params }) => {
+		const id = parseInt(params.id);
+		if (isNaN(id)) return fail(404, { error: 'Plant not found' });
+		if (!locals.user) return fail(401, { error: 'Unauthorized' });
+		const userId = locals.user.id;
+
+		const existing = db.select().from(plantFavorites)
+			.where(and(eq(plantFavorites.userId, userId), eq(plantFavorites.plantId, id)))
+			.get();
+
+		if (existing) {
+			db.delete(plantFavorites).where(eq(plantFavorites.id, existing.id)).run();
+			return { success: true, favorited: false };
+		}
+
+		db.insert(plantFavorites).values({ userId, plantId: id }).run();
+		return { success: true, favorited: true };
 	}
 };

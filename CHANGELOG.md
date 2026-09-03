@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.4.1
+
+### Added
+- **Favoris plantes** : table `plant_favorites` (user_id + plant_id, contrainte unique), étoile ★/☆ sur la fiche plante pour ajouter/retirer un favori, filtre "Favoris" dans la liste des plantes, indicateur d'étoile sur les cartes — isolé par utilisateur
+- **Export/Import de données (JSON)** : bouton données dans la navbar (icône ⇄, visible si connecté) — exporte les planches + plantations + photos + favoris de l'utilisateur (`GET /api/export` télécharge un fichier JSON), import récréant tout pour l'utilisateur courant (`POST /api/import`) avec reliaison des favoris vers les plantes existantes
+- **Tests** : 8 nouveaux tests (5 favoris, 3 transfer) — total 251
+
+### Fixed
+- **LocaleSwitcher** : le dropdown ne s'ouvrait pas/ne se mettait pas à jour au clic. `current` est désormais initialisé via `getLocale()` (lecture directe de localStorage au mount, comme ThemeSwitcher) au lieu d'un `$effect` retardé — supprime le mismatch SSR/client d'hydratation
+
+### Documentation
+- `SPECS.md` : auth corrigé (multi-user), section "Later Iterations (v0.2.5 — v0.4.0)" ajoutée
+- `README.md` : version bump + décompte tests
+
 ## v0.4.0
 
 ### Added

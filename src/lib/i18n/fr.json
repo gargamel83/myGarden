@@ -7,7 +7,13 @@
 		"plants": "Plantes",
 		"logs": "Journaux",
 		"menu": "Menu",
-		"logout": "Déconnexion"
+		"logout": "Déconnexion",
+		"dataTransfer": "Données",
+		"exportData": "Exporter les données (JSON)",
+		"importData": "Importer des données (JSON)",
+		"importing": "Importation...",
+		"importSuccess": "Import terminé : {beds} planches, {plantations} plantations, {photos} photos, {favorites} favoris",
+		"importFailed": "Échec de l'import"
 	},
 	"login": {
 		"title": "Connexion",
@@ -160,6 +166,7 @@
 		"anyExposure": "Toute exposition",
 		"reset": "Réinitialiser",
 		"none": "Aucune plante trouvée.",
+		"favorites": "Favoris",
 		"showMore": "Afficher {count} de plus…",
 		"soil": "Sol : {type}",
 		"sowingBar": "Semis",
@@ -210,7 +217,11 @@
 		"uploading": "Téléchargement...",
 		"otherSameFamily": "{count} autre{count, plural, one{} other{s}} plante{count, plural, one{} other{s}} de la même famille",
 		"updated": "Plante modifiée",
-		"deleted": "Plante supprimée"
+		"deleted": "Plante supprimée",
+		"favorite": "Ajouter aux favoris",
+		"unfavorite": "Retirer des favoris",
+		"favorited": "Ajouté aux favoris",
+		"unfavorited": "Retiré des favoris"
 	},
 	"logPanel": {
 		"title": "Journaux",

@@ -2,7 +2,7 @@
 
 Web application for managing a vegetable garden — cultivation beds, plantings, crop rotation, plant knowledge base.
 
-> **Version** : 0.4.0 — [CHANGELOG](CHANGELOG.md)
+> **Version** : 0.4.1 — [CHANGELOG](CHANGELOG.md)
 
 ---
 
@@ -15,9 +15,10 @@ Web application for managing a vegetable garden — cultivation beds, plantings,
 | **Garden organization** | Upload satellite photo or interactive OSM map ; canvas double buffer for smooth polygon drawing ; each bed has: name, dimensions, orientation, soil type, exposure |
 | **Planting management** | CRUD linked to a bed ; sowing → transplanting → harvesting cycles ; visual calendar (all data) ; paginated list (30/page) ; per-bed history |
 | **Notifications** | 🔔 bell in navbar with count badge, dropdown of latest 20, mark read individually or all, 4 types (sowing, harvest, rotation, stale) |
-| **Plant knowledge base** | 58 pre-filled sheets (periods, exposure, soil, companion planting, photos) ; search and filters ; detail pages with advice |
+| **Plant knowledge base** | 58 pre-filled sheets (periods, exposure, soil, companion planting, photos) ; search and filters ; detail pages with advice ; mark plants as favorites + favorites filter |
 | **Crop rotation** | Suggestions based on bed history ; botanical families ; alerts if rotation is too short |
 | **Dashboard** | Seasonal overview ; sowing/harvest alerts ; advanced statistics (success rate, cycle duration, monthly histogram, family distribution) |
+| **Data transfer** | Export/import of a user's data (beds, plantings, photos, favorites) in JSON via a navbar button |
 
 ### Stack
 
@@ -167,9 +168,9 @@ npm test
 npm run test:watch
 ```
 
-243 tests couvrent :
+251 tests couvrent :
 - **Unitaires** : `types.ts`, `rotation.ts`, `planting.ts`, `toast.svelte.ts`, `logger.ts`, `cache-headers.ts`, `image-resize.ts`, `notifications.ts`, `auth.ts`, `data-isolation.ts`, `pages-auth.ts`, `rotation-alerts.ts`, `hooks-server.ts`, `layout-server.ts`, `dashboard-page.ts`, `garden-page.ts`, `plantations-page.ts`, `api-notifications.ts`
-- **Intégration DB** : `db.ts`, `data-isolation.ts` (SQLite temporaire avec `better-sqlite3`, migrations Drizzle)
+- **Intégration DB** : `db.ts`, `data-isolation.ts`, `favorites.ts`, `transfer.ts` (SQLite temporaire avec `better-sqlite3`, migrations Drizzle)
 
 Les tests d'intégration DB créent une base SQLite temporaire (`/tmp/monjardin-test-*`) et la détruisent après execution.
 
@@ -235,7 +236,8 @@ drizzle/
                         #   plantations.garden_bed_id, plantations.plant_id, plantations.status)
      0005_xxx.sql        # Added notifications table
      0006_manage_xxx.sql  # Added rootable/offset/width/height to garden_beds
-     0007_secret_echo.sql # Added users + sessions tables, userId FK on all tables
+      0007_secret_echo.sql # Added users + sessions tables, userId FK on all tables
+      0008_cynical_korg.sql # Added plant_favorites table (user_id + plant_id, unique)
 ```
 
 
@@ -250,8 +252,9 @@ If the tables already exist (pre-existing database), the script reconciles the `
 
 - [x] Individualized bed advice (soil + exposure)
 - [x] Yield / used area statistics
+- [x] Multi-user
+- [x] JSON export/import of user data
 - [ ] Email notifications (sowing, harvest)
 - [ ] Offline mode / PWA
 - [ ] CSV export of plantings
-- [x] Multi-user
 - [ ] Public API

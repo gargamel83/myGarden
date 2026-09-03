@@ -15,6 +15,8 @@
 	let companions = $derived(data.companions);
 	let antagonists = $derived(data.antagonists);
 	let sameFamily = $derived(data.sameFamily);
+	// svelte-ignore state_referenced_locally
+	let isFavorite = $state(data.isFavorite);
 
 	let editing = $state(false);
 	let initPhotos: string[] = (() => { try { return plant.photos ? JSON.parse(plant.photos) : []; } catch { return []; } })();
@@ -83,6 +85,18 @@
 			if (result.type === 'success') {
 				toast(t('plant.deleted'));
 				await goto('/plants');
+			}
+		};
+	}
+
+	const handleFavoriteEnhance: SubmitFunction = (_input) => {
+		return async ({ result }) => {
+			if (result.type === 'success' && result.data?.favorited !== undefined) {
+				isFavorite = result.data.favorited;
+				toast(result.data.favorited ? t('plant.favorited') : t('plant.unfavorited'));
+				await invalidate('app:plants');
+			} else if (result.type === 'failure') {
+				toast(result.data?.error || t('common.error'), 'error');
 			}
 		};
 	}
@@ -287,6 +301,11 @@
 				{/if}
 			</div>
 			<div class="flex items-start gap-3">
+				<form method="POST" action="?/favorite" use:enhance={handleFavoriteEnhance} class="inline">
+					<button type="submit" class="text-2xl focus:outline-none" title={isFavorite ? t('plant.unfavorite') : t('plant.favorite')} aria-label={isFavorite ? t('plant.unfavorite') : t('plant.favorite')}>
+						<span class={isFavorite ? 'text-yellow-500' : 'text-gray-300'}>{isFavorite ? '★' : '☆'}</span>
+					</button>
+				</form>
 				<form method="POST" action="?/delete" use:enhance={handleDeleteEnhance} class="inline">
 					<button type="submit" class="text-sm text-red-600 hover:underline">{t('plant.delete')}</button>
 				</form>

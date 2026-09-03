@@ -1,15 +1,16 @@
 import { db } from '$lib/server/db';
-import { plants } from '$lib/server/db/schema';
-import { eq, like, or, and } from 'drizzle-orm';
+import { plants, plantFavorites } from '$lib/server/db/schema';
+import { eq, like, or, and, inArray } from 'drizzle-orm';
 import { fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types.js';
 import { firstPhoto } from '$lib/utils';
 
-export const load: PageServerLoad = async ({ url, depends }) => {
+export const load: PageServerLoad = async ({ url, locals, depends }) => {
 	depends('app:plants');
 	const search = url.searchParams.get('q') || '';
 	const family = url.searchParams.get('family') || '';
 	const exposure = url.searchParams.get('exposure') || '';
+	const favoritesOnly = url.searchParams.get('fav') === '1';
 
 	const conditions = [];
 
@@ -26,6 +27,23 @@ export const load: PageServerLoad = async ({ url, depends }) => {
 	}
 	if (exposure) {
 		conditions.push(eq(plants.sunExposure, exposure));
+	}
+
+	const favoriteIds = new Set<number>();
+	if (locals.user) {
+		const favRows = db.select({ plantId: plantFavorites.plantId })
+			.from(plantFavorites)
+			.where(eq(plantFavorites.userId, locals.user.id))
+			.all();
+		for (const row of favRows) favoriteIds.add(row.plantId);
+	}
+
+	if (favoritesOnly) {
+		const ids = [...favoriteIds];
+		if (ids.length === 0) {
+			return { plants: [], families: [], search, selectedFamily: family, selectedExposure: exposure, favoritesOnly: true, favoriteIds: [] as number[] };
+		}
+		conditions.push(inArray(plants.id, ids));
 	}
 
 	const query = db.select().from(plants);
@@ -45,7 +63,7 @@ export const load: PageServerLoad = async ({ url, depends }) => {
 		.all()
 		.map(r => r.family);
 
-	return { plants: plantsWithPhotos, families, search, selectedFamily: family, selectedExposure: exposure };
+	return { plants: plantsWithPhotos, families, search, selectedFamily: family, selectedExposure: exposure, favoritesOnly, favoriteIds: [...favoriteIds] };
 };
 
 export const actions: Actions = {

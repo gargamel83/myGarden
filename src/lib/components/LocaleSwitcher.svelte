@@ -1,25 +1,13 @@
 <script lang="ts">
-	import { setLocale } from '$lib/i18n';
+	import { setLocale, getLocale } from '$lib/i18n';
 	import type { Locale } from '$lib/i18n';
 
 	let open = $state(false);
-	let current = $state<Locale>('en');
-
-	$effect(() => {
-		if (typeof localStorage !== 'undefined') {
-			const stored = localStorage.getItem('monjardin-locale');
-			if (stored === 'en' || stored === 'fr') {
-				current = stored;
-			}
-		}
-	});
+	let current = $state<Locale>(getLocale());
 
 	function select(locale: Locale) {
-		console.log('[LocaleSwitcher] select', locale);
 		current = locale;
-		console.log('[LocaleSwitcher] current set to', current);
 		setLocale(locale);
-		console.log('[LocaleSwitcher] setLocale done');
 		open = false;
 	}
 </script>
