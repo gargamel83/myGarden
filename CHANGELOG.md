@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.4.2
+
+### Added
+- **A1 — Rotation automatique des cultures** : `buildRotationPlan()` calcule un plan de rotation sur 3 ans (évite les familles en repos), affiché dans le modal d'édition de chaque planche (tableau année / famille / plantes suggérées)
+- **A2 — Journal de rendement** : table `harvest_records` (poids, quantité, état, notes, photo, date) — enregistrement/suppression d'une récolte par plantation, historique consolidé, inclus dans l'export/import JSON
+- **A3 — Zones sur les planches** : colonne `zone` sur `gardenBeds` (texte libre avec suggestions), filtre par zone + badge sur les cartes planches
+- **A4 — Versioning des planches (undo/redo)** : historique navigable des créations/éditions/suppressions de planches avec boutons Annuler/Rétablir, persistance en lot via l'action `saveAllBeds` (reconcilie l'ensemble des planches : upsert + suppression des absentes)
+- **Tests** : 6 nouveaux tests (rotation plan, récoltes, zones, saveAllBeds) — total 263
+- **Documentation** : README mis à jour (version 0.4.2, décompte tests)
+
 ## v0.4.1
 
 ### Added
