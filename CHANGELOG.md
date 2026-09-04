@@ -6,6 +6,9 @@
 - **Release Candidate 0.1** : fusion des groupes A (données/jardin : rotation auto, journal de rendement, zones, versioning des planches) et B (UX/calendrier : export .ics, widget météo, recherche + tri, mode sombre) dans `main`.
 - **Versioning** : bump `package.json` → `0.4.2-rc.1`, README mis à jour, total des tests : 274 (30 fichiers).
 
+### Fixed
+- **Bouton retour fiche plante** : l'entité HTML littérale `&larr;` de `plant.back` (en + fr) n'était pas décodée par Svelte et s'affichait brute (`&larr; Back to plants`). Remplacée par le caractère unicode `←`.
+
 ## v0.4.2
 
 ### Added

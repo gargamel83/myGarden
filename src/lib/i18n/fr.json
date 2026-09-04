@@ -225,7 +225,7 @@
 		"created": "Plante créée"
 	},
 	"plant": {
-		"back": "&larr; Retour aux plantes",
+		"back": "← Retour aux plantes",
 		"edit": "Modifier",
 		"editTitle": "Modifier {name}",
 		"delete": "Supprimer",
