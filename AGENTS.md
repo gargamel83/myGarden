@@ -59,6 +59,7 @@ Types: `feat`, `fix`, `docs`, `refactor`, `style`, `chore`, `perf`, `test`
 
 ## Rules
 - Read `SPECS.md` for detailed specs
+- Read `doc/SESSION-RELEASE.md` for state & decisions at RC v0.4.2-rc.1 (context de reprise)
 - Always run `npx drizzle-kit push` after schema modification
 - After schema change: `generate` → `push`
 - Auth uses `@sveltejs/kit` hooks (`handle`) in `src/hooks.server.ts`. Session token stored in cookie, verified against `sessions` table in `getSessionUser()`
