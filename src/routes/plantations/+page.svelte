@@ -17,8 +17,41 @@ let _locale = $localeStore;
 	let view = $state<'list' | 'timeline'>('list');
 	const PAGE_SIZE = 30;
 	let visibleCount = $state(PAGE_SIZE);
-	let visiblePlantations = $derived(data.plantations.slice(0, visibleCount));
-	let hasMore = $derived(visibleCount < data.plantations.length);
+	let search = $state('');
+	let sortBy = $state<'plantName' | 'bedName' | 'sowingDate' | 'status' | 'createdAt'>('createdAt');
+	let filterStatus = $state('');
+
+	let filteredSorted = $derived(
+		(() => {
+			const q = search.trim().toLowerCase();
+			const arr = data.plantations.filter((p) => {
+				if (filterStatus && p.plantation.status !== filterStatus) return false;
+				if (q) {
+					const hay = [p.plantation.plantName, p.plantation.variety, p.bedName].filter(Boolean).join(' ').toLowerCase();
+					if (!hay.includes(q)) return false;
+				}
+				return true;
+			});
+			const col = sortBy;
+			arr.sort((a, b) => {
+				switch (col) {
+					case 'plantName': return a.plantation.plantName.localeCompare(b.plantation.plantName);
+					case 'bedName': return (a.bedName || '').localeCompare(b.bedName || '');
+					case 'sowingDate': return (a.plantation.sowingDate || '').localeCompare(b.plantation.sowingDate || '');
+					case 'status': return a.plantation.status.localeCompare(b.plantation.status);
+					default: return (a.plantation.createdAt || '').localeCompare(b.plantation.createdAt || '');
+				}
+			});
+			return arr;
+		})()
+	);
+	let visiblePlantations = $derived(filteredSorted.slice(0, visibleCount));
+	let hasMore = $derived(visibleCount < filteredSorted.length);
+
+	$effect(() => {
+		search; sortBy; filterStatus;
+		visibleCount = PAGE_SIZE;
+	});
 
 	function showMore() {
 		visibleCount += PAGE_SIZE;
@@ -228,7 +261,29 @@ let _locale = $localeStore;
 
 	{#if view === 'list'}
 		<!-- List view -->
-		{#if data.plantations.length === 0}
+		<div class="flex gap-3 flex-wrap items-center mb-3">
+			<input
+				type="text"
+				bind:value={search}
+				placeholder={t('plantations.search')}
+				class="border rounded px-3 py-1 text-sm flex-1 min-w-[180px]"
+			/>
+			<select bind:value={filterStatus} class="border rounded px-2 py-1 text-sm">
+				<option value="">{t('plantations.allStatuses')}</option>
+				{#each ['planned', 'sown', 'planted', 'harvested', 'cancelled'] as s}
+					<option value={s}>{t('status.' + s)}</option>
+				{/each}
+			</select>
+			<select bind:value={sortBy} class="border rounded px-2 py-1 text-sm">
+				<option value="createdAt">{t('plantations.sortCreated')}</option>
+				<option value="plantName">{t('plantations.sortName')}</option>
+				<option value="bedName">{t('plantations.sortBed')}</option>
+				<option value="sowingDate">{t('plantations.sortSowing')}</option>
+				<option value="status">{t('plantations.sortStatus')}</option>
+			</select>
+		</div>
+
+		{#if filteredSorted.length === 0}
 			<p class="text-gray-500 text-center py-8">{t('plantations.none')}</p>
 		{/if}
 
@@ -286,7 +341,7 @@ let _locale = $localeStore;
 		</div>
 		{#if hasMore}
 			<button onclick={showMore} class="w-full py-2 border rounded text-sm text-gray-600 hover:bg-gray-50">
-				{t('plantations.showMore', { count: data.plantations.length - visibleCount })}
+				{t('plantations.showMore', { count: filteredSorted.length - visibleCount })}
 			</button>
 		{/if}
 	{:else}

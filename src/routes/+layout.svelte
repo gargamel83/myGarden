@@ -7,11 +7,13 @@
 	import LogPanel from '$lib/components/LogPanel.svelte';
 	import NotificationBell from '$lib/components/NotificationBell.svelte';
 	import ThemeSwitcher from '$lib/components/ThemeSwitcher.svelte';
+	import ThemeModeSwitcher from '$lib/components/ThemeModeSwitcher.svelte';
 	import LocaleSwitcher from '$lib/components/LocaleSwitcher.svelte';
 	import DataTransfer from '$lib/components/DataTransfer.svelte';
 	import { setToastHandler } from '$lib/toast.svelte';
 	import { version } from '../../package.json';
 	import { applyTheme, loadTheme } from '$lib/themes';
+	import { applyThemeMode, loadThemeMode } from '$lib/themes';
 	import { localeStore, t } from '$lib/i18n';
 	let { children, data } = $props();
 	let _locale = $localeStore;
@@ -37,6 +39,7 @@
 
 	$effect(() => {
 		applyTheme(loadTheme());
+		applyThemeMode(loadThemeMode());
 	});
 </script>
 
@@ -67,6 +70,7 @@
 		</div>
 
 		<div class="flex items-center gap-1">
+			<ThemeModeSwitcher />
 			<ThemeSwitcher />
 			<LocaleSwitcher />
 			<NotificationBell onnavigate={(url) => { goto(url); }} />

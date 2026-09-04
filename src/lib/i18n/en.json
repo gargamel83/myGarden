@@ -10,6 +10,7 @@
 		"logout": "Log out",
 		"dataTransfer": "Data",
 		"exportData": "Export data (JSON)",
+		"exportICS": "Export calendar (.ics)",
 		"importData": "Import data (JSON)",
 		"importing": "Importing...",
 		"importSuccess": "Import complete: {beds} beds, {plantations} plantings, {photos} photos, {favorites} favorites",
@@ -129,6 +130,13 @@
 		"none": "No plantations yet.",
 		"noDisplay": "No plantations to display.",
 		"allBeds": "All beds",
+		"search": "Search plantings...",
+		"allStatuses": "All statuses",
+		"sortCreated": "Sort: newest",
+		"sortName": "Sort: name",
+		"sortBed": "Sort: bed",
+		"sortSowing": "Sort: sowing date",
+		"sortStatus": "Sort: status",
 		"previous": "Previous months",
 		"next": "Next months",
 		"today": "Today",
@@ -165,6 +173,9 @@
 		"allFamilies": "All families",
 		"anyExposure": "Any exposure",
 		"reset": "Reset",
+		"sortName": "Sort: name",
+		"sortFamily": "Sort: family",
+		"sortSowing": "Sort: sowing date",
 		"none": "No plants found.",
 		"favorites": "Favorites",
 		"showMore": "Show {count} more…",
@@ -276,5 +287,29 @@
 	"calendar": {
 		"title": "{name} ({bed})",
 		"variety": "Variety: {name}"
+	},
+	"theme": {
+		"darkMode": "Enable dark mode",
+		"lightMode": "Enable light mode"
+	},
+	"weather": {
+		"title": "Weather",
+		"myLocation": "My location",
+		"loading": "Loading weather...",
+		"error": "Could not load the weather.",
+		"noLocation": "Enable your location to see the weather.",
+		"code": {
+			"clear": "Clear",
+			"mostlyClear": "Mostly clear",
+			"partlyCloudy": "Partly cloudy",
+			"overcast": "Overcast",
+			"fog": "Fog",
+			"drizzle": "Drizzle",
+			"rain": "Rain",
+			"snow": "Snow",
+			"showers": "Showers",
+			"thunderstorm": "Thunderstorm",
+			"unknown": "Unknown"
+		}
 	}
 }

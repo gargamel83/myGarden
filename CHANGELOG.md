@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.4.2
+
+### Added
+- **B1 — Export rappels (.ics)** : module `ics.ts` génère un calendrier iCalendar (`GET /api/export/ics`) à partir des semis/repiquages/récoltes des plantations (dates effectives, sinon périodes type MM-DD des fiches plantes) ; bouton "Exporter le calendrier (.ics)" dans le dropdown données de la navbar
+- **B2 — Widget météo** : endpoint `GET /api/weather` (proxy vers Open-Meteo, sans clé API) + composant `WeatherWidget` (température actuelle + prévisions 5 jours) avec bouton "Ma position" (géolocalisation), intégré dans l'onglet carte de `/garden` ; module partagé client-safe `$lib/weather.ts`
+- **B4 — Recherche + tri** : liste des plantations (vue liste) — recherche texte, filtre par statut, tri (récent/date/planche/statut/date de semis) ; liste des plantes — sélecteur de tri (nom/famille/date de semis)
+- **B5 — Mode sombre** : thème light/dark via `data-theme-mode` (`themes.ts`), composant `ThemeModeSwitcher` (🌙/☀️) dans la navbar, override CSS dark des surfaces/télétextes/contrôles dans `app.css` (palettes couleur conservées, fonds/ombres adaptés)
+- **Tests** : 11 nouveaux (ics 4, weather 3, theme mode 4) — total 262
+- **Documentation** : README mis à jour (version 0.4.2, décompte tests)
+
 ## v0.4.1
 
 ### Added
