@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
-import { themes, loadTheme, saveTheme, applyTheme } from '../themes';
+import { themes, loadTheme, saveTheme, applyTheme, loadThemeMode, saveThemeMode, applyThemeMode } from '../themes';
 
 describe('themes array', () => {
 	it('should have 4 themes', () => {
@@ -72,5 +72,45 @@ describe('saveTheme and applyTheme (DOM)', () => {
 	it('applyTheme should set data-theme on documentElement', () => {
 		applyTheme('slate');
 		expect(mockSetAttribute).toHaveBeenCalledWith('data-theme', 'slate');
+	});
+});
+
+describe('theme mode (dark/light)', () => {
+	const mockSetAttribute = vi.fn();
+	let getItem: ReturnType<typeof vi.fn>;
+	let setItem: ReturnType<typeof vi.fn>;
+
+	beforeAll(() => {
+		getItem = vi.fn(() => null);
+		setItem = vi.fn();
+		vi.stubGlobal('document', {
+			documentElement: { setAttribute: mockSetAttribute }
+		});
+		vi.stubGlobal('localStorage', { getItem, setItem });
+	});
+
+	afterAll(() => {
+		vi.unstubAllGlobals();
+	});
+
+	it('loadThemeMode defaults to light without a stored mode', () => {
+		getItem.mockReturnValue(null);
+		expect(loadThemeMode()).toBe('light');
+	});
+
+	it('loadThemeMode reads the stored mode', () => {
+		getItem.mockReturnValue('dark');
+		expect(loadThemeMode()).toBe('dark');
+	});
+
+	it('saveThemeMode sets data-theme-mode and persists the key', () => {
+		saveThemeMode('dark');
+		expect(mockSetAttribute).toHaveBeenCalledWith('data-theme-mode', 'dark');
+		expect(setItem).toHaveBeenCalledWith('monjardin-theme-mode', 'dark');
+	});
+
+	it('applyThemeMode sets data-theme-mode on documentElement', () => {
+		applyThemeMode('light');
+		expect(mockSetAttribute).toHaveBeenCalledWith('data-theme-mode', 'light');
 	});
 });

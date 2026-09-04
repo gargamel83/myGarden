@@ -113,3 +113,77 @@
 	--bar-fill: #64748b;
 	--bar-fill-light: #94a3b8;
 }
+
+/* ---- Light theme (default) ---- */
+:root,
+[data-theme-mode="light"] {
+	--app-bg: #ffffff;
+	--app-text: #1f2937;
+	--surface: #ffffff;
+	--surface-border: #e5e7eb;
+	--muted: #6b7280;
+	--input-bg: #ffffff;
+	--canvas-bg: #f0f7e8;
+}
+
+body {
+	background: var(--app-bg);
+	color: var(--app-text);
+}
+
+/* ---- Dark theme ---- */
+[data-theme-mode="dark"] {
+	--app-bg: #0f172a;
+	--app-text: #e5e7eb;
+	--surface: #1e293b;
+	--surface-border: #334155;
+	--muted: #94a3b8;
+	--input-bg: #0f172a;
+	--canvas-bg: #1e293b;
+	--bg-subtle: #1e293b;
+	--border-card: #334155;
+	--badge-bg: #334155;
+	--badge-text: #cbd5e1;
+	--badge-hover: #475569;
+	--tab-text: #cbd5e1;
+	--log-level-text: #94a3b8;
+	--log-level-bg: #1e293b;
+	--bar-fill-light: #334155;
+	--text-primary: #7dd3fc;
+	--text-secondary: #38bdf8;
+}
+
+/* Hardcoded Tailwind surfaces: remap common grays in dark mode */
+[data-theme-mode="dark"] .bg-white { background-color: var(--surface) !important; }
+[data-theme-mode="dark"] .bg-gray-50 { background-color: #1a2536 !important; }
+[data-theme-mode="dark"] .bg-gray-100 { background-color: #1e293b !important; }
+[data-theme-mode="dark"] .bg-gray-200 { background-color: #273143 !important; }
+[data-theme-mode="dark"] .text-gray-400 { color: #7d8798 !important; }
+[data-theme-mode="dark"] .text-gray-500 { color: #94a3b8 !important; }
+[data-theme-mode="dark"] .text-gray-600 { color: #aab4c4 !important; }
+[data-theme-mode="dark"] .text-gray-700 { color: #cbd5e1 !important; }
+[data-theme-mode="dark"] .border { border-color: var(--surface-border) !important; }
+[data-theme-mode="dark"] .border-t { border-top-color: var(--surface-border) !important; }
+[data-theme-mode="dark"] .border-b { border-bottom-color: var(--surface-border) !important; }
+
+[data-theme-mode="dark"] .hover\:bg-gray-50:hover { background-color: #263345 !important; }
+[data-theme-mode="dark"] .hover\:bg-gray-100:hover { background-color: #2a3547 !important; }
+[data-theme-mode="dark"] .hover\:bg-gray-200:hover { background-color: #2f3c50 !important; }
+[data-theme-mode="dark"] .hover\:bg-blue-50:hover { background-color: #123 !important; }
+[data-theme-mode="dark"] .hover\:bg-slate-100:hover { background-color: #2a3547 !important; }
+
+/* Form controls */
+[data-theme-mode="dark"] input,
+[data-theme-mode="dark"] select,
+[data-theme-mode="dark"] textarea {
+	background-color: var(--input-bg);
+	color: var(--app-text);
+	border-color: var(--surface-border);
+}
+[data-theme-mode="dark"] input::placeholder,
+[data-theme-mode="dark"] textarea::placeholder {
+	color: #64748b;
+}
+
+/* Modal / dropdown surfaces that use bg-[var(--surface)] */
+[data-theme-mode="dark"] .bg-\[\#000000\]\/50 { background-color: rgba(0, 0, 0, 0.7) !important; }

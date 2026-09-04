@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.4.2-rc.1
+
+### Added
+- **Release Candidate 0.1** : fusion des groupes A (données/jardin : rotation auto, journal de rendement, zones, versioning des planches) et B (UX/calendrier : export .ics, widget météo, recherche + tri, mode sombre) dans `main`.
+- **Versioning** : bump `package.json` → `0.4.2-rc.1`, README mis à jour, total des tests : 274 (30 fichiers).
+
 ## v0.4.2
 
 ### Added
@@ -7,8 +13,12 @@
 - **A2 — Journal de rendement** : table `harvest_records` (poids, quantité, état, notes, photo, date) — enregistrement/suppression d'une récolte par plantation, historique consolidé, inclus dans l'export/import JSON
 - **A3 — Zones sur les planches** : colonne `zone` sur `gardenBeds` (texte libre avec suggestions), filtre par zone + badge sur les cartes planches
 - **A4 — Versioning des planches (undo/redo)** : historique navigable des créations/éditions/suppressions de planches avec boutons Annuler/Rétablir, persistance en lot via l'action `saveAllBeds` (reconcilie l'ensemble des planches : upsert + suppression des absentes)
-- **Tests** : 6 nouveaux tests (rotation plan, récoltes, zones, saveAllBeds) — total 263
-- **Documentation** : README mis à jour (version 0.4.2, décompte tests)
+- **B1 — Export rappels (.ics)** : module `ics.ts` génère un calendrier iCalendar (`GET /api/export/ics`) à partir des semis/repiquages/récoltes des plantations (dates effectives, sinon périodes type MM-DD des fiches plantes) ; bouton "Exporter le calendrier (.ics)" dans le dropdown données de la navbar
+- **B2 — Widget météo** : endpoint `GET /api/weather` (proxy vers Open-Meteo, sans clé API) + composant `WeatherWidget` (température actuelle + prévisions 5 jours) avec bouton "Ma position" (géolocalisation), intégré dans l'onglet carte de `/garden` ; module partagé client-safe `$lib/weather.ts`
+- **B4 — Recherche + tri** : liste des plantations (vue liste) — recherche texte, filtre par statut, tri (récent/date/planche/statut/date de semis) ; liste des plantes — sélecteur de tri (nom/famille/date de semis)
+- **B5 — Mode sombre** : thème light/dark via `data-theme-mode` (`themes.ts`), composant `ThemeModeSwitcher` (🌙/☀️) dans la navbar, override CSS dark des surfaces/télétextes/contrôles dans `app.css` (palettes couleur conservées, fonds/ombres adaptés)
+- **Tests** : nouveaux (rotation plan, récoltes, zones, saveAllBeds, ics, weather, theme mode) — total 274
+- **Documentation** : README mis à jour (version 0.4.2-rc.1, décompte tests)
 
 ## v0.4.1
 

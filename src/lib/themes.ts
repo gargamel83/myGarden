@@ -31,3 +31,21 @@ export function saveTheme(id: ThemeId) {
 export function applyTheme(id: ThemeId) {
 	document.documentElement.setAttribute('data-theme', id);
 }
+
+export type ThemeMode = 'light' | 'dark';
+
+const MODE_KEY = 'monjardin-theme-mode';
+
+export function loadThemeMode(): ThemeMode {
+	if (typeof localStorage === 'undefined') return 'light';
+	return (localStorage.getItem(MODE_KEY) as ThemeMode) || 'light';
+}
+
+export function saveThemeMode(mode: ThemeMode) {
+	if (typeof localStorage !== 'undefined') localStorage.setItem(MODE_KEY, mode);
+	document.documentElement.setAttribute('data-theme-mode', mode);
+}
+
+export function applyThemeMode(mode: ThemeMode) {
+	document.documentElement.setAttribute('data-theme-mode', mode);
+}

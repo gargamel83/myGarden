@@ -13,6 +13,11 @@
 		open = false;
 	}
 
+	function exportICS() {
+		window.location.href = '/api/export/ics';
+		open = false;
+	}
+
 	async function onFileChange(e: Event) {
 		const input = e.target as HTMLInputElement;
 		const file = input.files?.[0];
@@ -66,6 +71,12 @@
 				onclick={exportData}
 			>
 				{t('nav.exportData')}
+			</button>
+			<button
+				class="block w-full text-left px-3 py-1.5 text-sm hover:bg-gray-100"
+				onclick={exportICS}
+			>
+				{t('nav.exportICS')}
 			</button>
 			<label class="block w-full text-left px-3 py-1.5 text-sm hover:bg-gray-100 cursor-pointer">
 				{importing ? t('nav.importing') : t('nav.importData')}

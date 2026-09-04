@@ -1,5 +1,6 @@
 <script lang="ts">
 	import LeafletMap from '$lib/components/LeafletMap.svelte';
+	import WeatherWidget from '$lib/components/WeatherWidget.svelte';
 	import GridCanvas from '$lib/components/GridCanvas.svelte';
 	import { enhance } from '$app/forms';
 	import { invalidate } from '$app/navigation';
@@ -266,6 +267,7 @@
 		/>
 	{:else}
 		<!-- OSM Map -->
+		<WeatherWidget />
 		<LeafletMap existingBeds={beds} onSave={onMapBed} {zoomToBedId} onEditBed={(id) => {
 			const bed = beds.find(b => b.id === id);
 			if (bed) editBed(bed);

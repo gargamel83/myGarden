@@ -24,18 +24,32 @@ let _locale = $localeStore;
 
 	const PAGE_SIZE = 20;
 	let visibleCount = $state(PAGE_SIZE);
+	let sortBy = $state<'name' | 'family' | 'sowing'>('name');
 	let favoriteSet = $derived(new Set(data.favoriteIds));
 	let filteredPlants = $derived(
-		data.plants.filter(p => {
-			if (favoritesOnly && !favoriteSet.has(p.id)) return false;
-			if (search && !p.commonName.toLowerCase().includes(search.toLowerCase()) && !p.latinName?.toLowerCase().includes(search.toLowerCase())) return false;
-			if (family && p.family !== family) return false;
-			if (exposure && p.sunExposure !== exposure) return false;
-			return true;
-		})
+		(() => {
+			const arr = data.plants.filter(p => {
+				if (favoritesOnly && !favoriteSet.has(p.id)) return false;
+				if (search && !p.commonName.toLowerCase().includes(search.toLowerCase()) && !p.latinName?.toLowerCase().includes(search.toLowerCase())) return false;
+				if (family && p.family !== family) return false;
+				if (exposure && p.sunExposure !== exposure) return false;
+				return true;
+			});
+			switch (sortBy) {
+				case 'family': arr.sort((a, b) => (a.family || '').localeCompare(b.family || '')); break;
+				case 'sowing': arr.sort((a, b) => (a.sowingStart || '').localeCompare(b.sowingStart || '')); break;
+				default: arr.sort((a, b) => a.commonName.localeCompare(b.commonName)); break;
+			}
+			return arr;
+		})()
 	);
 	let visiblePlants = $derived(filteredPlants.slice(0, visibleCount));
 	let hasMore = $derived(visibleCount < filteredPlants.length);
+
+	$effect(() => {
+		sortBy;
+		visibleCount = PAGE_SIZE;
+	});
 
 	function showMore() {
 		visibleCount += PAGE_SIZE;
@@ -122,6 +136,11 @@ let _locale = $localeStore;
 			<option value="plein_soleil">{t('exposure.plein_soleil')}</option>
 			<option value="mi_ombre">{t('exposure.mi_ombre')}</option>
 			<option value="ombre">{t('exposure.ombre')}</option>
+		</select>
+		<select bind:value={sortBy} class="border rounded px-3 py-2">
+			<option value="name">{t('plants.sortName')}</option>
+			<option value="family">{t('plants.sortFamily')}</option>
+			<option value="sowing">{t('plants.sortSowing')}</option>
 		</select>
 		<button class="bg-gray-200 px-4 py-2 rounded" onclick={() => { search = ''; family = ''; exposure = ''; favoritesOnly = false; visibleCount = PAGE_SIZE; }}>
 			{t('plants.reset')}

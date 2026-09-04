@@ -10,6 +10,7 @@
 		"logout": "Déconnexion",
 		"dataTransfer": "Données",
 		"exportData": "Exporter les données (JSON)",
+		"exportICS": "Exporter le calendrier (.ics)",
 		"importData": "Importer des données (JSON)",
 		"importing": "Importation...",
 		"importSuccess": "Import terminé : {beds} planches, {plantations} plantations, {photos} photos, {favorites} favoris",
@@ -138,6 +139,13 @@
 		"none": "Aucune plantation pour l'instant.",
 		"noDisplay": "Aucune plantation à afficher.",
 		"allBeds": "Toutes les planches",
+		"search": "Rechercher des plantations...",
+		"allStatuses": "Tous les statuts",
+		"sortCreated": "Trier : plus récentes",
+		"sortName": "Trier : nom",
+		"sortBed": "Trier : planche",
+		"sortSowing": "Trier : date de semis",
+		"sortStatus": "Trier : statut",
 		"previous": "Mois précédents",
 		"next": "Mois suivants",
 		"today": "Aujourd'hui",
@@ -183,6 +191,9 @@
 		"allFamilies": "Toutes les familles",
 		"anyExposure": "Toute exposition",
 		"reset": "Réinitialiser",
+		"sortName": "Trier : nom",
+		"sortFamily": "Trier : famille",
+		"sortSowing": "Trier : date de semis",
 		"none": "Aucune plante trouvée.",
 		"favorites": "Favoris",
 		"showMore": "Afficher {count} de plus…",
@@ -294,5 +305,29 @@
 	"calendar": {
 		"title": "{name} ({bed})",
 		"variety": "Variété : {name}"
+	},
+	"theme": {
+		"darkMode": "Activer le mode sombre",
+		"lightMode": "Activer le mode clair"
+	},
+	"weather": {
+		"title": "Météo",
+		"myLocation": "Ma position",
+		"loading": "Chargement de la météo...",
+		"error": "Impossible de charger la météo.",
+		"noLocation": "Activez votre position pour voir la météo.",
+		"code": {
+			"clear": "Ciel dégagé",
+			"mostlyClear": "Plutôt dégagé",
+			"partlyCloudy": "Partiellement nuageux",
+			"overcast": "Couvert",
+			"fog": "Brouillard",
+			"drizzle": "Bruine",
+			"rain": "Pluie",
+			"snow": "Neige",
+			"showers": "Averses",
+			"thunderstorm": "Orage",
+			"unknown": "Inconnu"
+		}
 	}
 }

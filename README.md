@@ -2,7 +2,7 @@
 
 Web application for managing a vegetable garden — cultivation beds, plantings, crop rotation, plant knowledge base.
 
-> **Version** : 0.4.2 — [CHANGELOG](CHANGELOG.md)
+> **Version** : 0.4.2-rc.1 — [CHANGELOG](CHANGELOG.md)
 
 ---
 
@@ -168,8 +168,8 @@ npm test
 npm run test:watch
 ```
 
-263 tests couvrent :
-- **Unitaires** : `types.ts`, `rotation.ts`, `planting.ts`, `toast.svelte.ts`, `logger.ts`, `cache-headers.ts`, `image-resize.ts`, `notifications.ts`, `auth.ts`, `data-isolation.ts`, `pages-auth.ts`, `rotation-alerts.ts`, `hooks-server.ts`, `layout-server.ts`, `dashboard-page.ts`, `garden-page.ts`, `plantations-page.ts`, `api-notifications.ts`, `rotation-plan.ts`, `harvest-records.ts`, `zones.ts`
+274 tests couvrent :
+- **Unitaires** : `types.ts`, `rotation.ts`, `planting.ts`, `toast.svelte.ts`, `logger.ts`, `cache-headers.ts`, `image-resize.ts`, `notifications.ts`, `auth.ts`, `data-isolation.ts`, `pages-auth.ts`, `rotation-alerts.ts`, `hooks-server.ts`, `layout-server.ts`, `dashboard-page.ts`, `garden-page.ts`, `plantations-page.ts`, `api-notifications.ts`, `rotation-plan.ts`, `harvest-records.ts`, `zones.ts`, `ics.ts`, `weather.ts`, `themes.ts`
 - **Intégration DB** : `db.ts`, `data-isolation.ts`, `favorites.ts`, `transfer.ts` (SQLite temporaire avec `better-sqlite3`, migrations Drizzle)
 
 Les tests d'intégration DB créent une base SQLite temporaire (`/tmp/monjardin-test-*`) et la détruisent après execution.
