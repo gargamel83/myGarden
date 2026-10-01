@@ -11,8 +11,11 @@
 
 ## Architecture
 - `/src/lib/server/db/` — Drizzle client + schemas
+- `/src/lib/server/auth.ts` — scrypt hashing, sessions (createUser/authenticateUser/getSessionUser)
 - `/src/lib/components/` — Reusable components (Svelte 5 `$props()` / `$state()`)
 - `/src/lib/i18n/` — Translations + locale store + `t()` function
+- `/src/lib/themes.ts` — light/dark mode (`data-theme-mode`), client-safe
+- `/src/lib/weather.ts` — shared weather helpers, **client-safe** (see Pièges connus)
 - `/src/routes/` — SvelteKit pages (layout, api, pages)
 - `/drizzle/` — Migrations
 - `/src/lib/types.ts` — Union types (`PlantStatus`, `SunExposure`, etc.)
@@ -27,24 +30,42 @@ npm run test           # Vitest (unit + integration)
 npm run test:watch     # Vitest watch mode
 npx drizzle-kit push   # Apply schema to DB
 npx drizzle-kit generate # Generate migration
-npm run db:seed        # Seed plant database (58 sheets) — uses `npx tsx`
-docker compose up --build # Docker prod (fallback data-docker-v0.0.0)
-./scripts/docker-up.sh --build # Docker prod with auto DATA_DIR from package.json
+npm run db:seed        # Seed plant database (58 fiches) — uses `npx tsx`
+npm run db:seed:force  # Seed + overwrite existing plants
+docker compose up --build # Docker prod (fallback data-docker-v0.0.0 si DATA_DIR unset)
+./scripts/docker-up.sh --build # Docker prod avec DATA_DIR auto depuis package.json
 ```
 
 ## DB / Schema
 - SQLite file in `data/monjardin.db` (gitignored). `DB_PATH` env var overrides path
-- Set `LOGIN_PASSWORD=xxx` in `.env`. Without it → no auth (dev mode)
+- **Auth is always on** (multi-user, table `users` + `sessions`). There is no password-less
+  dev mode — `LOGIN_PASSWORD` still present in `.env.example`/`docker-compose.yml` is **dead
+  config**, no code reads it. Don't document it as an auth switch.
 - Migration: edit schema → `npx drizzle-kit generate` → `npx drizzle-kit push`
-- Docker uses versioned data dir `data-docker-vX.X.X/` (read from `package.json` via `scripts/docker-up.sh`)
+- Docker uses versioned data dir `data-docker-v${version}/` (version read from `package.json`
+  by `scripts/docker-up.sh`, e.g. `0.4.2-rc.1` → `data-docker-v0.4.2-rc.1`)
 - `DATA_DIR` env var overrides mounted directory in Docker
+
+### Env vars réellement lues par le code
+| Var | Default | Où |
+|---|---|---|
+| `DB_PATH` | `data/monjardin.db` | `src/lib/server/db/index.ts` |
+| `LOG_DIR` | `/app/data/logs` | `src/lib/server/logger.ts` |
+| `LOG_LEVEL` | `info` | `src/lib/server/logger.ts` |
+| `LOG_FORMAT` | `text` (`json` sinon) | `src/lib/server/logger.ts` |
+| `ORIGIN` | — | requis par SvelteKit derrière Docker |
 
 ## i18n
 - `src/lib/i18n/index.ts` exports `t(path, params?)`, `localeStore` (Svelte writable), `setLocale()`, `getLocale()`
 - Keys are hierarchical: `nav.dashboard`, `status.sown`, `common.cancel`
 - Fallback to `en.json` if key missing in active locale
 - Add `import { localeStore, t } from '$lib/i18n'` + `let _locale = $localeStore` in components that use `t()`
-- New locale: create `xx.json`, import in `index.ts`, add to `localeData` record, add to `LocaleSwitcher.svelte` locales array
+- New locale: create `xx.json`, import in `index.ts`, add to `localeData` record. `LocaleSwitcher.svelte`
+  has **no locales array** — its EN/FR buttons are hardcoded, so it must be edited manually too
+- **Never put raw HTML entities in translation values** — Svelte does not decode them, so `&larr;`
+  renders literally. Use the unicode char (`←`). This already bit us once (see v0.4.2-rc.1 changelog)
+- `getLocale()` reads `localStorage` directly; use it to init `$state` at mount (see `LocaleSwitcher`,
+  `ThemeModeSwitcher`). A deferred `$effect` was the cause of a hydration mismatch bug — fixed in v0.4.1
 
 ## Conventional Commits
 ```
@@ -54,15 +75,34 @@ Types: `feat`, `fix`, `docs`, `refactor`, `style`, `chore`, `perf`, `test`
 - Scope optional (e.g. `plantations`, `docker`, `carte`, `i18n`, `auth`)
 - Description in French, imperative present, no capital letter, no period
 
+## État du projet
+- Version courante : **`0.4.2-rc.1`** (tag `v0.4.2-rc.1` poussé). Tests : **274 / 30 fichiers**, verts.
+- `doc/SESSION-RELEASE.md` = contexte de reprise détaillé (décisions Groupe A/B, pièges connus).
+- Reste à faire pour la RC → `v0.4.2` finale :
+  1. **Valider en conditions réelles** : rebuild Docker (`./scripts/docker-up.sh --build`). Le
+     conteneur précédent tournait sur un build Groupe B seul → les tables Groupe A
+     (`harvest_records`, colonne `gardenBeds.zone`) sont **absentes** de la base, les features A
+     échoueront tant que l'image n'est pas reconstruite.
+  2. Une fois validé : bump version, tag `v0.4.2`, MAJ changelog/README.
+
 ## Pending Bugs
-- **LocaleSwitcher dropdown ne s'ouvre pas au clic**. Cause suspectée : hydration mismatch SSR/client. Le SSR initialise `current = 'en'` (pas de localStorage), mais si localStorage contient `'fr'`, la réhydratation peut casser les event handlers. Tentatives : `$effect` + subscribe, `$state` local + `$effect` post-mount. Rien n'a fonctionné. À revoir.
+- *Aucun bug connu ouvert.* (Le bug LocaleSwitcher listé ici était périmé — corrigé en v0.4.1 par
+  init de `current` via `getLocale()`. Entrée supprimée.)
+
+## Pièges connus
+- **Météo** : les fonctions partagées vivent dans `src/lib/weather.ts` (**client-safe**), pas sous
+  `$lib/server/` — SvelteKit rejette l'import `$lib/server/*` depuis du code navigateur.
+- **Curl sur les actions SvelteKit** : l'en-tête `Origin` est obligatoire (CSRF, sinon 403) et un POST
+  d'action sans `Content-Type: application/x-www-form-urlencoded` renvoie 415.
+- **Compte de tests** : ne jamais additionner les comptes de branches séparées, les deux partageaient
+  une base commune (263 + 262 ≠ 274). Vérifier avec `npm run test`.
 
 ## Rules
 - Read `SPECS.md` for detailed specs
 - Read `doc/SESSION-RELEASE.md` for state & decisions at RC v0.4.2-rc.1 (context de reprise)
 - Always run `npx drizzle-kit push` after schema modification
 - After schema change: `generate` → `push`
-- Auth uses `@sveltejs/kit` hooks (`handle`) in `src/hooks.server.ts`. Session token stored in cookie, verified against `sessions` table in `getSessionUser()`
+- Auth uses `@sveltejs/kit` hooks (`handle`) in `src/hooks.server.ts`. Session token stored in cookie, verified against `sessions` table in `getSessionUser()`. The hook 302s to `/login` for any anonymous request not starting with `/login` or `/register`
 - No UI library — Tailwind only
 - **Every commit MUST include**: tests + CHANGELOG.md update + README.md if needed
 - **Always ask before committing** — never commit without explicit approval
