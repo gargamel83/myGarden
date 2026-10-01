@@ -8,6 +8,12 @@
 
 ### Fixed
 - **Bouton retour fiche plante** : l'entité HTML littérale `&larr;` de `plant.back` (en + fr) n'était pas décodée par Svelte et s'affichait brute (`&larr; Back to plants`). Remplacée par le caractère unicode `←`.
+- **Export/import JSON — perte de la zone des planches** : la colonne `gardenBeds.zone` (Groupe A)
+  n'était ni exportée ni restaurée par `transfer.ts`, alors que les autres champs de la planche
+  l'étaient. Un export suivi d'un import perdait silencieusement les zones. Champ `zone` ajouté au
+  payload (export + import), typé optionnel pour accepter les exports antérieurs à v0.4.2.
+- **Tests** : export/import vérifient désormais la zone, plus un cas de régression sur un payload
+  legacy sans `zone` — total 275 (30 fichiers).
 
 ## v0.4.2
 

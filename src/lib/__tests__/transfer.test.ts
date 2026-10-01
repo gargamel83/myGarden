@@ -53,7 +53,8 @@ describe('exportUserData', () => {
 			name: 'Carre A',
 			polygon: '[[0,0],[10,0],[10,10]]',
 			type: 'pixel',
-			soilType: 'riche'
+			soilType: 'riche',
+			zone: 'Zone Nord'
 		}).returning().get()!;
 
 		db.insert(schema.plantations).values({
@@ -77,6 +78,7 @@ describe('exportUserData', () => {
 		expect(data.version).toBe(1);
 		expect(data.gardenBeds).toHaveLength(1);
 		expect(data.gardenBeds[0].name).toBe('Carre A');
+		expect(data.gardenBeds[0].zone).toBe('Zone Nord');
 		expect(data.gardenBeds[0].plantations).toHaveLength(1);
 		expect(data.gardenBeds[0].plantations[0].plantName).toBe('Tomato');
 		expect(data.gardenPhotos).toHaveLength(1);
@@ -104,6 +106,7 @@ describe('importUserData', () => {
 		const beds = db.select().from(schema.gardenBeds).where(eq(schema.gardenBeds.userId, userB.id)).all();
 		expect(beds).toHaveLength(1);
 		expect(beds[0].name).toBe('Carre A');
+		expect(beds[0].zone).toBe('Zone Nord');
 
 		const plantations = db.select().from(schema.plantations).where(eq(schema.plantations.userId, userB.id)).all();
 		expect(plantations).toHaveLength(1);
@@ -111,5 +114,37 @@ describe('importUserData', () => {
 
 		const favs = db.select().from(schema.plantFavorites).where(eq(schema.plantFavorites.userId, userB.id)).all();
 		expect(favs).toHaveLength(1);
+	});
+
+	it('tolerates exports predating the zone field', () => {
+		const legacy = {
+			version: 1 as const,
+			exportedAt: new Date().toISOString(),
+			gardenBeds: [{
+				name: 'Ancienne planche',
+				polygon: '[[0,0],[5,0],[5,5]]',
+				type: 'pixel',
+				color: '#64748b',
+				soilType: null,
+				sunExposure: null,
+				length: null,
+				width: null,
+				orientation: null,
+				notes: null,
+				createdAt: new Date().toISOString(),
+				updatedAt: new Date().toISOString(),
+				plantations: []
+			}],
+			gardenPhotos: [],
+			favoritePlantIds: []
+		};
+
+		const counts = importUserData(userA.id, legacy);
+		expect(counts.beds).toBe(1);
+
+		const bed = db.select().from(schema.gardenBeds)
+			.where(eq(schema.gardenBeds.name, 'Ancienne planche')).get();
+		expect(bed).toBeDefined();
+		expect(bed!.zone).toBeNull();
 	});
 });

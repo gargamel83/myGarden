@@ -15,6 +15,8 @@ export interface ExportData {
 		length: number | null;
 		width: number | null;
 		orientation: string | null;
+		/** Optional: absent on exports created before v0.4.2 (zones, Groupe A) */
+		zone?: string | null;
 		notes: string | null;
 		createdAt: string;
 		updatedAt: string;
@@ -87,6 +89,7 @@ export function exportUserData(userId: number): ExportData {
 			length: bed.length,
 			width: bed.width,
 			orientation: bed.orientation,
+			zone: bed.zone,
 			notes: bed.notes,
 			createdAt: bed.createdAt,
 			updatedAt: bed.updatedAt,
@@ -121,6 +124,7 @@ export function importUserData(userId: number, data: ExportData): { beds: number
 				length: bed.length,
 				width: bed.width,
 				orientation: bed.orientation,
+				zone: bed.zone,
 				notes: bed.notes,
 				createdAt: bed.createdAt || now,
 				updatedAt: bed.updatedAt || now

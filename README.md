@@ -168,7 +168,7 @@ npm test
 npm run test:watch
 ```
 
-274 tests couvrent :
+275 tests couvrent :
 - **Unitaires** : `types.ts`, `rotation.ts`, `planting.ts`, `toast.svelte.ts`, `logger.ts`, `cache-headers.ts`, `image-resize.ts`, `notifications.ts`, `auth.ts`, `data-isolation.ts`, `pages-auth.ts`, `rotation-alerts.ts`, `hooks-server.ts`, `layout-server.ts`, `dashboard-page.ts`, `garden-page.ts`, `plantations-page.ts`, `api-notifications.ts`, `rotation-plan.ts`, `harvest-records.ts`, `zones.ts`, `ics.ts`, `weather.ts`, `themes.ts`
 - **Intégration DB** : `db.ts`, `data-isolation.ts`, `favorites.ts`, `transfer.ts` (SQLite temporaire avec `better-sqlite3`, migrations Drizzle)
 
