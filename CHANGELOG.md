@@ -1,20 +1,5 @@
 # Changelog
 
-## v0.4.2-rc.1
-
-### Added
-- **Release Candidate 0.1** : fusion des groupes A (données/jardin : rotation auto, journal de rendement, zones, versioning des planches) et B (UX/calendrier : export .ics, widget météo, recherche + tri, mode sombre) dans `main`.
-- **Versioning** : bump `package.json` → `0.4.2-rc.1`, README mis à jour, total des tests : 274 (30 fichiers).
-
-### Fixed
-- **Bouton retour fiche plante** : l'entité HTML littérale `&larr;` de `plant.back` (en + fr) n'était pas décodée par Svelte et s'affichait brute (`&larr; Back to plants`). Remplacée par le caractère unicode `←`.
-- **Export/import JSON — perte de la zone des planches** : la colonne `gardenBeds.zone` (Groupe A)
-  n'était ni exportée ni restaurée par `transfer.ts`, alors que les autres champs de la planche
-  l'étaient. Un export suivi d'un import perdait silencieusement les zones. Champ `zone` ajouté au
-  payload (export + import), typé optionnel pour accepter les exports antérieurs à v0.4.2.
-- **Tests** : export/import vérifient désormais la zone, plus un cas de régression sur un payload
-  legacy sans `zone` — total 275 (30 fichiers).
-
 ## v0.4.2
 
 ### Added
@@ -27,7 +12,27 @@
 - **B4 — Recherche + tri** : liste des plantations (vue liste) — recherche texte, filtre par statut, tri (récent/date/planche/statut/date de semis) ; liste des plantes — sélecteur de tri (nom/famille/date de semis)
 - **B5 — Mode sombre** : thème light/dark via `data-theme-mode` (`themes.ts`), composant `ThemeModeSwitcher` (🌙/☀️) dans la navbar, override CSS dark des surfaces/télétextes/contrôles dans `app.css` (palettes couleur conservées, fonds/ombres adaptés)
 - **Tests** : nouveaux (rotation plan, récoltes, zones, saveAllBeds, ics, weather, theme mode) — total 274
-- **Documentation** : README mis à jour (version 0.4.2-rc.1, décompte tests)
+
+### Fixed
+- **Bouton retour fiche plante** : l'entité HTML littérale `&larr;` de `plant.back` (en + fr) n'était pas décodée par Svelte et s'affichait brute (`&larr; Back to plants`). Remplacée par le caractère unicode `←`.
+- **Export/import JSON — perte de la zone des planches** : la colonne `gardenBeds.zone` (Groupe A) n'était ni exportée ni restaurée par `transfer.ts`, alors que tous les autres champs de la planche l'étaient. Un export suivi d'un import perdait silencieusement les zones. Champ `zone` ajouté au payload (export + import), typé optionnel pour accepter les exports antérieurs à v0.4.2.
+
+### Validation
+- **Release candidate `v0.4.2-rc.1` validée en Docker** puis intégrée à `v0.4.2` : image reconstruite, migrations appliquées au démarrage (11 migrations, `harvest_records` + `garden_beds.zone` présents), parcours fonctionnels vérifiés sur un compte réel — auth/inscription, isolement des données, zones, journal de rendement, export `.ics` (3 événements), météo Open-Meteo, recherche/tri, mode sombre, undo/redo.
+- **Tests** : export/import vérifient la zone, plus un cas de régression sur un payload legacy sans `zone` — total 275 (30 fichiers).
+
+### Documentation
+- `README.md` : version `0.4.2`, décompte tests
+- `AGENTS.md` : entrée « Pending Bugs » obsolète supprimée (bug LocaleSwitcher corrigé en v0.4.1), section auth corrigée (`LOGIN_PASSWORD` est une config morte), tableau des env vars réellement lues, sections État du projet / Pièges connus ajoutées
+
+## v0.4.2-rc.1
+
+### Added
+- **Release Candidate 0.1** : fusion des groupes A (données/jardin : rotation auto, journal de rendement, zones, versioning des planches) et B (UX/calendrier : export .ics, widget météo, recherche + tri, mode sombre) dans `main`.
+- **Versioning** : bump `package.json` → `0.4.2-rc.1`, README mis à jour, total des tests : 274 (30 fichiers).
+
+### Fixed
+- **Bouton retour fiche plante** : l'entité HTML littérale `&larr;` de `plant.back` (en + fr) n'était pas décodée par Svelte et s'affichait brute (`&larr; Back to plants`). Remplacée par le caractère unicode `←`.
 
 ## v0.4.1
 

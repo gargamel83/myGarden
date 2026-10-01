@@ -2,7 +2,7 @@
 
 Web application for managing a vegetable garden — cultivation beds, plantings, crop rotation, plant knowledge base.
 
-> **Version** : 0.4.2-rc.1 — [CHANGELOG](CHANGELOG.md)
+> **Version** : 0.4.2 — [CHANGELOG](CHANGELOG.md)
 
 ---
 

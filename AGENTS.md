@@ -43,7 +43,7 @@ docker compose up --build # Docker prod (fallback data-docker-v0.0.0 si DATA_DIR
   config**, no code reads it. Don't document it as an auth switch.
 - Migration: edit schema → `npx drizzle-kit generate` → `npx drizzle-kit push`
 - Docker uses versioned data dir `data-docker-v${version}/` (version read from `package.json`
-  by `scripts/docker-up.sh`, e.g. `0.4.2-rc.1` → `data-docker-v0.4.2-rc.1`)
+  by `scripts/docker-up.sh`, e.g. `0.4.2` → `data-docker-v0.4.2`)
 - `DATA_DIR` env var overrides mounted directory in Docker
 
 ### Env vars réellement lues par le code
@@ -63,7 +63,7 @@ docker compose up --build # Docker prod (fallback data-docker-v0.0.0 si DATA_DIR
 - New locale: create `xx.json`, import in `index.ts`, add to `localeData` record. `LocaleSwitcher.svelte`
   has **no locales array** — its EN/FR buttons are hardcoded, so it must be edited manually too
 - **Never put raw HTML entities in translation values** — Svelte does not decode them, so `&larr;`
-  renders literally. Use the unicode char (`←`). This already bit us once (see v0.4.2-rc.1 changelog)
+  renders literally. Use the unicode char (`←`). This already bit us once (see the v0.4.2 changelog)
 - `getLocale()` reads `localStorage` directly; use it to init `$state` at mount (see `LocaleSwitcher`,
   `ThemeModeSwitcher`). A deferred `$effect` was the cause of a hydration mismatch bug — fixed in v0.4.1
 
@@ -76,14 +76,14 @@ Types: `feat`, `fix`, `docs`, `refactor`, `style`, `chore`, `perf`, `test`
 - Description in French, imperative present, no capital letter, no period
 
 ## État du projet
-- Version courante : **`0.4.2-rc.1`** (tag `v0.4.2-rc.1` poussé). Tests : **274 / 30 fichiers**, verts.
-- `doc/SESSION-RELEASE.md` = contexte de reprise détaillé (décisions Groupe A/B, pièges connus).
-- Reste à faire pour la RC → `v0.4.2` finale :
-  1. **Valider en conditions réelles** : rebuild Docker (`./scripts/docker-up.sh --build`). Le
-     conteneur précédent tournait sur un build Groupe B seul → les tables Groupe A
-     (`harvest_records`, colonne `gardenBeds.zone`) sont **absentes** de la base, les features A
-     échoueront tant que l'image n'est pas reconstruite.
-  2. Une fois validé : bump version, tag `v0.4.2`, MAJ changelog/README.
+- Version courante : **`0.4.2`** (tag `v0.4.2`, RC `v0.4.2-rc.1` incluse). Tests : **275 / 30 fichiers**, verts.
+- `doc/SESSION-RELEASE.md` = contexte de reprise de la RC (décisions Groupe A/B, pièges connus).
+- La RC a été validée en Docker : auth/inscription, isolement, zones, journal de rendement, export
+  `.ics`, météo, recherche/tri, mode sombre, undo/redo. Le correctif du perte de `zone` à l'export
+  est dans `254b7dc`. Rythme de release : une RC par lot de features, promotion après validation
+  fonctionnelle sur un vrai compte.
+- **Prochaine étape naturelle** : nouveau lot de features (cf. `SPECS.md`) sur des branches
+  `feature/*` parallèles, comme pour A et B.
 
 ## Pending Bugs
 - *Aucun bug connu ouvert.* (Le bug LocaleSwitcher listé ici était périmé — corrigé en v0.4.1 par
@@ -99,7 +99,7 @@ Types: `feat`, `fix`, `docs`, `refactor`, `style`, `chore`, `perf`, `test`
 
 ## Rules
 - Read `SPECS.md` for detailed specs
-- Read `doc/SESSION-RELEASE.md` for state & decisions at RC v0.4.2-rc.1 (context de reprise)
+- Read `doc/SESSION-RELEASE.md` for the RC v0.4.2 context de reprise (decisions + pieges connus)
 - Always run `npx drizzle-kit push` after schema modification
 - After schema change: `generate` → `push`
 - Auth uses `@sveltejs/kit` hooks (`handle`) in `src/hooks.server.ts`. Session token stored in cookie, verified against `sessions` table in `getSessionUser()`. The hook 302s to `/login` for any anonymous request not starting with `/login` or `/register`
