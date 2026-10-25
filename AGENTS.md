@@ -84,6 +84,9 @@ Types: `feat`, `fix`, `docs`, `refactor`, `style`, `chore`, `perf`, `test`
   fonctionnelle sur un vrai compte.
 - **Prochaine étape naturelle** : nouveau lot de features (cf. `SPECS.md`) sur des branches
   `feature/*` parallèles, comme pour A et B.
+- **Branches** : `main` uniquement, en local et sur `origin`. Le ménage du 2026-10-25 a supprimé
+  les 15 branches locales et 10 distantes (toutes entièrement fusionnées) ; les tags `v0.4.2`
+  et `v0.4.2-rc.1` restent les points de reprise.
 
 ## Pending Bugs
 - *Aucun bug connu ouvert.* (Le bug LocaleSwitcher listé ici était périmé — corrigé en v0.4.1 par

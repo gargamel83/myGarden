@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Documentation
+- `SPECS.md` : sections `v0.4.1` et `v0.4.2` ajoutées (favoris/export-import ; groupes A et B, fixes de release, exclusions assumées) + tableau « État des modules (v0.4.2) »
+- Ménage git : les 15 branches locales et 10 branches distantes, toutes entièrement fusionnées dans `main`, ont été supprimées (seule `main` subsiste, locale et distante)
+
 ## v0.4.2
 
 ### Added

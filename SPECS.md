@@ -136,13 +136,15 @@ Web application for managing a vegetable garden.
 - **Model** : big-pickle (opencode/big-pickle)
 - **Branch** : `main` (feature branches merged via PRs)
 
-### Later Iterations (v0.2.5 — v0.4.0)
+### Later Iterations (v0.2.5 — v0.4.2)
 - **v0.2.5** : fuzzy match antagonists, upload invalidation, client-side plant filters
 - **v0.2.7** : reusable `Modal.svelte`, shared types/utils, N+1 fixes, 123 tests
 - **v0.2.8** : `GridCanvas` replaces photo canvas, zoom/pan/scale bar
 - **v0.2.9** : 4 themes with CSS variables + `ThemeSwitcher.svelte`, type filtering pixel/geo
 - **v0.3.0** : full i18n (`t()`, `LocaleSwitcher`, fr/en) — see CHANGELOG
 - **v0.4.0** : multi-user auth (register/login/logout), data isolation via `userId`, auto-migration of existing data to admin user
+- **v0.4.1** : plant favorites, JSON export/import of user data, `LocaleSwitcher` hydration fix
+- **v0.4.2** : two parallel feature batches (A: rotation plan, harvest journal, bed zones, bed undo/redo — B: `.ics` export, weather widget, search/sort, dark mode), promoted from RC `v0.4.2-rc.1`
 
 See `CHANGELOG.md` for the detailed per-version changelog.
 
@@ -218,3 +220,53 @@ See `CHANGELOG.md` for the detailed per-version changelog.
 |---|---------|----------------|
 | 1 | **Pagination plantations** — `PAGE_SIZE=30`, bouton "Show more" dans la vue liste, calendrier conserve toutes les données | `routes/plantations/+page.svelte` |
 | 2 | **Canvas double buffer** — `OffscreenCanvas` pour le fond (image satellite + planches), overlay seul redessiné au clic, `$effect` réactif | `routes/garden/+page.svelte` |
+
+## v0.4.1 — Favoris & Export/Import
+
+| # | Feature | Modified Files |
+|---|---------|----------------|
+| 1 | **Favoris plantes** — table `plant_favorites` (user + plant, index unique), étoile ★/☆ sur la fiche, filtre "Favoris" dans la liste, isolé par utilisateur | `db/schema.ts`, `routes/plants/*` |
+| 2 | **Export/Import JSON** — `GET /api/export` (planches + plantations + photos + favoris), `POST /api/import` recrée tout pour l'utilisateur courant avec reliaison des favoris | `lib/server/transfer.ts`, `routes/api/export`, `routes/api/import` |
+| 3 | **Fix `LocaleSwitcher`** — `current` initialisé via `getLocale()` (lecture localStorage au mount) au lieu d'un `$effect` retardé, supprime le mismatch d'hydratation SSR/client | `lib/components/LocaleSwitcher.svelte` |
+| 4 | **Tests** — 8 nouveaux (5 favoris, 3 transfer) → 251 | `src/__tests__/*` |
+
+## v0.4.2 — Groupes A & B (rotation, rendement, zones, versioning / .ics, météo, tri, dark mode)
+
+Développé sur deux branches indépendantes depuis `main` (`feature/groupe-a-donnees-jardin`,
+`feature/groupe-b-ux-calendrier`) puis fusionné. Les deux branches partageaient une base de tests
+commune : le total après fusion (275) n'est pas la somme des deux (263 + 262).
+
+### Groupe A — données/jardin
+
+| # | Feature | Modified Files |
+|---|---------|----------------|
+| A1 | **Rotation automatique** — `buildRotationPlan()` calcule un plan sur 3 ans (familles en repos évitées), affiché dans le modal d'édition de planche | `lib/server/rotation.ts`, `routes/garden/+page.svelte` |
+| A2 | **Journal de rendement** — table `harvest_records` (poids, quantité, état, notes, photo, date), historique consolidé, inclus dans l'export/import | `db/schema.ts`, `routes/plantations/*`, `lib/server/transfer.ts` |
+| A3 | **Zones** — colonne `garden_beds.zone` (texte libre + suggestions), filtre par zone et badge sur les cartes planches | `db/schema.ts`, `routes/garden/*` |
+| A4 | **Versioning des planches** — historique navigable création/édition/suppression, boutons Annuler/Rétablir, persistance en lot via l'action `saveAllBeds` (upsert + suppression des absentes) | `routes/garden/+page.server.ts`, `lib/server/bed-history.ts` |
+
+### Groupe B — UX/calendrier
+
+| # | Feature | Modified Files |
+|---|---------|----------------|
+| B1 | **Export rappels `.ics`** — `GET /api/export/ics` génère un iCalendar depuis semis/repiquages/récoltes (dates effectives, sinon périodes `MM-DD` des fiches) | `lib/server/ics.ts`, `routes/api/export/ics` |
+| B2 | **Widget météo** — `GET /api/weather` (proxy Open-Meteo, sans clé API) + `WeatherWidget` (température + prévisions 5 j, bouton "Ma position"), fonctions partagées dans `$lib/weather.ts` (**client-safe**) | `lib/weather.ts`, `lib/components/WeatherWidget.svelte`, `routes/api/weather` |
+| B4 | **Recherche + tri** — plantations (recherche texte, filtre statut, tri récent/date/planche/statut/semis), plantes (tri nom/famille/semis) | `routes/plantations/+page.svelte`, `routes/plants/+page.svelte` |
+| B5 | **Mode sombre** — `data-theme-mode` (`themes.ts`), `ThemeModeSwitcher` (🌙/☀️), override CSS dark des surfaces/textes/contrôles, palettes couleur conservées | `lib/themes.ts`, `lib/components/ThemeModeSwitcher.svelte`, `app.css` |
+
+### Fixes de release
+- **`plant.back`** : entité HTML littérale `&larr;` non décodée par Svelte → remplacée par `←` (en + fr).
+- **Export/import — perte de `zone`** : `transfer.ts` n'exportait/restaurait pas `gardenBeds.zone` ; champ ajouté au payload (optionnel pour les exports antérieurs), avec test de régression sur payload legacy.
+
+### Exclusions assumées
+- Pas de mode offline / PWA. Partage par QR code écarté par choix.
+
+## État des modules (v0.4.2)
+
+| Module (`## Modules`) | État | Reste à faire |
+|---|---|---|
+| 1. Garden Organization | ✅ | — (GridCanvas + polygones, planches complètes avec `zone`, carte OSM Leaflet) |
+| 2. Planting Management | ✅ | — (CRUD, 5 statuts, calendrier, historique par planche, journal de rendement, undo/redo planches) |
+| 3. Plant Knowledge Base | 🟡 | 58 fiches, photos uploadables + lightbox, conseils par planche (`getBedAdvice`), recherche/filtres/tri **faits** ; manquent des **photos de maladies/stades dédiées** (une seule galerie par fiche) et des **conseils structurés** (pas de champs dédiés maladie/ravageur) |
+| 4. Crop Rotation | ✅ | — (plan 3 ans, familles botaniques, alertes rotation trop courte) |
+| 5. Dashboard / Monitoring | ✅ | — (stats saison, top cultures, heatmap planches, alertes, cloche notifications) |
