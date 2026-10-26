@@ -12,6 +12,11 @@
 - `SPECS.md` : sections `v0.4.1` et `v0.4.2` ajoutées (favoris/export-import ; groupes A et B, fixes de release, exclusions assumées) + tableau « État des modules (v0.4.2) »
 - Ménage git : les 15 branches locales et 10 branches distantes, toutes entièrement fusionnées dans `main`, ont été supprimées (seule `main` subsiste, locale et distante)
 
+### Added
+- **C4 — Conseils d'entretien structurés** : colonne `plants.care_tips` (JSON), helpers `src/lib/care-tips.ts`, onglets Arrosage/Fertilisation/Taille/Récolte/Divers sur la fiche plante avec formulaire d'édition, seed des 58 fiches enrichi
+- **C5 — Planning de la saison** : table `garden_tasks`, page `/season` avec « que faire ce mois-ci » dérivé (semis/repiquages/récoltes) + tâches manuelles cochables/supprimables, helpers `src/lib/season.ts`
+- **C6 — Impression du plan** : page `/garden/print` avec plan SVG + légende/impression navigateur, helpers `src/lib/plan-print.ts`, styles `@media print` dans `app.css`, lien depuis le jardin
+
 ## v0.4.2
 
 ### Added

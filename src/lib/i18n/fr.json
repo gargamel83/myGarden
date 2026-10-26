@@ -15,7 +15,8 @@
 		"importData": "Importer des données (JSON)",
 		"importing": "Importation...",
 		"importSuccess": "Import terminé : {beds} planches, {plantations} plantations, {photos} photos, {favorites} favoris",
-		"importFailed": "Échec de l'import"
+		"importFailed": "Échec de l'import",
+		"season": "Saison"
 	},
 	"login": {
 		"title": "Connexion",
@@ -296,8 +297,34 @@
 		"moyen": "Moyen",
 		"élevé": "Élevé"
 	},
-	"monthLabels": ["Janv", "Févr", "Mars", "Avr", "Mai", "Juin", "Juil", "Août", "Sept", "Oct", "Nov", "Déc"],
-	"monthLabelsShort": ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"],
+	"monthLabels": [
+		"Janv",
+		"Févr",
+		"Mars",
+		"Avr",
+		"Mai",
+		"Juin",
+		"Juil",
+		"Août",
+		"Sept",
+		"Oct",
+		"Nov",
+		"Déc"
+	],
+	"monthLabelsShort": [
+		"J",
+		"F",
+		"M",
+		"A",
+		"M",
+		"J",
+		"J",
+		"A",
+		"S",
+		"O",
+		"N",
+		"D"
+	],
 	"timeline": {
 		"sowing": "Semis : {date}",
 		"transplanting": "Repiquage : {date}",
@@ -380,5 +407,54 @@
 		"prevention": "Prévention",
 		"hostPlants": "Plantes hôtes",
 		"close": "Fermer"
+	},
+	"careTips": {
+		"title": "Conseils d'entretien",
+		"none": "Aucun conseil renseigné.",
+		"emptyTab": "Aucun détail pour cette rubrique.",
+		"tabs": {
+			"watering": "Arrosage",
+			"fertilizing": "Fertilisation",
+			"pruning": "Taille",
+			"harvest": "Récolte",
+			"misc": "Divers"
+		}
+	},
+	"season": {
+		"title": "Planning de la saison",
+		"monthNav": "Mois",
+		"today": "Aujourd'hui",
+		"sowing": "Semis",
+		"transplanting": "Repiquage",
+		"harvest": "Récolte",
+		"plantings": "Plantations du mois",
+		"manualTasks": "Tâches manuelles",
+		"addTask": "Ajouter une tâche",
+		"taskTitle": "Intitulé de la tâche",
+		"noTask": "Aucune tâche",
+		"done": "Fait",
+		"plantationsEmpty": "Aucune plantation ne correspond à ce mois.",
+		"addManualTask": "Ajouter une tâche",
+		"bedOptional": "Planche (facultatif)",
+		"selectBed": "Sélectionner une planche",
+		"delete": "Supprimer",
+		"noBed": "Sans planche"
+	},
+	"print": {
+		"title": "Plan du jardin",
+		"print": "Imprimer / Enregistrer en PDF",
+		"backToGarden": "Retour au jardin",
+		"beds": "Planches",
+		"plantings": "Plantations",
+		"legend": "Légende",
+		"bed": "Planche",
+		"zone": "Zone",
+		"area": "Surface",
+		"exposure": "Exposition",
+		"soil": "Sol",
+		"noPlantings": "Aucune plantation",
+		"geoBeds": "Planches géolocalisées (non représentées sur le plan)",
+		"date": "Imprimé le",
+		"user": "Utilisateur"
 	}
 }

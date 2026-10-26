@@ -4,6 +4,7 @@ import { eq, and, inArray } from 'drizzle-orm';
 import { error, fail } from '@sveltejs/kit';
 import { writeFileSync, existsSync, mkdirSync } from 'fs';
 import sharp from 'sharp';
+import { parseCareTips, serializeCareTips } from '$lib/care-tips';
 import type { PageServerLoad, Actions } from './$types.js';
 
 export const load: PageServerLoad = async ({ params, locals, depends }) => {
@@ -54,7 +55,7 @@ export const load: PageServerLoad = async ({ params, locals, depends }) => {
 		.all()
 		.filter(p => p.id !== plant.id);
 
-	return { plant, companions, antagonists, sameFamily, isFavorite };
+	return { plant, companions, antagonists, sameFamily, isFavorite, careTips: parseCareTips(plant.careTips) };
 };
 
 export const actions: Actions = {
@@ -69,6 +70,10 @@ export const actions: Actions = {
 		// Preserve existing photos if not overwritten
 		const existing = db.select().from(plants).where(eq(plants.id, id)).get();
 		const currentPhotos = existing?.photos || '[]';
+		const rawCareTips = data.get('careTips');
+		const careTips = typeof rawCareTips === 'string'
+			? serializeCareTips(parseCareTips(rawCareTips))
+			: existing?.careTips ?? null;
 
 		db.update(plants).set({
 			commonName,
@@ -89,6 +94,7 @@ export const actions: Actions = {
 			companions: (data.get('companions') as string) || null,
 			antagonists: (data.get('antagonists') as string) || null,
 			photos: (data.get('photos') as string) || currentPhotos,
+			careTips,
 			updatedAt: new Date().toISOString()
 		}).where(eq(plants.id, id)).run();
 

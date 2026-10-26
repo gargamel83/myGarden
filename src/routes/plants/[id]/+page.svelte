@@ -6,6 +6,7 @@
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { EXPOSURE_LABELS, SOIL_LABELS, WATERING_LABELS, type SunExposure, type SoilType, type Watering } from '$lib/types';
 	import { monthsInRange, serializeCommaSeparated } from '$lib/utils';
+	import { CARE_TIP_KEYS, hasCareTips, serializeCareTips, type CareTipKey } from '$lib/care-tips';
 	import { localeStore, t } from '$lib/i18n';
 	let _locale = $localeStore;
 
@@ -15,6 +16,8 @@
 	let companions = $derived(data.companions);
 	let antagonists = $derived(data.antagonists);
 	let sameFamily = $derived(data.sameFamily);
+	let careTips = $derived(data.careTips);
+	let activeTip = $state<CareTipKey>('watering');
 	// svelte-ignore state_referenced_locally
 	let isFavorite = $state(data.isFavorite);
 
@@ -56,6 +59,15 @@
 
 	let editCompanions = $state('');
 	let editAntagonists = $state('');
+
+	// svelte-ignore state_referenced_locally
+	let editCare = $state({
+		watering: data.careTips.watering || '',
+		fertilizing: data.careTips.fertilizing || '',
+		pruning: data.careTips.pruning || '',
+		harvest: data.careTips.harvest || '',
+		misc: data.careTips.misc || ''
+	});
 
 	// Parse companion/antagonist names for editing
 	try {
@@ -154,6 +166,7 @@
 		<!-- Edit mode -->
 		<form method="POST" action="?/update" use:enhance={onPlantSubmit}>
 			<input type="hidden" name="photos" value={JSON.stringify(photos)} />
+			<input type="hidden" name="careTips" value={serializeCareTips(editCare)} />
 			<div class="max-w-2xl space-y-3 text-sm">
 				<h1 class="text-2xl font-bold mb-4">{t('plant.editTitle', { name: plant.commonName })}</h1>
 				<div class="grid grid-cols-2 gap-3">
@@ -260,6 +273,31 @@
 					</label>
 				</div>
 				</div>
+				<fieldset class="border rounded p-3">
+					<legend class="text-xs font-medium text-gray-500 px-1">{t('careTips.title')}</legend>
+					<div class="space-y-2 mt-2">
+						<label class="block text-gray-600">
+							{t('careTips.tabs.watering')}
+							<textarea bind:value={editCare.watering} rows="2" class="w-full border rounded px-2 py-1"></textarea>
+						</label>
+						<label class="block text-gray-600">
+							{t('careTips.tabs.fertilizing')}
+							<textarea bind:value={editCare.fertilizing} rows="2" class="w-full border rounded px-2 py-1"></textarea>
+						</label>
+						<label class="block text-gray-600">
+							{t('careTips.tabs.pruning')}
+							<textarea bind:value={editCare.pruning} rows="2" class="w-full border rounded px-2 py-1"></textarea>
+						</label>
+						<label class="block text-gray-600">
+							{t('careTips.tabs.harvest')}
+							<textarea bind:value={editCare.harvest} rows="2" class="w-full border rounded px-2 py-1"></textarea>
+						</label>
+						<label class="block text-gray-600">
+							{t('careTips.tabs.misc')}
+							<textarea bind:value={editCare.misc} rows="2" class="w-full border rounded px-2 py-1"></textarea>
+						</label>
+					</div>
+				</fieldset>
 				<div class="flex gap-2 justify-end pt-2">
 					<button type="button" class="px-4 py-2 border rounded" onclick={() => editing = false}>{t('plants.form.cancel')}</button>
 					<button type="submit" class="px-4 py-2 bg-[var(--btn-bg)] text-white rounded">{t('plants.form.create')}</button>
@@ -403,6 +441,28 @@
 						{/each}
 					</div>
 				</div>
+			{/if}
+		</div>
+
+		<!-- Care tips -->
+		<div class="mt-6 border rounded-lg p-4">
+			<h2 class="font-bold text-lg mb-3">{t('careTips.title')}</h2>
+			{#if hasCareTips(careTips)}
+				<div class="flex gap-1 border-b flex-wrap">
+					{#each CARE_TIP_KEYS as key}
+						<button
+							class="px-3 py-1.5 -mb-px border-b-2 text-sm {activeTip === key ? 'border-[var(--tab-border)] text-[var(--tab-text)] font-medium' : 'border-transparent text-gray-500 hover:text-gray-700'}"
+							onclick={() => activeTip = key}
+						>
+							{t('careTips.tabs.' + key)}
+						</button>
+					{/each}
+				</div>
+				<p class="mt-3 text-sm text-gray-700 whitespace-pre-line">
+					{careTips[activeTip] || t('careTips.emptyTab')}
+				</p>
+			{:else}
+				<p class="text-sm text-gray-500">{t('careTips.none')}</p>
 			{/if}
 		</div>
 

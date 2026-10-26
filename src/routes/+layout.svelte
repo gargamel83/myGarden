@@ -35,7 +35,9 @@
 		{ href: '/garden', label: () => t('nav.garden') },
 		{ href: '/plantations', label: () => t('nav.plantings') },
 		{ href: '/plants', label: () => t('nav.plants') },
-		{ href: '/diseases', label: () => t('nav.diseases') }
+		{ href: '/diseases', label: () => t('nav.diseases') },
+		{ href: '/season', label: () => t('nav.season') }
+
 	];
 
 	$effect(() => {

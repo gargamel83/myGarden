@@ -58,6 +58,7 @@ export const plants = sqliteTable('plants', {
 	companions: text('companions'),
 	antagonists: text('antagonists'),
 	photos: text('photos'),
+	careTips: text('care_tips'), // JSON { watering, fertilizing, pruning, harvest, misc }
 	createdAt: text('created_at').notNull().$default(() => new Date().toISOString()),
 	updatedAt: text('updated_at').notNull().$default(() => new Date().toISOString())
 }, (table) => ({
@@ -157,6 +158,19 @@ export const notifications = sqliteTable('notifications', {
 	createdAt: text('created_at').notNull().$default(() => new Date().toISOString())
 }, (table) => ({
 	isReadIdx: index('idx_notifications_is_read').on(table.isRead)
+}));
+
+export const gardenTasks = sqliteTable('garden_tasks', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	userId: integer('user_id').notNull().references(() => users.id),
+	gardenBedId: integer('garden_bed_id').references(() => gardenBeds.id),
+	title: text('title').notNull(),
+	month: integer('month').notNull(), // 1-12
+	year: integer('year'), // null = every year
+	done: integer('done', { mode: 'boolean' }).notNull().default(false),
+	createdAt: text('created_at').notNull().$default(() => new Date().toISOString())
+}, (table) => ({
+	userMonthIdx: index('idx_garden_tasks_user_month').on(table.userId, table.month)
 }));
 
 export const gardenPhotos = sqliteTable('garden_photos', {

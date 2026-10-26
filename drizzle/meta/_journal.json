@@ -85,6 +85,13 @@
       "when": 1792910149092,
       "tag": "0011_icy_zaran",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "6",
+      "when": 1792910930002,
+      "tag": "0012_tiny_rawhide_kid",
+      "breakpoints": true
     }
   ]
 }

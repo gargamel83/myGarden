@@ -1,6 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
+<<<<<<< HEAD
   "id": "01af2b60-7b3c-482c-9a67-86c6312317cd",
   "prevId": "4d08f75f-96ec-478d-8930-2d2a7050aa5f",
   "tables": {
@@ -106,6 +107,11 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
+=======
+  "id": "f5a8f9b6-da12-43ea-b20d-ad7a3174b6f8",
+  "prevId": "4d08f75f-96ec-478d-8930-2d2a7050aa5f",
+  "tables": {
+>>>>>>> feature/groupe-c-conseils-agro
     "garden_beds": {
       "name": "garden_beds",
       "columns": {
@@ -310,6 +316,112 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
+<<<<<<< HEAD
+=======
+    "garden_tasks": {
+      "name": "garden_tasks",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "garden_bed_id": {
+          "name": "garden_bed_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "month": {
+          "name": "month",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "year": {
+          "name": "year",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "done": {
+          "name": "done",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "idx_garden_tasks_user_month": {
+          "name": "idx_garden_tasks_user_month",
+          "columns": [
+            "user_id",
+            "month"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "garden_tasks_user_id_users_id_fk": {
+          "name": "garden_tasks_user_id_users_id_fk",
+          "tableFrom": "garden_tasks",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "garden_tasks_garden_bed_id_garden_beds_id_fk": {
+          "name": "garden_tasks_garden_bed_id_garden_beds_id_fk",
+          "tableFrom": "garden_tasks",
+          "tableTo": "garden_beds",
+          "columnsFrom": [
+            "garden_bed_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+>>>>>>> feature/groupe-c-conseils-agro
     "harvest_records": {
       "name": "harvest_records",
       "columns": {
@@ -602,6 +714,7 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
+<<<<<<< HEAD
     "plant_health_records": {
       "name": "plant_health_records",
       "columns": {
@@ -733,6 +846,8 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
+=======
+>>>>>>> feature/groupe-c-conseils-agro
     "plantations": {
       "name": "plantations",
       "columns": {
@@ -1061,6 +1176,16 @@
           "notNull": false,
           "autoincrement": false
         },
+<<<<<<< HEAD
+=======
+        "care_tips": {
+          "name": "care_tips",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+>>>>>>> feature/groupe-c-conseils-agro
         "created_at": {
           "name": "created_at",
           "type": "text",

@@ -15,7 +15,8 @@
 		"importData": "Import data (JSON)",
 		"importing": "Importing...",
 		"importSuccess": "Import complete: {beds} beds, {plantations} plantings, {photos} photos, {favorites} favorites",
-		"importFailed": "Import failed"
+		"importFailed": "Import failed",
+		"season": "Season"
 	},
 	"login": {
 		"title": "Log in",
@@ -296,8 +297,34 @@
 		"moyen": "Medium",
 		"élevé": "High"
 	},
-	"monthLabels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-	"monthLabelsShort": ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"],
+	"monthLabels": [
+		"Jan",
+		"Feb",
+		"Mar",
+		"Apr",
+		"May",
+		"Jun",
+		"Jul",
+		"Aug",
+		"Sep",
+		"Oct",
+		"Nov",
+		"Dec"
+	],
+	"monthLabelsShort": [
+		"J",
+		"F",
+		"M",
+		"A",
+		"M",
+		"J",
+		"J",
+		"A",
+		"S",
+		"O",
+		"N",
+		"D"
+	],
 	"timeline": {
 		"sowing": "Sowing: {date}",
 		"transplanting": "Transplanting: {date}",
@@ -380,5 +407,54 @@
 		"prevention": "Prevention",
 		"hostPlants": "Host plants",
 		"close": "Close"
+	},
+	"careTips": {
+		"title": "Care tips",
+		"none": "No care tips yet.",
+		"emptyTab": "No details for this section yet.",
+		"tabs": {
+			"watering": "Watering",
+			"fertilizing": "Fertilizing",
+			"pruning": "Pruning",
+			"harvest": "Harvest",
+			"misc": "Misc"
+		}
+	},
+	"season": {
+		"title": "Season planning",
+		"monthNav": "Month",
+		"today": "Today",
+		"sowing": "Sow",
+		"transplanting": "Transplant",
+		"harvest": "Harvest",
+		"plantings": "Plantings this month",
+		"manualTasks": "Manual tasks",
+		"addTask": "Add task",
+		"taskTitle": "Task title",
+		"noTask": "No task",
+		"done": "Done",
+		"plantationsEmpty": "No plantations match this month.",
+		"addManualTask": "Add a task",
+		"bedOptional": "Bed (optional)",
+		"selectBed": "Select a bed",
+		"delete": "Delete",
+		"noBed": "No bed"
+	},
+	"print": {
+		"title": "Garden plan",
+		"print": "Print / Save as PDF",
+		"backToGarden": "Back to garden",
+		"beds": "Beds",
+		"plantings": "Plantings",
+		"legend": "Legend",
+		"bed": "Bed",
+		"zone": "Zone",
+		"area": "Area",
+		"exposure": "Exposure",
+		"soil": "Soil",
+		"noPlantings": "No plantings",
+		"geoBeds": "Geolocated beds (not shown on plan)",
+		"date": "Printed on",
+		"user": "User"
 	}
 }
