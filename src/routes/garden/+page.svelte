@@ -193,6 +193,7 @@
 	<div class="flex items-center justify-between">
 		<h1 class="text-2xl font-bold">{t('garden.title')}</h1>
 		<div class="flex gap-2">
+			<a href="/garden/print" class="px-3 py-1.5 rounded text-sm border bg-white/90 text-gray-700 hover:bg-white">🖨 {t('print.print')}</a>
 			<button
 				class="px-3 py-1.5 rounded text-sm border {canUndo ? 'bg-gray-100 hover:bg-gray-200' : 'opacity-40 cursor-not-allowed'}"
 				disabled={!canUndo}

@@ -34,6 +34,7 @@
 		{ href: '/', label: () => t('nav.dashboard') },
 		{ href: '/garden', label: () => t('nav.garden') },
 		{ href: '/plantations', label: () => t('nav.plantings') },
+		{ href: '/season', label: () => t('nav.season') },
 		{ href: '/plants', label: () => t('nav.plants') }
 	];
 

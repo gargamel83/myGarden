@@ -1,3 +1,15 @@
+type SeedCareTips = {
+	watering: string;
+	fertilizing: string;
+	pruning: string;
+	harvest: string;
+	misc: string;
+};
+
+function tips(t: SeedCareTips): string {
+	return JSON.stringify(t);
+}
+
 export const seeds = [
 	// ========== Solanaceae ==========
 	{
@@ -13,7 +25,14 @@ export const seeds = [
 		spacing: 50, rowSpacing: 80,
 		companions: '["Basilic","Carotte","Persil","Oignon"]',
 		antagonists: '["Pomme de terre","Fenouil","Chou"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/8/89/Tomato_je.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/8/89/Tomato_je.jpg"]',
+		careTips: tips({
+			watering: 'Arroser au pied 2 à 3 fois par semaine, généreusement en été ; ne pas mouiller le feuillage pour limiter le mildiou.',
+			fertilizing: 'Sol riche : compost à la plantation, puis purin de consoude dilué tous les 15 jours dès la nouaison.',
+			pruning: 'Tuteurer et pincer les gourmands chaque semaine ; limiter à 2 ou 3 tiges pour hâter la maturation.',
+			harvest: 'Récolter dès que le fruit est coloré et souple, tous les 2 à 3 jours en pleine saison.',
+			misc: 'Pailler épais pour garder l’humidité ; ne pas revenir au même emplacement avant 3 ans.'
+		}),
 	},
 	{
 		commonName: 'Aubergine',
@@ -28,7 +47,14 @@ export const seeds = [
 		spacing: 50, rowSpacing: 70,
 		companions: '["Haricot","Thym","Estragon"]',
 		antagonists: '["Pomme de terre","Fenouil"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/7/76/Solanum_melongena_24_08_2012_%281%29.JPG"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/7/76/Solanum_melongena_24_08_2012_%281%29.JPG"]',
+		careTips: tips({
+			watering: 'Arroser régulièrement sans détremper, 2 fois par semaine : le stress hydrique fait tomber les fleurs.',
+			fertilizing: 'Compost riche à la plantation, puis engrais potassique toutes les 2 semaines.',
+			pruning: 'Tuteurer, supprimer les gourmands sous la première fleur et les feuilles jaunes.',
+			harvest: 'Couper les fruits brillants et fermes avant que les graines ne brunissent.',
+			misc: 'Très frileuse : attendre que le sol atteigne 15 °C ; la culture sous serre est conseillée au nord de la Loire.'
+		}),
 	},
 	{
 		commonName: 'Poivron',
@@ -43,7 +69,14 @@ export const seeds = [
 		spacing: 45, rowSpacing: 60,
 		companions: '["Basilic","Carotte","Persil"]',
 		antagonists: '["Fenouil","Chou"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/8/85/Green-Yellow-Red-Pepper-2009.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/8/85/Green-Yellow-Red-Pepper-2009.jpg"]',
+		careTips: tips({
+			watering: 'Arroser 2 à 3 fois par semaine au pied, sans excès : l’eau stagnante fait pourrir les racines.',
+			fertilizing: 'Compost à la plantation, puis un engrais riche en potasse tous les 15 jours.',
+			pruning: 'Pincer la tige principale au-dessus du troisième étage pour ramifier ; ôter les premières fleurs si la plante est faible.',
+			harvest: 'Récolter vert, puis laisser rougir sur pied pour plus de sucre.',
+			misc: 'Chaleur et lumière maximales ; pailler et abriter du vent.'
+		}),
 	},
 	{
 		commonName: 'Pomme de terre',
@@ -58,7 +91,14 @@ export const seeds = [
 		spacing: 30, rowSpacing: 70,
 		companions: '["Haricot","Maïs","Œillet d\'Inde"]',
 		antagonists: '["Tomate","Aubergine","Fenouil","Tournesol"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/a/ab/Patates.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/a/ab/Patates.jpg"]',
+		careTips: tips({
+			watering: 'Butter puis arroser copieusement pendant la tubérisation ; réduire après le jaunissement du feuillage.',
+			fertilizing: 'Fumure organique à l’automne précédent ; éviter l’azote excessif qui pousse au feuillage au détriment des tubercules.',
+			pruning: 'Pas de taille : butter deux fois sur 20 cm pour protéger les tubercules de la lumière.',
+			harvest: 'Récolter les primeurs dès la floraison, les variétés de garde quand le feuillage jaunit.',
+			misc: 'Rotation de 4 ans minimum ; éviter tomate, aubergine et piment sur la même planche.'
+		}),
 	},
 	{
 		commonName: 'Piment',
@@ -73,7 +113,14 @@ export const seeds = [
 		spacing: 40, rowSpacing: 60,
 		companions: '["Basilic","Carotte","Persil"]',
 		antagonists: '["Fenouil","Haricot"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/5/50/Madame_Jeanette_and_other_chillies.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/5/50/Madame_Jeanette_and_other_chillies.jpg"]',
+		careTips: tips({
+			watering: 'Arroser au pied 2 fois par semaine ; un léger stress hydrique en fin de culture concentre la force.',
+			fertilizing: 'Compost à la plantation et engrais potassique toutes les 2 semaines, sans excès d’azote.',
+			pruning: 'Pincer les jeunes plants pour les ramifier, puis tuteurer les variétés hautes.',
+			harvest: 'Récolter les fruits bien colorés et échelonner la cueillette pour relancer la production.',
+			misc: 'Gants conseillés à la récolte ; sécher les piments à l’ombre et au sec.'
+		}),
 	},
 	{
 		commonName: 'Tomate cerise',
@@ -88,7 +135,14 @@ export const seeds = [
 		spacing: 40, rowSpacing: 60,
 		companions: '["Basilic","Carotte","Capucine"]',
 		antagonists: '["Pomme de terre","Fenouil"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/1/10/Tomates_cerises_Luc_Viatour.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/1/10/Tomates_cerises_Luc_Viatour.jpg"]',
+		careTips: tips({
+			watering: 'Arroser au pied tous les 2 jours ; la régularité évite l’éclatement des fruits.',
+			fertilizing: 'Compost à la plantation, puis purin de consoude dilué tous les 15 jours.',
+			pruning: 'Tuteurer et pincer les gourmands ; laisser 3 ou 4 bouquets par tige.',
+			harvest: 'Cueillir les bouquets entiers quand les fruits sont bien rouges et les déguster rapidement.',
+			misc: 'Très productive : prévoir un support solide ; bonne compagne du basilic.'
+		}),
 	},
 
 	// ========== Brassicaceae ==========
@@ -105,7 +159,14 @@ export const seeds = [
 		spacing: 50, rowSpacing: 70,
 		companions: '["Betterave","Céleri","Haricot","Camomille"]',
 		antagonists: '["Tomate","Fraise","Poireau","Ail"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/6/6f/Cabbage_and_cross_section_on_white.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/6/6f/Cabbage_and_cross_section_on_white.jpg"]',
+		careTips: tips({
+			watering: 'Arroser copieusement 2 fois par semaine, surtout après le repiquage : le chou déteste la sécheresse.',
+			fertilizing: 'Sol lourd et fumé à l’avance ; compost mûr au repiquage, puis un purin d’ortie.',
+			pruning: 'Retirer les feuilles jaunes et butter légèrement le pied ; pas de taille.',
+			harvest: 'Couper la pomme à ras quand elle est ferme, avant qu’elle n’éclate.',
+			misc: 'Butter contre la piéride et la mouche du chou ; rotation de 3 à 4 ans.'
+		}),
 	},
 	{
 		commonName: 'Chou-fleur',
@@ -120,7 +181,14 @@ export const seeds = [
 		spacing: 60, rowSpacing: 80,
 		companions: '["Betterave","Céleri","Épinard"]',
 		antagonists: '["Tomate","Fraise","Poireau"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/2/2f/Chou-fleur_02.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/2/2f/Chou-fleur_02.jpg"]',
+		careTips: tips({
+			watering: 'Arroser régulièrement et abondamment : un manque d’eau donne des pommes minuscules.',
+			fertilizing: 'Sol riche : compost et fumure au repiquage, puis purin d’ortie tous les 15 jours.',
+			pruning: 'Casser une feuille sur la pomme pour la blanchir ; ôter les feuilles jaunes.',
+			harvest: 'Récolter la pomme bien serrée, avant l’apparition des boutons floraux.',
+			misc: 'Très gourmand : réserver la meilleure planche et éviter le chou sur chou.'
+		}),
 	},
 	{
 		commonName: 'Brocoli',
@@ -135,7 +203,14 @@ export const seeds = [
 		spacing: 45, rowSpacing: 60,
 		companions: '["Betterave","Céleri","Camomille"]',
 		antagonists: '["Tomate","Fraise"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/0/03/Broccoli_and_cross_section_edit.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/0/03/Broccoli_and_cross_section_edit.jpg"]',
+		careTips: tips({
+			watering: 'Arroser 2 fois par semaine en maintenant le sol frais, sans détremper.',
+			fertilizing: 'Compost à la plantation, puis purin d’ortie une fois par mois jusqu’à la formation des têtes.',
+			pruning: 'Pas de taille ; supprimer les feuilles jaunes et récolter la tête centrale en premier.',
+			harvest: 'Couper la tête centrale avant floraison, puis les rejets latéraux au fur et à mesure.',
+			misc: 'Récolte étalée sur plusieurs semaines ; congeler les rejets en surplus.'
+		}),
 	},
 	{
 		commonName: 'Radis',
@@ -150,7 +225,14 @@ export const seeds = [
 		spacing: 5, rowSpacing: 20,
 		companions: '["Carotte","Laitue","Haricot","Capucine"]',
 		antagonists: '["Chou"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/0/0c/Radish_3371103037_4ab07db0bf_o.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/0/0c/Radish_3371103037_4ab07db0bf_o.jpg"]',
+		careTips: tips({
+			watering: 'Maintenir le sol frais par des arrosages légers et fréquents : le sec rend les radis piquants.',
+			fertilizing: 'Pas de fumure fraîche : un sol meuble suffit, l’excès d’azote donne des fanes au lieu de racines.',
+			pruning: 'Aucune taille ; éclaircir à 3 ou 4 cm dès que les plants se touchent.',
+			harvest: 'Récolter dès que la racine atteint 2 à 3 cm, sinon elle devient creuse et piquante.',
+			misc: 'Semer par petites quantités toutes les 2 semaines pour une récolte continue.'
+		}),
 	},
 	{
 		commonName: 'Navet',
@@ -165,7 +247,14 @@ export const seeds = [
 		spacing: 10, rowSpacing: 30,
 		companions: '["Pois","Laitue","Haricot"]',
 		antagonists: '["Radis","Chou"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/d/d3/Turnip_2622027.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/d/d3/Turnip_2622027.jpg"]',
+		careTips: tips({
+			watering: 'Arroser régulièrement pour éviter des racines fibreuses ; le sol doit rester frais.',
+			fertilizing: 'Compost mûr uniquement : le fumier frais fait fourcher les racines.',
+			pruning: 'Éclaircir à 10 cm pour laisser grossir les racines.',
+			harvest: 'Arracher à la demande dès 6 à 8 cm de diamètre : les petits navets sont les meilleurs.',
+			misc: 'Semis d’automne pour une récolte d’hiver ; la rotation limite la mouche du navet.'
+		}),
 	},
 	{
 		commonName: 'Chou de Bruxelles',
@@ -180,7 +269,14 @@ export const seeds = [
 		spacing: 60, rowSpacing: 80,
 		companions: '["Betterave","Céleri","Haricot","Camomille"]',
 		antagonists: '["Tomate","Fraise","Poireau"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/2/23/Brussels_sprout_closeup.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/2/23/Brussels_sprout_closeup.jpg"]',
+		careTips: tips({
+			watering: 'Arroser copieusement et régulièrement, surtout en fin d’été pendant la formation des pommes.',
+			fertilizing: 'Sol lourd et fumé ; compost au repiquage, puis un purin d’ortie.',
+			pruning: 'Étêter la tige en septembre pour concentrer la sève dans les pommes ; ôter les feuilles jaunes.',
+			harvest: 'Récolter les pommes du bas vers le haut après les premières gelées, plus sucrées.',
+			misc: 'Butter et tuteurer les tiges hautes ; l’espèce résiste bien au froid.'
+		}),
 	},
 	{
 		commonName: 'Chou-rave',
@@ -195,7 +291,14 @@ export const seeds = [
 		spacing: 25, rowSpacing: 40,
 		companions: '["Betterave","Haricot","Laitue"]',
 		antagonists: '["Tomate","Poireau"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/9/98/Brassica_oleracea_var._gongylodes_%28kohlrabi%29.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/9/98/Brassica_oleracea_var._gongylodes_%28kohlrabi%29.jpg"]',
+		careTips: tips({
+			watering: 'Arroser régulièrement et modérément : les à-coups font éclater la boule.',
+			fertilizing: 'Compost mûr à la plantation ; éviter l’azote excessif.',
+			pruning: 'Aucune taille ; éclaircir ou repiquer à 25 cm.',
+			harvest: 'Récolter quand la boule fait 7 à 8 cm et reste tendre, avant qu’elle ne devienne ligneuse.',
+			misc: 'Ne pas laisser grossir : la chair devient filandreuse.'
+		}),
 	},
 	{
 		commonName: 'Radis noir',
@@ -210,7 +313,14 @@ export const seeds = [
 		spacing: 15, rowSpacing: 30,
 		companions: '["Carotte","Laitue","Épinard"]',
 		antagonists: '["Chou","Navet"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/0/00/Rettichschwarzrund.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/0/00/Rettichschwarzrund.jpg"]',
+		careTips: tips({
+			watering: 'Maintenir le sol frais ; un arrosage irrégulier rend la racine creuse et piquante.',
+			fertilizing: 'Sol meuble sans fumure fraîche ; un peu de compost suffit.',
+			pruning: 'Éclaircir à 15 cm pour permettre à la racine de se développer.',
+			harvest: 'Arracher après 2 à 3 mois, quand la racine atteint 10 à 15 cm ; elle se conserve en silo.',
+			misc: 'Semis d’été pour une récolte d’automne-hiver ; bon digestif.'
+		}),
 	},
 	{
 		commonName: 'Roquette',
@@ -225,7 +335,14 @@ export const seeds = [
 		spacing: 5, rowSpacing: 20,
 		companions: '["Laitue","Mâche","Betterave"]',
 		antagonists: '["Chou","Fraise"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/1/1c/Eruca_sativa_sl11.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/1/1c/Eruca_sativa_sl11.jpg"]',
+		careTips: tips({
+			watering: 'Arroser souvent en petites quantités : la roquette monte vite à graine si elle manque d’eau.',
+			fertilizing: 'Peu exigeante : un sol meuble et un compost léger suffisent ; trop d’azote donne des feuilles fades.',
+			pruning: 'Couper les feuilles extérieures au ras pour stimuler la repousse et pincer les fleurs.',
+			harvest: 'Récolter jeune, feuille à feuille, environ 4 semaines après le semis.',
+			misc: 'Semer en plusieurs fois ; les fleurs sont comestibles.'
+		}),
 	},
 
 	// ========== Fabaceae ==========
@@ -242,7 +359,14 @@ export const seeds = [
 		spacing: 10, rowSpacing: 40,
 		companions: '["Maïs","Carotte","Chou","Betterave"]',
 		antagonists: '["Oignon","Ail","Poireau","Fenouil"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/a/a0/Heaps_of_beans.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/a/a0/Heaps_of_beans.jpg"]',
+		careTips: tips({
+			watering: 'Arroser au pied sans mouiller le feuillage, surtout à la floraison, et éviter les à-coups.',
+			fertilizing: 'Inutile de fumer : les légumineuses fixent l’azote ; un peu de compost et de cendre de bois suffisent.',
+			pruning: 'Pas de taille ; butter légèrement les pieds et tuteurer les variétés à rames.',
+			harvest: 'Cueillir tous les 2 jours des gousses jeunes et cassantes pour prolonger la production.',
+			misc: 'Ne pas travailler le sol mouillé pour éviter de transmettre les maladies.'
+		}),
 	},
 	{
 		commonName: 'Petit pois',
@@ -257,7 +381,14 @@ export const seeds = [
 		spacing: 5, rowSpacing: 30,
 		companions: '["Carotte","Laitue","Radis"]',
 		antagonists: '["Oignon","Ail","Poireau"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/1/11/Peas_in_pods_-_Studio.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/1/11/Peas_in_pods_-_Studio.jpg"]',
+		careTips: tips({
+			watering: 'Arroser à la floraison et pendant le remplissage des gousses ; le sol doit rester frais.',
+			fertilizing: 'Peu exigeant en azote ; compost à l’automne et un peu de potasse avant le semis.',
+			pruning: 'Aucune taille ; prévoir des rames ou des filets pour les variétés grimpantes.',
+			harvest: 'Récolter les gousses pleines mais encore tendres, du bas vers le haut.',
+			misc: 'Semis d’automne possible en climat doux ; les pois enrichissent le sol en azote.'
+		}),
 	},
 	{
 		commonName: 'Fève',
@@ -272,7 +403,14 @@ export const seeds = [
 		spacing: 15, rowSpacing: 50,
 		companions: '["Maïs","Carotte","Laitue"]',
 		antagonists: '["Oignon","Ail"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/e/e1/Illustration_Vicia_faba1.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/e/e1/Illustration_Vicia_faba1.jpg"]',
+		careTips: tips({
+			watering: 'Arroser uniquement en cas de sécheresse prolongée, à la floraison et à la formation des gousses.',
+			fertilizing: 'Un sol lourd suffit ; éviter l’azote qui pousse au feuillage au détriment des gousses.',
+			pruning: 'Pincer la tête des plants en fleur pour limiter les pucerons noirs.',
+			harvest: 'Récolter les gousses jeunes et brillantes, avant que les grains ne durcissent.',
+			misc: 'Semis précoce pour éviter les pucerons ; excellent précédent cultural.'
+		}),
 	},
 
 	// ========== Apiaceae ==========
@@ -289,7 +427,14 @@ export const seeds = [
 		spacing: 5, rowSpacing: 25,
 		companions: '["Tomate","Pois","Radis","Ciboulette","Romarin"]',
 		antagonists: '["Aneth","Fenouil","Menthe"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/a/a2/Vegetable-Carrot-Bundle-wStalks.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/a/a2/Vegetable-Carrot-Bundle-wStalks.jpg"]',
+		careTips: tips({
+			watering: 'Arroser en pluie fine et régulièrement : un sol sec fait fourcher les racines.',
+			fertilizing: 'Sol meuble sans fumier frais ; un compost bien mûr de l’année précédente suffit.',
+			pruning: 'Éclaircir à 5 cm dès trois feuilles, puis à 8 ou 10 cm ; buter légèrement pour éviter le vert.',
+			harvest: 'Arracher à la demande dès que la racine est colorée, avant qu’elle ne devienne ligneuse.',
+			misc: 'Semer clair avec des radis marqueurs ; la rotation prévient la mouche de la carotte.'
+		}),
 	},
 	{
 		commonName: 'Céleri',
@@ -304,7 +449,14 @@ export const seeds = [
 		spacing: 30, rowSpacing: 40,
 		companions: '["Chou","Tomate","Haricot","Poireau"]',
 		antagonists: '["Carotte","Pomme de terre","Persil"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/0/0d/Celery_1.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/0/0d/Celery_1.jpg"]',
+		careTips: tips({
+			watering: 'Arroser très régulièrement, jamais à sec : le céleri exige un sol constamment frais.',
+			fertilizing: 'Sol riche et fumé ; compost au repiquage, puis purin d’ortie toutes les 3 semaines.',
+			pruning: 'Ôter les côtes extérieures fanées et butter en fin de culture pour blanchir les pieds.',
+			harvest: 'Récolter le pied entier ou côte à côte dès qu’il est bien formé, avant les fortes gelées.',
+			misc: 'Culture gourmande en eau ; pailler épais et surveiller la septoriose.'
+		}),
 	},
 	{
 		commonName: 'Fenouil',
@@ -319,7 +471,14 @@ export const seeds = [
 		spacing: 30, rowSpacing: 50,
 		companions: '["Sauge"]',
 		antagonists: '["Tomate","Carotte","Haricot","Fenouil","Coriandre"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/c/c0/Foeniculum_July_2011-1a.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/c/c0/Foeniculum_July_2011-1a.jpg"]',
+		careTips: tips({
+			watering: 'Arroser régulièrement sans excès : l’irrégularité fait monter le fenouil à graine.',
+			fertilizing: 'Sol léger et peu fumé : trop d’azote donne un bulbe mou et beaucoup de feuilles.',
+			pruning: 'Aucune taille ; butter légèrement le bulbe pour le blanchir.',
+			harvest: 'Récolter le bulbe bien renflé et ferme, avant la montée à graine.',
+			misc: 'Ne pas cultiver près d’autres variétés de fenouil ni de coriandre : l’hybridation est facile.'
+		}),
 	},
 	{
 		commonName: 'Persil',
@@ -334,7 +493,14 @@ export const seeds = [
 		spacing: 10, rowSpacing: 25,
 		companions: '["Tomate","Carotte","Radis","Fraise"]',
 		antagonists: '["Laitue"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/e/e4/Petroselinum.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/e/e4/Petroselinum.jpg"]',
+		careTips: tips({
+			watering: 'Maintenir le sol frais ; arroser 2 fois par semaine, davantage en pot.',
+			fertilizing: 'Compost à la plantation ; un purin d’ortie tous les mois pour relancer les feuilles.',
+			pruning: 'Couper les tiges fleuries et récolter les feuilles extérieures pour stimuler la repousse.',
+			harvest: 'Récolter feuille à feuille en laissant le cœur ; le persil plat est le plus parfumé.',
+			misc: 'Semis lent : tremper les graines 24 h avant ; le persil se ressème seul au jardin.'
+		}),
 	},
 	{
 		commonName: 'Aneth',
@@ -349,7 +515,14 @@ export const seeds = [
 		spacing: 20, rowSpacing: 30,
 		companions: '["Chou","Carotte","Concombre","Laitue"]',
 		antagonists: '["Fenouil","Tomate","Carotte"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/4/4b/Illustration_Anethum_graveolens_clean.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/4/4b/Illustration_Anethum_graveolens_clean.jpg"]',
+		careTips: tips({
+			watering: 'Arroser modérément : l’aneth supporte bien la sécheresse mais déteste l’excès d’eau.',
+			fertilizing: 'Sol léger sans fumure : un excès d’azote réduit les arômes.',
+			pruning: 'Pincer les sommités pour éviter la montée à graine et prolonger la récolte.',
+			harvest: 'Récolter les feuilles fines au fur et à mesure et laisser quelques ombelles aux auxiliaires.',
+			misc: 'Se ressème spontanément ; ne pas transplanter, la racine est fragile.'
+		}),
 	},
 	{
 		commonName: 'Cerfeuil',
@@ -364,7 +537,14 @@ export const seeds = [
 		spacing: 10, rowSpacing: 25,
 		companions: '["Laitue","Radis","Carotte"]',
 		antagonists: '["Lavande","Romarin"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/5/51/Illustration_Anthriscus_cerefolium0.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/5/51/Illustration_Anthriscus_cerefolium0.jpg"]',
+		careTips: tips({
+			watering: 'Arroser souvent, en petites quantités, pour garder les feuilles tendres.',
+			fertilizing: 'Peu exigeant : compost léger au semis, pas d’engrais azoté.',
+			pruning: 'Couper les tiges à 5 cm pour provoquer une repousse et retirer les fleurs.',
+			harvest: 'Récolter au ras du sol, environ 6 semaines après le semis.',
+			misc: 'Monte vite à graine par temps chaud : semer à mi-ombre et en plusieurs fois.'
+		}),
 	},
 	{
 		commonName: 'Coriandre',
@@ -379,7 +559,14 @@ export const seeds = [
 		spacing: 10, rowSpacing: 25,
 		companions: '["Laitue","Tomate","Épinard"]',
 		antagonists: '["Fenouil"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/1/13/Coriandrum_sativum_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-193.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/1/13/Coriandrum_sativum_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-193.jpg"]',
+		careTips: tips({
+			watering: 'Arroser modérément mais régulièrement ; le stress hydrique accélère la montée à graine.',
+			fertilizing: 'Sol meuble sans fumure fraîche ; un compost léger suffit.',
+			pruning: 'Pincer les fleurs pour prolonger la récolte de feuilles, ou les laisser monter pour les graines.',
+			harvest: 'Récolter les feuilles du bas ; les graines se cueillent brunes et sèches.',
+			misc: 'Semer en plusieurs fois à 3 semaines d’intervalle ; les fleurs attirent les auxiliaires.'
+		}),
 	},
 
 	// ========== Cucurbitaceae ==========
@@ -396,7 +583,14 @@ export const seeds = [
 		spacing: 40, rowSpacing: 100,
 		companions: '["Maïs","Haricot","Tournesol","Aneth"]',
 		antagonists: '["Pomme de terre","Menthe"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/9/96/ARS_cucumber.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/9/96/ARS_cucumber.jpg"]',
+		careTips: tips({
+			watering: 'Arroser abondamment au pied tous les 2 jours ; un sol frais et un paillage limitent l’amertume.',
+			fertilizing: 'Sol très riche : compost et fumure à la plantation, puis engrais potassique tous les 15 jours.',
+			pruning: 'Tuteurer et pincer au-dessus du quatrième ou cinquième fruit ; ôter les fruits déformés.',
+			harvest: 'Récolter tous les 2 jours des fruits fermes et vert foncé, avant qu’ils ne jaunissent.',
+			misc: 'Pailler pour éviter que les fruits ne pourrissent au contact du sol.'
+		}),
 	},
 	{
 		commonName: 'Courgette',
@@ -411,7 +605,14 @@ export const seeds = [
 		spacing: 80, rowSpacing: 120,
 		companions: '["Maïs","Haricot","Œillet d\'Inde"]',
 		antagonists: '["Pomme de terre"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/9/92/CSA-Striped-Zucchini.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/9/92/CSA-Striped-Zucchini.jpg"]',
+		careTips: tips({
+			watering: 'Arroser copieusement au pied 2 à 3 fois par semaine ; ne pas mouiller le feuillage.',
+			fertilizing: 'Sol très riche : compost généreux à la plantation, puis purin de consoude tous les 15 jours.',
+			pruning: 'Couper les feuilles jaunes ou trop denses pour aérer le pied ; pas de taille des tiges.',
+			harvest: 'Récolter jeunes (15 à 20 cm) tous les 2 jours pour éviter les courgettes géantes.',
+			misc: 'Une seule plante suffit pour une famille ; les fleurs mâles sont comestibles.'
+		}),
 	},
 	{
 		commonName: 'Potiron',
@@ -426,7 +627,14 @@ export const seeds = [
 		spacing: 100, rowSpacing: 150,
 		companions: '["Maïs","Haricot"]',
 		antagonists: '["Pomme de terre"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/5/5c/FrenchMarketPumpkinsB.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/5/5c/FrenchMarketPumpkinsB.jpg"]',
+		careTips: tips({
+			watering: 'Arroser généreusement au pied 1 à 2 fois par semaine, puis réduire en fin de maturation.',
+			fertilizing: 'Sol riche en compost ; une fumure de fond suffit, l’excès d’azote nuit à la conservation.',
+			pruning: 'Tailler au-delà de 2 ou 3 fruits par pied et pincer les extrémités pour concentrer l’énergie.',
+			harvest: 'Récolter quand le pédoncule est liégeux et la peau dure, avant les gelées.',
+			misc: 'Laisser ressuyer au soleil avant le stockage ; il se garde plusieurs mois au sec.'
+		}),
 	},
 	{
 		commonName: 'Melon',
@@ -441,7 +649,14 @@ export const seeds = [
 		spacing: 60, rowSpacing: 100,
 		companions: '["Maïs","Tournesol"]',
 		antagonists: '["Concombre","Courgette"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/e/e7/Cantaloupe_and_canary_melon.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/e/e7/Cantaloupe_and_canary_melon.jpg"]',
+		careTips: tips({
+			watering: 'Arroser régulièrement au pied, puis modérément à l’approche de la maturité pour concentrer les sucres.',
+			fertilizing: 'Sol riche : compost à la plantation et engrais potassique toutes les 2 semaines.',
+			pruning: 'Tailler au-dessus du deuxième ou troisième fruit et pincer les rameaux secondaires.',
+			harvest: 'Récolter quand le pédoncule se détache et que le parfum est marqué.',
+			misc: 'Chaleur et abri indispensables ; poser les fruits sur une tuile pour éviter la pourriture.'
+		}),
 	},
 	{
 		commonName: 'Courge butternet',
@@ -456,7 +671,14 @@ export const seeds = [
 		spacing: 80, rowSpacing: 120,
 		companions: '["Maïs","Haricot","Œillet d\'Inde"]',
 		antagonists: '["Pomme de terre"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/7/77/Cucurbita_moschata_Butternut_2012_G2.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/7/77/Cucurbita_moschata_Butternut_2012_G2.jpg"]',
+		careTips: tips({
+			watering: 'Arroser au pied 1 à 2 fois par semaine ; réduire l’arrosage en fin de culture.',
+			fertilizing: 'Compost généreux à la plantation ; éviter l’azote tardif qui fragilise la conservation.',
+			pruning: 'Pincer les tiges au-delà de 2 ou 3 fruits pour hâter le grossissement.',
+			harvest: 'Récolter quand la peau est dure et le pédoncule sec, avant les premières gelées.',
+			misc: 'Excellente conservation ; les fruits se sucrent en stockage.'
+		}),
 	},
 
 	// ========== Amaryllidaceae ==========
@@ -473,7 +695,14 @@ export const seeds = [
 		spacing: 10, rowSpacing: 25,
 		companions: '["Carotte","Betterave","Laitue","Fraise"]',
 		antagonists: '["Haricot","Pois","Chou"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/a/a2/Mixed_onions.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/a/a2/Mixed_onions.jpg"]',
+		careTips: tips({
+			watering: 'Arroser modérément jusqu’à la formation du bulbe, puis cesser pour favoriser la conservation.',
+			fertilizing: 'Pas de fumure fraîche : un sol enrichi l’année précédente suffit ; éviter l’azote tardif.',
+			pruning: 'Ne pas couper le feuillage avant qu’il ne jaunisse ; coucher les tiges à maturité.',
+			harvest: 'Arracher quand le feuillage se couche et sèche, puis laisser ressuyer au soleil.',
+			misc: 'Conserver en tresse ou en clayette au sec ; rotation de 3 ans contre la mouche.'
+		}),
 	},
 	{
 		commonName: 'Ail',
@@ -488,7 +717,14 @@ export const seeds = [
 		spacing: 10, rowSpacing: 30,
 		companions: '["Carotte","Betterave","Tomate","Fraise"]',
 		antagonists: '["Haricot","Pois","Chou"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/3/39/Allium_sativum_Woodwill_1793.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/3/39/Allium_sativum_Woodwill_1793.jpg"]',
+		careTips: tips({
+			watering: 'Arroser très peu : l’ail craint l’excès d’eau qui fait pourrir les caïeux.',
+			fertilizing: 'Aucune fumure fraîche ; un sol léger enrichi l’année précédente suffit.',
+			pruning: 'Couper les hampes florales pour concentrer l’énergie dans le bulbe.',
+			harvest: 'Arracher quand les feuilles jaunissent, 8 à 10 mois après la plantation, puis sécher à l’ombre.',
+			misc: 'Planter les caïeux pointe en haut ; garder les plus beaux pour la plantation suivante.'
+		}),
 	},
 	{
 		commonName: 'Poireau',
@@ -503,7 +739,14 @@ export const seeds = [
 		spacing: 12, rowSpacing: 35,
 		companions: '["Carotte","Céleri","Fraise","Tomate"]',
 		antagonists: '["Betterave","Haricot","Pois"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/6/63/Leek_on_white_background_-_0947.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/6/63/Leek_on_white_background_-_0947.jpg"]',
+		careTips: tips({
+			watering: 'Arroser régulièrement, surtout en été : le poireau aime les sols frais.',
+			fertilizing: 'Sol riche : compost et fumure au plantage, puis purin d’ortie tous les 15 jours.',
+			pruning: 'Couper les feuilles à 15 cm et les racines au repiquage ; butter pour blanchir le fût.',
+			harvest: 'Arracher à la demande dès que le fût est assez gros ; le poireau résiste au gel.',
+			misc: 'Buttage progressif pour un fût long et blanc ; rotation contre la rouille et la teigne.'
+		}),
 	},
 	{
 		commonName: 'Ciboulette',
@@ -518,7 +761,14 @@ export const seeds = [
 		spacing: 20, rowSpacing: 30,
 		companions: '["Carotte","Tomate","Fraise","Rosier"]',
 		antagonists: '["Haricot","Pois"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/4/49/Allium_schoenoprasum_-_Bombus_lapidarius_-_Tootsi.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/4/49/Allium_schoenoprasum_-_Bombus_lapidarius_-_Tootsi.jpg"]',
+		careTips: tips({
+			watering: 'Arroser modérément mais régulièrement ; la ciboulette supporte mal la sécheresse prolongée.',
+			fertilizing: 'Un peu de compost au printemps suffit ; éviter l’excès d’azote.',
+			pruning: 'Couper les touffes à 3 cm après floraison pour relancer les feuilles ; diviser tous les 2 à 3 ans.',
+			harvest: 'Cisailler les brins au ras en laissant 3 ou 4 cm ; récolter avant la floraison.',
+			misc: 'Vivace : rabattre en fin d’hiver ; les fleurs sont comestibles.'
+		}),
 	},
 
 	// ========== Asteraceae ==========
@@ -535,7 +785,14 @@ export const seeds = [
 		spacing: 25, rowSpacing: 30,
 		companions: '["Carotte","Radis","Fraise","Concombre"]',
 		antagonists: '["Persil","Céleri"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/d/da/Iceberg_lettuce_in_SB.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/d/da/Iceberg_lettuce_in_SB.jpg"]',
+		careTips: tips({
+			watering: 'Arroser régulièrement et légèrement : le manque d’eau fait monter la laitue à graine.',
+			fertilizing: 'Sol riche en compost ; un purin d’ortie dilué tous les 15 jours avant la pommaison.',
+			pruning: 'Aucune taille ; éclaircir ou repiquer à 25 ou 30 cm.',
+			harvest: 'Récolter la pomme entière ou feuille à feuille, tôt le matin, avant la montée.',
+			misc: 'Semer à mi-ombre en été et échelonner les semis toutes les 2 à 3 semaines.'
+		}),
 	},
 	{
 		commonName: 'Endive',
@@ -550,7 +807,14 @@ export const seeds = [
 		spacing: 20, rowSpacing: 30,
 		companions: '["Carotte","Betterave","Laitue"]',
 		antagonists: '["Tomate"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/0/00/Cichorium_endivia_-_Botanischer_Garten_Mainz_IMG_5453.JPG"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/0/00/Cichorium_endivia_-_Botanischer_Garten_Mainz_IMG_5453.JPG"]',
+		careTips: tips({
+			watering: 'Arroser modérément en végétation ; les racines se forcent ensuite à l’obscurité.',
+			fertilizing: 'Sol meuble enrichi l’année précédente ; éviter l’azote tardif.',
+			pruning: 'Couper le feuillage à 2 cm au-dessus du collet avant le forçage.',
+			harvest: 'Arracher les racines en automne, les forcer 3 à 4 semaines à l’obscurité, puis récolter la pomme.',
+			misc: 'Forçage en cave ou en silo ; l’obscurité évite l’amertume et le verdissement.'
+		}),
 	},
 	{
 		commonName: 'Œillet d\'Inde',
@@ -565,7 +829,14 @@ export const seeds = [
 		spacing: 20, rowSpacing: 30,
 		companions: '["Tomate","Aubergine","Pomme de terre","Rose"]',
 		antagonists: '["Haricot"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/e/e7/French_marigold_Tagetes_patula.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/e/e7/French_marigold_Tagetes_patula.jpg"]',
+		careTips: tips({
+			watering: 'Arroser modérément, surtout en pot ; laisser sécher la surface entre deux arrosages.',
+			fertilizing: 'Peu exigeant : un compost léger suffit, l’excès d’azote réduit la floraison.',
+			pruning: 'Pincer les jeunes plants et retirer les fleurs fanées pour prolonger la floraison.',
+			harvest: 'Pas de récolte alimentaire ; cueillir les fleurs pour les semences en fin de saison.',
+			misc: 'Excellent répulsif contre les nématodes : à associer aux tomates et aux pommes de terre.'
+		}),
 	},
 	{
 		commonName: 'Rose d\'Inde',
@@ -580,7 +851,14 @@ export const seeds = [
 		spacing: 30, rowSpacing: 40,
 		companions: '["Tomate","Pomme de terre","Poivron"]',
 		antagonists: '["Haricot"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/b/b0/Tagetes_erecta_chendumalli_chedi.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/b/b0/Tagetes_erecta_chendumalli_chedi.jpg"]',
+		careTips: tips({
+			watering: 'Arroser modérément ; redouter l’excès d’eau qui fait pourrir les racines.',
+			fertilizing: 'Sol ordinaire suffisant ; pas d’engrais azoté.',
+			pruning: 'Ôter les fleurs fanées régulièrement pour stimuler de nouveaux boutons.',
+			harvest: 'Récolter les graines mûres en fin d’été pour les semis suivants.',
+			misc: 'Bonne plante compagne, à réserver aux bordures de planches.'
+		}),
 	},
 	{
 		commonName: 'Souci',
@@ -595,7 +873,14 @@ export const seeds = [
 		spacing: 25, rowSpacing: 35,
 		companions: '["Tomate","Haricot","Carotte","Laitue"]',
 		antagonists: '["Pomme de terre"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/6/67/Calendula_January_2008-1_filtered.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/6/67/Calendula_January_2008-1_filtered.jpg"]',
+		careTips: tips({
+			watering: 'Arroser modérément ; le souci tolère une sécheresse passagère.',
+			fertilizing: 'Peu exigeant : compost léger ou sol déjà enrichi.',
+			pruning: 'Pincer les tiges et supprimer les fleurs fanées pour une floraison continue.',
+			harvest: 'Cueillir les fleurs ouvertes pour les salades ou les macérats.',
+			misc: 'Se ressème seul ; attire les auxiliaires et éloigne certains ravageurs.'
+		}),
 	},
 
 	// ========== Chenopodiaceae ==========
@@ -612,7 +897,14 @@ export const seeds = [
 		spacing: 10, rowSpacing: 35,
 		companions: '["Chou","Haricot","Oignon","Laitue"]',
 		antagonists: '["Poireau","Épinard"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/a/ae/Detroitdarkredbeets.png"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/a/ae/Detroitdarkredbeets.png"]',
+		careTips: tips({
+			watering: 'Arroser régulièrement : les à-coups font des betteraves dures et fibreuses.',
+			fertilizing: 'Sol meuble enrichi de compost mûr ; éviter le fumier frais.',
+			pruning: 'Éclaircir à 10 ou 15 cm pour laisser grossir les racines.',
+			harvest: 'Arracher à 8 ou 10 cm de diamètre ; les jeunes betteraves sont les plus tendres.',
+			misc: 'Semer en plusieurs fois ; les jeunes feuilles se mangent en salade.'
+		}),
 	},
 	{
 		commonName: 'Épinard',
@@ -627,7 +919,14 @@ export const seeds = [
 		spacing: 8, rowSpacing: 20,
 		companions: '["Fraise","Chou","Haricot"]',
 		antagonists: '["Betterave","Tomate"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/3/37/Spinacia_oleracea_Spinazie_bloeiend.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/3/37/Spinacia_oleracea_Spinazie_bloeiend.jpg"]',
+		careTips: tips({
+			watering: 'Arroser souvent pour garder le sol frais : l’épinard monte vite à graine au sec.',
+			fertilizing: 'Sol riche en azote organique (compost, purin d’ortie) pour des feuilles tendres.',
+			pruning: 'Récolter les feuilles extérieures pour stimuler la repousse et pincer les fleurs.',
+			harvest: 'Récolter 6 à 8 semaines après le semis, avant que les feuilles ne durcissent.',
+			misc: 'Semer à l’automne ou au printemps ; éviter les fortes chaleurs.'
+		}),
 	},
 
 	// ========== Poaceae ==========
@@ -644,7 +943,14 @@ export const seeds = [
 		spacing: 30, rowSpacing: 70,
 		companions: '["Haricot","Courgette","Concombre","Petit pois"]',
 		antagonists: '["Tomate","Céleri"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/e/e3/Zea_mays_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-283.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/e/e3/Zea_mays_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-283.jpg"]',
+		careTips: tips({
+			watering: 'Arroser abondamment à la floraison et à la formation des épis : le maïs est gourmand en eau.',
+			fertilizing: 'Sol riche : compost et fumure au semis, puis un peu d’azote au stade six feuilles.',
+			pruning: 'Butter les pieds pour les stabiliser ; pas de taille.',
+			harvest: 'Récolter les épis quand les soies brunissent et que les grains sont laiteux.',
+			misc: 'Semer en bloc pour une bonne pollinisation ; excellent tuteur pour les haricots à rames.'
+		}),
 	},
 	{
 		commonName: 'Citronnelle',
@@ -659,7 +965,14 @@ export const seeds = [
 		spacing: 60, rowSpacing: 80,
 		companions: '["Tomate","Laitue"]',
 		antagonists: '[]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/b/bd/YosriNov04Pokok_Serai.JPG"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/b/bd/YosriNov04Pokok_Serai.JPG"]',
+		careTips: tips({
+			watering: 'Arroser régulièrement, sans détremper : la citronnelle aime la chaleur et l’humidité modérée.',
+			fertilizing: 'Compost au printemps, puis purin d’ortie tous les mois.',
+			pruning: 'Rabattre la touffe à 20 cm en fin d’hiver pour stimuler les jeunes tiges.',
+			harvest: 'Couper les tiges au ras en laissant quelques brins par touffe.',
+			misc: 'Rentrer les pieds en pot l’hiver en climat froid ; diviser les touffes au printemps.'
+		}),
 	},
 
 	// ========== Lamiaceae ==========
@@ -676,7 +989,14 @@ export const seeds = [
 		spacing: 20, rowSpacing: 30,
 		companions: '["Tomate","Poivron","Aubergine"]',
 		antagonists: '["Sauge","Rue"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/9/97/Ocimum_basilicum_8zz.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/9/97/Ocimum_basilicum_8zz.jpg"]',
+		careTips: tips({
+			watering: 'Arroser régulièrement mais sans excès : le basilic redoute l’eau stagnante et la sécheresse.',
+			fertilizing: 'Compost léger ; pas d’engrais azoté qui réduit les arômes.',
+			pruning: 'Pincer les sommités au-dessus de deux paires de feuilles pour éviter la floraison et ramifier.',
+			harvest: 'Récolter les feuilles du haut, jamais plus d’un tiers de la plante à la fois.',
+			misc: 'Pincer les fleurs dès leur apparition ; bon compagnon de la tomate.'
+		}),
 	},
 	{
 		commonName: 'Menthe',
@@ -691,7 +1011,14 @@ export const seeds = [
 		spacing: 40, rowSpacing: 50,
 		companions: '["Chou","Tomate"]',
 		antagonists: '["Carotte","Persil"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/4/4d/Mentha_spicata-IMG_6186.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/4/4d/Mentha_spicata-IMG_6186.jpg"]',
+		careTips: tips({
+			watering: 'Arroser fréquemment : la menthe exige un sol frais, voire humide.',
+			fertilizing: 'Compost au printemps ; un purin d’ortie dilué en cas de pâleur.',
+			pruning: 'Rabattre la touffe en fin d’hiver et couper les stolons pour limiter l’envahissement.',
+			harvest: 'Récolter les feuilles avant la floraison ; la saveur est maximale le matin.',
+			misc: 'Cultiver en pot ou avec une bordure anti-rhizome : la menthe est très envahissante.'
+		}),
 	},
 	{
 		commonName: 'Lavande',
@@ -706,7 +1033,14 @@ export const seeds = [
 		spacing: 30, rowSpacing: 40,
 		companions: '["Rose","Thym","Romarin"]',
 		antagonists: '["Menthe"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/4/40/Lavandula_angustifolia_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-087.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/4/40/Lavandula_angustifolia_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-087.jpg"]',
+		careTips: tips({
+			watering: 'Arroser seulement la première année ; ensuite la lavande supporte bien la sécheresse.',
+			fertilizing: 'Sol pauvre et calcaire : pas de fumure, un excès d’azote la fait dépérir.',
+			pruning: 'Tailler légèrement après la floraison, sans toucher au vieux bois.',
+			harvest: 'Couper les hampes florales dès l’épanouissement pour les bouquets et les sachets.',
+			misc: 'Planter en plein soleil et sol drainé ; éviter l’humidité hivernale.'
+		}),
 	},
 	{
 		commonName: 'Mélisse',
@@ -722,7 +1056,14 @@ export const seeds = [
 		spacing: 40, rowSpacing: 50,
 		companions: '["Tomate","Chou","Fraise"]',
 		antagonists: '[]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/7/70/Lemon_balm_plant.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/7/70/Lemon_balm_plant.jpg"]',
+		careTips: tips({
+			watering: 'Arroser modérément ; la mélisse supporte la sécheresse mais préfère un sol frais.',
+			fertilizing: 'Peu exigeante : compost léger au printemps.',
+			pruning: 'Rabattre la touffe après floraison pour relancer les feuilles et contenir les stolons.',
+			harvest: 'Récolter les feuilles avant la floraison, en laissant la base intacte.',
+			misc: 'Très envahissante : cultiver en pot ; attire les abeilles.'
+		}),
 	},
 	{
 		commonName: 'Sauge',
@@ -737,7 +1078,14 @@ export const seeds = [
 		spacing: 40, rowSpacing: 50,
 		companions: '["Carotte","Tomate","Romarin"]',
 		antagonists: '["Concombre","Basilic"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/5/5a/Salvia_officinalis0.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/5/5a/Salvia_officinalis0.jpg"]',
+		careTips: tips({
+			watering: 'Arroser modérément, surtout la première année ; ensuite la sauge craint l’excès d’eau.',
+			fertilizing: 'Sol pauvre à moyen : pas de fumure, un compost léger tous les 2 ou 3 ans.',
+			pruning: 'Tailler d’un tiers après la floraison, sans entamer le vieux bois.',
+			harvest: 'Récolter les feuilles avant la floraison, en privilégiant les pousses de l’année.',
+			misc: 'Bon compagnon du chou et de la carotte ; sécher les feuilles à l’ombre.'
+		}),
 	},
 	{
 		commonName: 'Thym',
@@ -752,7 +1100,14 @@ export const seeds = [
 		spacing: 25, rowSpacing: 35,
 		companions: '["Tomate","Aubergine","Carotte","Chou"]',
 		antagonists: '["Menthe"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/e/ea/Thyme-Bundle.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/e/ea/Thyme-Bundle.jpg"]',
+		careTips: tips({
+			watering: 'Arroser très peu : le thym craint l’humidité stagnante plus que la sécheresse.',
+			fertilizing: 'Inutile : sol pauvre et drainé, éventuellement un peu de compost en surface.',
+			pruning: 'Pincer les sommités après floraison pour garder un port compact.',
+			harvest: 'Récolter les brins avant la floraison ; la saveur est maximale à ce moment.',
+			misc: 'Excellent couvre-sol aromatique ; se marcotte facilement.'
+		}),
 	},
 
 	// ========== Rosaceae ==========
@@ -769,7 +1124,14 @@ export const seeds = [
 		spacing: 30, rowSpacing: 40,
 		companions: '["Laitue","Épinard","Haricot","Ail"]',
 		antagonists: '["Chou","Fenouil"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/4/4c/Garden_strawberry_%28Fragaria_%C3%97_ananassa%29_single2.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/4/4c/Garden_strawberry_%28Fragaria_%C3%97_ananassa%29_single2.jpg"]',
+		careTips: tips({
+			watering: 'Arroser régulièrement au pied, sans mouiller les fruits, surtout pendant la fructification.',
+			fertilizing: 'Compost à la plantation ; purin de consoude après récolte pour préparer l’année suivante.',
+			pruning: 'Supprimer les stolons et les feuilles mortes après récolte ; renouveler les pieds tous les 3 ans.',
+			harvest: 'Cueillir les fraises bien rouges et parfumées tous les 2 jours, tôt le matin.',
+			misc: 'Pailler sous les fruits et poser un filet contre les oiseaux ; rotation de 3 ans.'
+		}),
 	},
 	{
 		commonName: 'Framboisier',
@@ -784,7 +1146,14 @@ export const seeds = [
 		spacing: 50, rowSpacing: 150,
 		companions: '["Ail","Capucine","Œillet d\'Inde"]',
 		antagonists: '["Tomate","Pomme de terre","Fraise"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/a/a7/Raspberry_-_halved_%28Rubus_idaeus%29.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/a/a7/Raspberry_-_halved_%28Rubus_idaeus%29.jpg"]',
+		careTips: tips({
+			watering: 'Arroser régulièrement, surtout pendant la floraison et la fructification ; pailler pour garder la fraîcheur.',
+			fertilizing: 'Compost ou fumier bien décomposé chaque printemps ; éviter l’azote tardif.',
+			pruning: 'Tailler au ras les cannes ayant fructifié en fin d’été et palisser les jeunes pousses.',
+			harvest: 'Cueillir les fruits bien colorés et se détachant seuls, tous les 2 jours.',
+			misc: 'Palisser sur fil de fer ; couper les cannes trop denses pour aérer la touffe.'
+		}),
 	},
 
 	// ========== Asparagaceae ==========
@@ -801,7 +1170,14 @@ export const seeds = [
 		spacing: 40, rowSpacing: 100,
 		companions: '["Tomate","Persil","Basilic","Fraise"]',
 		antagonists: '["Oignon","Ail","Pomme de terre"]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/4/4b/Asparagus_vegetable.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/4/4b/Asparagus_vegetable.jpg"]',
+		careTips: tips({
+			watering: 'Arroser copieusement la première année et pendant la récolte : l’asperge est gourmande en eau.',
+			fertilizing: 'Fumure organique abondante à l’automne et compost au printemps.',
+			pruning: 'Laisser le feuillage se dessécher en automne, puis le couper à 10 cm du sol en hiver.',
+			harvest: 'Ne pas récolter avant la troisième année ; ensuite cueillir les turions tous les 2 à 3 jours d’avril à juin.',
+			misc: 'Griffes plantées en fossé et buttage progressif ; une aspergeraie dure 10 à 15 ans.'
+		}),
 	},
 
 	// ========== Boraginaceae ==========
@@ -818,7 +1194,14 @@ export const seeds = [
 		spacing: 30, rowSpacing: 40,
 		companions: '["Tomate","Courgette","Fraise","Chou"]',
 		antagonists: '[]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/2/26/Borago_officinalis_%282025%29.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/2/26/Borago_officinalis_%282025%29.jpg"]',
+		careTips: tips({
+			watering: 'Arroser modérément ; la bourrache tolère la sécheresse une fois installée.',
+			fertilizing: 'Sol ordinaire ; un compost léger suffit, l’azote favorise le feuillage au détriment des fleurs.',
+			pruning: 'Pincer les tiges pour éviter l’étalement et retirer les fleurs fanées si l’on ne veut pas de ressemis.',
+			harvest: 'Récolter fleurs et jeunes feuilles au fur et à mesure ; les fleurs décorent les salades.',
+			misc: 'Se ressème seule ; attire les pollinisateurs et enrichit le compost en potasse.'
+		}),
 	},
 
 	// ========== Tropaeolaceae ==========
@@ -835,7 +1218,14 @@ export const seeds = [
 		spacing: 30, rowSpacing: 40,
 		companions: '["Radis","Chou","Concombre","Courgette"]',
 		antagonists: '[]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/a/ab/TropaeolumMajusOrange.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/a/ab/TropaeolumMajusOrange.jpg"]',
+		careTips: tips({
+			watering: 'Arroser régulièrement, surtout en pot ; la sécheresse provoque la chute des fleurs.',
+			fertilizing: 'Sol pauvre : trop d’azote donne des feuilles et peu de fleurs.',
+			pruning: 'Pincer les tiges pour ramifier et retirer les fleurs fanées.',
+			harvest: 'Cueillir fleurs et jeunes feuilles pour les salades ; les boutons se confisent.',
+			misc: 'Bon répulsif contre les pucerons : à planter près des choux et des fèves.'
+		}),
 	},
 
 	// ========== Convolvulaceae ==========
@@ -852,7 +1242,14 @@ export const seeds = [
 		spacing: 30, rowSpacing: 50,
 		companions: '["Haricot","Maïs","Capucine"]',
 		antagonists: '[]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/9/90/Ipomoea_tricolor_%27Heavenly_Blue%27.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/9/90/Ipomoea_tricolor_%27Heavenly_Blue%27.jpg"]',
+		careTips: tips({
+			watering: 'Arroser copieusement en période chaude ; la volubile fane vite si elle manque d’eau.',
+			fertilizing: 'Compost à la plantation, puis un engrais potassique léger tous les 15 jours.',
+			pruning: 'Guider les tiges sur le support et pincer les extrémités pour épaissir la ramure.',
+			harvest: 'Pas de récolte alimentaire (graines toxiques) ; récolter les graines mûres pour les semis.',
+			misc: 'Attention : toutes les parties sont toxiques, à réserver à l’ornement.'
+		}),
 	},
 
 	// ========== Valerianaceae ==========
@@ -869,7 +1266,14 @@ export const seeds = [
 		spacing: 5, rowSpacing: 15,
 		companions: '["Betterave","Carotte","Laitue"]',
 		antagonists: '[]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/1/1e/Valerianella_locusta.jpeg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/1/1e/Valerianella_locusta.jpeg"]',
+		careTips: tips({
+			watering: 'Arroser légèrement et régulièrement : la mâche aime la fraîcheur mais redoute l’excès d’eau.',
+			fertilizing: 'Peu exigeante : un sol enrichi l’année précédente suffit ; éviter l’azote.',
+			pruning: 'Aucune taille ; éclaircir à 5 cm si les plants sont trop serrés.',
+			harvest: 'Récolter les rosettes au couteau, 3 à 4 mois après le semis, avant les grosses gelées.',
+			misc: 'Semis d’été pour une récolte d’hiver ; la mâche résiste bien au froid sous voile.'
+		}),
 	},
 
 	// ========== Papaveraceae ==========
@@ -886,7 +1290,14 @@ export const seeds = [
 		spacing: 20, rowSpacing: 30,
 		companions: '["Carotte","Laitue","Capucine"]',
 		antagonists: '[]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/c/ce/Papaver_somniferum_flowers.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/c/ce/Papaver_somniferum_flowers.jpg"]',
+		careTips: tips({
+			watering: 'Arroser modérément ; le pavot supporte bien la sécheresse une fois levé.',
+			fertilizing: 'Sol pauvre à moyen : pas de fumure, un excès d’azote couche les tiges.',
+			pruning: 'Ne pas tailler avant la fin de floraison ; couper les tiges fanées si l’on ne veut pas de ressemis.',
+			harvest: 'Cueillir les capsules sèches pour les graines ; les pétales se récoltent à l’épanouissement.',
+			misc: 'Se ressème facilement ; semer en place, la transplantation est mal supportée.'
+		}),
 	},
 
 	// ========== Verbenaceae ==========
@@ -903,6 +1314,13 @@ export const seeds = [
 		spacing: 50, rowSpacing: 60,
 		companions: '["Thym","Sauge","Mélisse"]',
 		antagonists: '[]',
-		photos: '["https://upload.wikimedia.org/wikipedia/commons/a/a6/Aloysia_citriodora_002.jpg"]'
+		photos: '["https://upload.wikimedia.org/wikipedia/commons/a/a6/Aloysia_citriodora_002.jpg"]',
+		careTips: tips({
+			watering: 'Arroser régulièrement sans détremper ; la verveine redoute l’humidité hivernale.',
+			fertilizing: 'Compost léger au printemps ; éviter l’excès d’azote qui dilue le parfum.',
+			pruning: 'Rabattre d’un tiers en fin d’hiver et pincer les sommités en été.',
+			harvest: 'Récolter les feuilles au parfum citronné avant la floraison, en laissant la base.',
+			misc: 'Rentrer en pot en climat froid ; bouturage facile en fin d’été.'
+		}),
 	}
 ];
