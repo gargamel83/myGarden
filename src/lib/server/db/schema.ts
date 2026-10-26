@@ -113,6 +113,39 @@ export const harvestRecords = sqliteTable('harvest_records', {
 	userIdIdx: index('idx_harvest_records_user_id').on(table.userId)
 }));
 
+export const plantHealthRecords = sqliteTable('plant_health_records', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	userId: integer('user_id').notNull().references(() => users.id),
+	plantationId: integer('plantation_id').notNull().references(() => plantations.id),
+	type: text('type').notNull().default('disease'), // 'disease' | 'pest' | 'deficiency' | 'other'
+	severity: text('severity').notNull().default('medium'), // 'low' | 'medium' | 'high'
+	photo: text('photo'),
+	treatment: text('treatment'),
+	notes: text('notes'),
+	detectedAt: text('detected_at').notNull().$default(() => new Date().toISOString()),
+	resolvedAt: text('resolved_at'),
+	createdAt: text('created_at').notNull().$default(() => new Date().toISOString())
+}, (table) => ({
+	plantationIdIdx: index('idx_plant_health_records_plantation_id').on(table.plantationId),
+	userIdIdx: index('idx_plant_health_records_user_id').on(table.userId)
+}));
+
+export const diseases = sqliteTable('diseases', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	name: text('name').notNull().unique(),
+	latinName: text('latin_name'),
+	symptoms: text('symptoms'),
+	causes: text('causes'),
+	treatments: text('treatments'), // organic treatments
+	prevention: text('prevention'),
+	hostPlants: text('host_plants'), // JSON array of plant names
+	photos: text('photos'), // JSON array of URLs
+	createdAt: text('created_at').notNull().$default(() => new Date().toISOString()),
+	updatedAt: text('updated_at').notNull().$default(() => new Date().toISOString())
+}, (table) => ({
+	nameIdx: index('idx_diseases_name').on(table.name)
+}));
+
 export const notifications = sqliteTable('notifications', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
 	userId: integer('user_id').notNull().references(() => users.id),

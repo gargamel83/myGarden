@@ -13,7 +13,9 @@
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"db:seed": "npx tsx src/lib/server/db/seed.ts",
-		"db:seed:force": "npx tsx src/lib/server/db/seed.ts --force"
+		"db:seed:force": "npx tsx src/lib/server/db/seed.ts --force",
+		"db:seed:diseases": "npx tsx src/lib/server/db/seed-diseases.ts",
+		"db:seed:diseases:force": "npx tsx src/lib/server/db/seed-diseases.ts --force"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^7.0.1",

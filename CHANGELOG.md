@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Added
+- **C1 — Journal phytosanitaire** : table `plant_health_records` (type maladie/ravageur/carence/autre, gravité, photo, traitement, notes, date de détection, résolution) — actions `addHealth` / `resolveHealth` / `reopenHealth` / `deleteHealth` sur `/plantations` avec contrôle d'appartenance, chargement batch groupé par plantation (pas de N+1), bouton 🩺 par plantation ouvrant un modal (historique, ajout, résolution, suppression) et badge des problèmes non résolus
+- **C2 — Alerte santé** : notification de type `health` pour tout problème non résolu détecté depuis plus de 7 jours (clé `health-<id>`, lien `/plantations`), idempotente via la contrainte de clé unique ; les 4 types existants sont inchangés
+- **C3 — Bibliothèque des maladies** : table de référence globale `diseases`, seed `seed-diseases.ts` (22 fiches en français : symptômes, causes, traitements bio, prévention, 2 à 4 plantes hôtes, photos), scripts `db:seed:diseases` / `db:seed:diseases:force`, page `/diseases` avec recherche texte, filtre par plante hôte, modal de détail et lightbox photos, lien de navigation
+- **Tests** : journal phytosanitaire (actions, isolement, groupement), alerte santé (>7 j, récent, résolu, pas de doublon), seed des maladies idempotent, filtres de la bibliothèque et load `/diseases`
+
 ### Documentation
 - `SPECS.md` : sections `v0.4.1` et `v0.4.2` ajoutées (favoris/export-import ; groupes A et B, fixes de release, exclusions assumées) + tableau « État des modules (v0.4.2) »
 - Ménage git : les 15 branches locales et 10 branches distantes, toutes entièrement fusionnées dans `main`, ont été supprimées (seule `main` subsiste, locale et distante)

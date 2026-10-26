@@ -5,6 +5,7 @@
 		"garden": "Garden",
 		"plantings": "Plantings",
 		"plants": "Plants",
+		"diseases": "Diseases",
 		"logs": "Logs",
 		"menu": "Menu",
 		"logout": "Log out",
@@ -329,5 +330,55 @@
 			"thunderstorm": "Thunderstorm",
 			"unknown": "Unknown"
 		}
+	},
+	"health": {
+		"title": "Plant health",
+		"open": "Health journal",
+		"history": "Health history",
+		"none": "No health issue recorded.",
+		"unresolved": "{count} unresolved",
+		"unresolvedBadge": "Unresolved issue",
+		"typeLabel": "Type",
+		"severityLabel": "Severity",
+		"detectedAt": "Detected on",
+		"treatment": "Treatment",
+		"treatmentPlaceholder": "e.g. copper spray, manual removal",
+		"notes": "Notes",
+		"photo": "Photo URL",
+		"add": "Add issue",
+		"added": "Health issue recorded",
+		"resolve": "Resolve",
+		"resolved": "Resolved",
+		"reopen": "Reopen",
+		"resolvedMsg": "Issue marked as resolved",
+		"reopenedMsg": "Issue reopened",
+		"deleted": "Health issue deleted",
+		"delete": "Delete",
+		"deleteConfirm": "Delete this health record?",
+		"types": {
+			"disease": "Disease",
+			"pest": "Pest",
+			"deficiency": "Deficiency",
+			"other": "Other"
+		},
+		"severities": {
+			"low": "Low",
+			"medium": "Medium",
+			"high": "High"
+		}
+	},
+	"diseases": {
+		"title": "Disease library",
+		"search": "Search a disease, a symptom, a host plant...",
+		"allHosts": "All host plants",
+		"reset": "Reset",
+		"none": "No disease found.",
+		"count": "{count} sheet(s)",
+		"symptoms": "Symptoms",
+		"causes": "Causes",
+		"treatments": "Organic treatments",
+		"prevention": "Prevention",
+		"hostPlants": "Host plants",
+		"close": "Close"
 	}
 }

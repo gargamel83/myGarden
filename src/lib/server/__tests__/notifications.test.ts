@@ -102,6 +102,7 @@ describe('notifications API', () => {
 describe('generateNotifications, getNotifications, markAllRead', () => {
 	beforeEach(() => {
 		db.delete(schema.notifications).run();
+		db.delete(schema.plantHealthRecords).run();
 		db.delete(schema.plantations).run();
 		db.delete(schema.plants).run();
 		db.delete(schema.gardenBeds).run();
@@ -229,6 +230,80 @@ describe('generateNotifications, getNotifications, markAllRead', () => {
 			const result = getNotifications(uid);
 			expect(result.notifications).toHaveLength(0);
 			expect(result.unreadCount).toBe(0);
+		});
+
+		describe('health alerts', () => {
+			function setupHealth(detectedAt: string, resolvedAt: string | null = null) {
+				db.insert(schema.gardenBeds).values({ id: 1, userId: uid, name: 'Bed A', polygon: '[]', type: 'pixel' }).run();
+				db.insert(schema.plantations).values({
+					id: 1,
+					userId: uid,
+					gardenBedId: 1,
+					plantName: 'Tomate',
+					status: 'planted'
+				}).run();
+				return db.insert(schema.plantHealthRecords).values({
+					id: 1,
+					userId: uid,
+					plantationId: 1,
+					type: 'disease',
+					severity: 'high',
+					detectedAt,
+					resolvedAt
+				}).returning({ id: schema.plantHealthRecords.id }).get()!.id;
+			}
+
+			it('should generate a health notification for an unresolved issue older than 7 days', async () => {
+				vi.useFakeTimers();
+				vi.setSystemTime(new Date('2026-07-07T12:00:00Z'));
+
+				const recordId = setupHealth('2026-06-27T12:00:00Z');
+
+				await generateNotifications(uid);
+
+				const result = getNotifications(uid);
+				expect(result.notifications).toHaveLength(1);
+				expect(result.notifications[0].type).toBe('health');
+				expect(result.notifications[0].key).toBe(`health-${recordId}`);
+				expect(result.notifications[0].message).toBe('Unresolved disease on Tomate for 10 days');
+				expect(result.notifications[0].link).toBe('/plantations');
+				expect(result.unreadCount).toBe(1);
+			});
+
+			it('should not generate a health notification for a recent issue', async () => {
+				vi.useFakeTimers();
+				vi.setSystemTime(new Date('2026-07-07T12:00:00Z'));
+
+				setupHealth('2026-07-04T12:00:00Z');
+
+				await generateNotifications(uid);
+
+				expect(getNotifications(uid).notifications).toHaveLength(0);
+			});
+
+			it('should not generate a health notification for a resolved issue', async () => {
+				vi.useFakeTimers();
+				vi.setSystemTime(new Date('2026-07-07T12:00:00Z'));
+
+				setupHealth('2026-06-01T12:00:00Z', '2026-06-05T12:00:00Z');
+
+				await generateNotifications(uid);
+
+				expect(getNotifications(uid).notifications).toHaveLength(0);
+			});
+
+			it('should not duplicate the health notification on subsequent calls', async () => {
+				vi.useFakeTimers();
+				vi.setSystemTime(new Date('2026-07-07T12:00:00Z'));
+
+				setupHealth('2026-06-27T12:00:00Z');
+
+				await generateNotifications(uid);
+				await generateNotifications(uid);
+
+				const healthNotifs = getNotifications(uid).notifications.filter(n => n.type === 'health');
+				expect(healthNotifs).toHaveLength(1);
+			});
 		});
 	});
 

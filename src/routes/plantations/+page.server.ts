@@ -1,10 +1,12 @@
 import { db } from '$lib/server/db';
-import { gardenBeds, plantations, plants, harvestRecords } from '$lib/server/db/schema';
+import { gardenBeds, plantations, plants, harvestRecords, plantHealthRecords } from '$lib/server/db/schema';
 import { eq, asc, inArray } from 'drizzle-orm';
 import { fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types.js';
 import { getRotationAlerts } from '$lib/server/rotation';
 import { computeStatus } from '$lib/server/planting';
+import { HEALTH_ISSUE_TYPES, HEALTH_SEVERITIES } from '$lib/types';
+import type { HealthIssueType, HealthSeverity } from '$lib/types';
 
 export const load: PageServerLoad = async (event) => {
 	event.depends('app:plantations');
@@ -39,9 +41,22 @@ export const load: PageServerLoad = async (event) => {
 		harvestsByPlantation[h.plantationId].push(h);
 	}
 
+	// Batch-load every health record of the user (no N+1 per plantation)
+	const health = plantationIds.length > 0
+		? db.select().from(plantHealthRecords)
+			.where(inArray(plantHealthRecords.plantationId, plantationIds))
+			.orderBy(asc(plantHealthRecords.detectedAt))
+			.all()
+		: [];
+	const healthByPlantation: Record<number, typeof health> = {};
+	for (const h of health) {
+		if (!healthByPlantation[h.plantationId]) healthByPlantation[h.plantationId] = [];
+		healthByPlantation[h.plantationId].push(h);
+	}
+
 	const bedNames = [...new Set(all.map(p => p.bedName).filter(Boolean))] as string[];
 
-	return { plantations: all, beds, plants: plantList, rotationAlerts, bedNames, harvestsByPlantation };
+	return { plantations: all, beds, plants: plantList, rotationAlerts, bedNames, harvestsByPlantation, healthByPlantation };
 };
 
 export const actions: Actions = {
@@ -135,7 +150,10 @@ export const actions: Actions = {
 		const data = await request.formData();
 		const id = data.get('id') as string;
 		if (id) {
-			db.delete(plantations).where(eq(plantations.id, parseInt(id))).run();
+			const plantationId = parseInt(id);
+			// Health records reference the plantation: drop them first (FK)
+			db.delete(plantHealthRecords).where(eq(plantHealthRecords.plantationId, plantationId)).run();
+			db.delete(plantations).where(eq(plantations.id, plantationId)).run();
 		}
 		return { success: true };
 	},
@@ -188,6 +206,97 @@ export const actions: Actions = {
 			return fail(403, { error: 'Not authorized' });
 		}
 		db.delete(harvestRecords).where(eq(harvestRecords.id, parseInt(id))).run();
+		return { success: true };
+	},
+
+	// ---- Plant health journal ----
+
+	addHealth: async ({ request, locals }) => {
+		const data = await request.formData();
+		const plantationId = data.get('plantationId') as string;
+		const type = (data.get('type') as string) || 'disease';
+		const severity = (data.get('severity') as string) || 'medium';
+		const detectedAt = data.get('detectedAt') as string;
+		const treatment = data.get('treatment') as string;
+		const notes = data.get('notes') as string;
+		const photo = data.get('photo') as string;
+
+		if (!plantationId) return fail(400, { error: 'Plantation ID required' });
+		if (!HEALTH_ISSUE_TYPES.includes(type as HealthIssueType)) {
+			return fail(400, { error: 'Invalid health issue type' });
+		}
+		if (!HEALTH_SEVERITIES.includes(severity as HealthSeverity)) {
+			return fail(400, { error: 'Invalid severity' });
+		}
+
+		const plantation = db.select().from(plantations).where(eq(plantations.id, parseInt(plantationId))).get();
+		if (!plantation) return fail(404, { error: 'Plantation not found' });
+		if (plantation.userId !== locals.user!.id) {
+			return fail(403, { error: 'Not authorized' });
+		}
+
+		db.insert(plantHealthRecords).values({
+			userId: locals.user!.id,
+			plantationId: plantation.id,
+			type,
+			severity,
+			photo: photo || null,
+			treatment: treatment || null,
+			notes: notes || null,
+			detectedAt: detectedAt || new Date().toISOString()
+		}).run();
+
+		return { success: true };
+	},
+
+	resolveHealth: async ({ request, locals }) => {
+		const data = await request.formData();
+		const id = data.get('id') as string;
+		if (!id) return fail(400, { error: 'Health record ID required' });
+
+		const record = db.select().from(plantHealthRecords).where(eq(plantHealthRecords.id, parseInt(id))).get();
+		if (!record) return fail(404, { error: 'Health record not found' });
+		if (record.userId !== locals.user!.id) {
+			return fail(403, { error: 'Not authorized' });
+		}
+
+		db.update(plantHealthRecords)
+			.set({ resolvedAt: new Date().toISOString() })
+			.where(eq(plantHealthRecords.id, record.id))
+			.run();
+		return { success: true };
+	},
+
+	reopenHealth: async ({ request, locals }) => {
+		const data = await request.formData();
+		const id = data.get('id') as string;
+		if (!id) return fail(400, { error: 'Health record ID required' });
+
+		const record = db.select().from(plantHealthRecords).where(eq(plantHealthRecords.id, parseInt(id))).get();
+		if (!record) return fail(404, { error: 'Health record not found' });
+		if (record.userId !== locals.user!.id) {
+			return fail(403, { error: 'Not authorized' });
+		}
+
+		db.update(plantHealthRecords)
+			.set({ resolvedAt: null })
+			.where(eq(plantHealthRecords.id, record.id))
+			.run();
+		return { success: true };
+	},
+
+	deleteHealth: async ({ request, locals }) => {
+		const data = await request.formData();
+		const id = data.get('id') as string;
+		if (!id) return fail(400, { error: 'Health record ID required' });
+
+		const record = db.select().from(plantHealthRecords).where(eq(plantHealthRecords.id, parseInt(id))).get();
+		if (!record) return fail(404, { error: 'Health record not found' });
+		if (record.userId !== locals.user!.id) {
+			return fail(403, { error: 'Not authorized' });
+		}
+
+		db.delete(plantHealthRecords).where(eq(plantHealthRecords.id, record.id)).run();
 		return { success: true };
 	}
 };
