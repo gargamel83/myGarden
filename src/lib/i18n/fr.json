@@ -5,6 +5,7 @@
 		"garden": "Jardin",
 		"plantings": "Plantations",
 		"plants": "Plantes",
+		"diseases": "Maladies",
 		"logs": "Journaux",
 		"menu": "Menu",
 		"logout": "Déconnexion",
@@ -329,5 +330,55 @@
 			"thunderstorm": "Orage",
 			"unknown": "Inconnu"
 		}
+	},
+	"health": {
+		"title": "Santé des plantes",
+		"open": "Journal phytosanitaire",
+		"history": "Historique santé",
+		"none": "Aucun problème de santé enregistré.",
+		"unresolved": "{count} non résolu(s)",
+		"unresolvedBadge": "Problème non résolu",
+		"typeLabel": "Type",
+		"severityLabel": "Gravité",
+		"detectedAt": "Détecté le",
+		"treatment": "Traitement",
+		"treatmentPlaceholder": "ex. bouillie bordelaise, retrait manuel",
+		"notes": "Notes",
+		"photo": "URL de la photo",
+		"add": "Ajouter un problème",
+		"added": "Problème de santé enregistré",
+		"resolve": "Résolu",
+		"resolved": "Résolu",
+		"reopen": "Réouvrir",
+		"resolvedMsg": "Problème marqué comme résolu",
+		"reopenedMsg": "Problème réouvert",
+		"deleted": "Problème de santé supprimé",
+		"delete": "Supprimer",
+		"deleteConfirm": "Supprimer cet enregistrement de santé ?",
+		"types": {
+			"disease": "Maladie",
+			"pest": "Ravageur",
+			"deficiency": "Carence",
+			"other": "Autre"
+		},
+		"severities": {
+			"low": "Faible",
+			"medium": "Moyenne",
+			"high": "Élevée"
+		}
+	},
+	"diseases": {
+		"title": "Bibliothèque des maladies",
+		"search": "Rechercher une maladie, un symptôme, une plante hôte...",
+		"allHosts": "Toutes les plantes hôtes",
+		"reset": "Réinitialiser",
+		"none": "Aucune maladie trouvée.",
+		"count": "{count} fiche(s)",
+		"symptoms": "Symptômes",
+		"causes": "Causes",
+		"treatments": "Traitements bio",
+		"prevention": "Prévention",
+		"hostPlants": "Plantes hôtes",
+		"close": "Fermer"
 	}
 }

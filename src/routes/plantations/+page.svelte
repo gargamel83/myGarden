@@ -2,8 +2,8 @@
 	import { enhance } from '$app/forms';
 	import { invalidate } from '$app/navigation';
 	import { toast } from '$lib/toast.svelte';
-	import { STATUS_LABELS, STATUS_COLORS, STATUS_BAR_COLORS } from '$lib/types';
-	import type { PlantStatus } from '$lib/types';
+	import { STATUS_LABELS, STATUS_COLORS, STATUS_BAR_COLORS, HEALTH_SEVERITY_COLORS } from '$lib/types';
+	import type { PlantStatus, HealthSeverity } from '$lib/types';
 	import type { SubmitFunction } from '@sveltejs/kit';
 import { firstPhoto } from '$lib/utils';
 import Modal from '$lib/components/Modal.svelte';
@@ -177,6 +177,74 @@ let _locale = $localeStore;
 			if (result.type === 'success') {
 				toast(t('plantations.harvestDeleted'));
 				await invalidate('app:plantations');
+			}
+		};
+	}
+
+	// ---- Plant health journal ----
+	let healthOpenId = $state<number | null>(null);
+	let healthType = $state('disease');
+	let healthSeverity = $state('medium');
+	let healthDetectedAt = $state(new Date().toISOString().split('T')[0]);
+	let healthTreatment = $state('');
+	let healthNotes = $state('');
+	let healthPhoto = $state('');
+
+	function openHealth(id: number) {
+		healthOpenId = id;
+		healthType = 'disease';
+		healthSeverity = 'medium';
+		healthDetectedAt = new Date().toISOString().split('T')[0];
+		healthTreatment = '';
+		healthNotes = '';
+		healthPhoto = '';
+	}
+
+	function unresolvedCount(plantationId: number): number {
+		return (data.healthByPlantation[plantationId] || []).filter((r) => !r.resolvedAt).length;
+	}
+
+	const handleHealthEnhance: SubmitFunction = (_input) => {
+		return async ({ result }) => {
+			if (result.type === 'success') {
+				healthTreatment = ''; healthNotes = ''; healthPhoto = '';
+				toast(t('health.added'));
+				await invalidate('app:plantations');
+			} else if (result.type === 'failure') {
+				toast(result.data?.error || t('common.error'), 'error');
+			}
+		};
+	}
+
+	const handleHealthResolveEnhance: SubmitFunction = (_input) => {
+		return async ({ result }) => {
+			if (result.type === 'success') {
+				toast(t('health.resolvedMsg'));
+				await invalidate('app:plantations');
+			} else if (result.type === 'failure') {
+				toast(result.data?.error || t('common.error'), 'error');
+			}
+		};
+	}
+
+	const handleHealthReopenEnhance: SubmitFunction = (_input) => {
+		return async ({ result }) => {
+			if (result.type === 'success') {
+				toast(t('health.reopenedMsg'));
+				await invalidate('app:plantations');
+			} else if (result.type === 'failure') {
+				toast(result.data?.error || t('common.error'), 'error');
+			}
+		};
+	}
+
+	const handleHealthDeleteEnhance: SubmitFunction = (_input) => {
+		return async ({ result }) => {
+			if (result.type === 'success') {
+				toast(t('health.deleted'));
+				await invalidate('app:plantations');
+			} else if (result.type === 'failure') {
+				toast(result.data?.error || t('common.error'), 'error');
 			}
 		};
 	}
@@ -360,6 +428,14 @@ let _locale = $localeStore;
 						<button class="text-xs text-green-700 px-2 py-1 rounded hover:bg-green-50" onclick={() => toggleHarvest(p.plantation.id)}>
 							{t('plantations.recordHarvest')}
 						</button>
+						<button
+							class="text-xs px-2 py-1 rounded hover:bg-purple-50 {unresolvedCount(p.plantation.id) > 0 ? 'text-red-600 font-medium' : 'text-purple-700'}"
+							onclick={() => openHealth(p.plantation.id)}
+							title={t('health.open')}
+							aria-label={t('health.open')}
+						>
+							🩺{unresolvedCount(p.plantation.id) > 0 ? ` ${unresolvedCount(p.plantation.id)}` : ''}
+						</button>
 						{#if nextStatus(p.plantation.status)}
 							<form method="POST" action="?/updateStatus" use:enhance={handleStatusEnhance} class="inline">
 								<input type="hidden" name="id" value={p.plantation.id} />
@@ -476,6 +552,15 @@ let _locale = $localeStore;
 													<img src={pf} alt="" loading="lazy" class="w-5 h-5 object-cover rounded shrink-0" />
 												{/if}
 												<span class="text-xs text-gray-600 truncate">{p.plantation.plantName}</span>
+												{#if unresolvedCount(p.plantation.id) > 0}
+													<button
+														type="button"
+														class="text-xs shrink-0"
+														title={t('health.unresolvedBadge')}
+														aria-label={t('health.unresolvedBadge')}
+														onclick={() => openHealth(p.plantation.id)}
+													>🩺</button>
+												{/if}
 											</div>
 											{#each months as m}
 												<div class="flex-1 border-l border-gray-100"></div>
@@ -600,4 +685,108 @@ let _locale = $localeStore;
 			<button type="submit" class="px-4 py-2 bg-red-600 text-white rounded text-sm">{t('common.delete')}</button>
 		</div>
 	</form>
+</Modal>
+
+<!-- Plant health journal dialog -->
+<Modal open={healthOpenId !== null} onclose={() => healthOpenId = null} class="w-[34rem] max-w-[92vw] max-h-[85vh] overflow-y-auto">
+	{#if healthOpenId !== null}
+		{@const records = data.healthByPlantation[healthOpenId] || []}
+		<div class="flex items-center justify-between mb-4">
+			<h2 class="text-lg font-bold">{t('health.title')}</h2>
+			<span class="text-xs text-gray-500">
+				{unresolvedCount(healthOpenId) > 0 ? t('health.unresolved', { count: unresolvedCount(healthOpenId) }) : ''}
+			</span>
+		</div>
+
+		<h3 class="text-sm font-semibold text-gray-700 mb-2">{t('health.history')}</h3>
+		{#if records.length === 0}
+			<p class="text-sm text-gray-500 mb-4">{t('health.none')}</p>
+		{:else}
+			<div class="space-y-2 mb-4">
+				{#each records as record (record.id)}
+					<div class="border rounded p-3 text-sm">
+						<div class="flex items-center justify-between gap-2">
+							<span class="font-medium">
+								{t('health.types.' + record.type)}
+								<span class="text-xs px-2 py-0.5 rounded ml-1 {HEALTH_SEVERITY_COLORS[record.severity as HealthSeverity] || ''}">
+									{t('health.severities.' + record.severity)}
+								</span>
+							</span>
+							<span class="text-xs text-gray-500 shrink-0">{(record.detectedAt || '').slice(0, 10)}</span>
+						</div>
+						{#if record.treatment}
+							<p class="text-xs text-gray-600 mt-1"><strong>{t('health.treatment')}:</strong> {record.treatment}</p>
+						{/if}
+						{#if record.notes}
+							<p class="text-xs text-gray-500 mt-1">{record.notes}</p>
+						{/if}
+						{#if record.photo}
+							<img src={record.photo} alt="" loading="lazy" class="mt-2 w-24 h-24 object-cover rounded" />
+						{/if}
+						<div class="flex items-center gap-3 mt-2 text-xs">
+							{#if record.resolvedAt}
+								<span class="text-emerald-700">✓ {t('health.resolved')}</span>
+								<form method="POST" action="?/reopenHealth" use:enhance={handleHealthReopenEnhance} class="inline">
+									<input type="hidden" name="id" value={record.id} />
+									<button type="submit" class="text-blue-600 hover:underline">{t('health.reopen')}</button>
+								</form>
+							{:else}
+								<form method="POST" action="?/resolveHealth" use:enhance={handleHealthResolveEnhance} class="inline">
+									<input type="hidden" name="id" value={record.id} />
+									<button type="submit" class="text-emerald-700 hover:underline">{t('health.resolve')}</button>
+								</form>
+							{/if}
+							<form method="POST" action="?/deleteHealth" use:enhance={handleHealthDeleteEnhance} class="inline">
+								<input type="hidden" name="id" value={record.id} />
+								<button type="submit" class="text-red-500 hover:underline">{t('health.delete')}</button>
+							</form>
+						</div>
+					</div>
+				{/each}
+			</div>
+		{/if}
+
+		<form method="POST" action="?/addHealth" use:enhance={handleHealthEnhance} class="border-t pt-3 space-y-2 text-sm">
+			<input type="hidden" name="plantationId" value={healthOpenId} />
+			<h3 class="font-semibold text-gray-700">{t('health.add')}</h3>
+			<div class="grid grid-cols-3 gap-2">
+				<label class="block text-gray-600">
+					{t('health.typeLabel')}
+					<select name="type" bind:value={healthType} class="w-full border rounded px-2 py-1">
+						{#each ['disease', 'pest', 'deficiency', 'other'] as issueType}
+							<option value={issueType}>{t('health.types.' + issueType)}</option>
+						{/each}
+					</select>
+				</label>
+				<label class="block text-gray-600">
+					{t('health.severityLabel')}
+					<select name="severity" bind:value={healthSeverity} class="w-full border rounded px-2 py-1">
+						{#each ['low', 'medium', 'high'] as level}
+							<option value={level}>{t('health.severities.' + level)}</option>
+						{/each}
+					</select>
+				</label>
+				<label class="block text-gray-600">
+					{t('health.detectedAt')}
+					<input type="date" name="detectedAt" bind:value={healthDetectedAt} class="w-full border rounded px-2 py-1" />
+				</label>
+			</div>
+			<label class="block text-gray-600">
+				{t('health.treatment')}
+				<input type="text" name="treatment" bind:value={healthTreatment} placeholder={t('health.treatmentPlaceholder')} class="w-full border rounded px-2 py-1" />
+			</label>
+			<label class="block text-gray-600">
+				{t('health.photo')}
+				<input type="text" name="photo" bind:value={healthPhoto} class="w-full border rounded px-2 py-1" />
+			</label>
+			<label class="block text-gray-600">
+				{t('health.notes')}
+				<textarea name="notes" bind:value={healthNotes} class="w-full border rounded px-2 py-1"></textarea>
+			</label>
+			<div class="flex justify-end gap-2 pt-1">
+				<button type="button" class="px-4 py-2 border rounded" onclick={() => healthOpenId = null}>{t('common.cancel')}</button>
+				<button type="submit" class="px-4 py-2 bg-[var(--btn-bg)] text-white rounded">{t('health.add')}</button>
+			</div>
+		</form>
+	{/if}
 </Modal>

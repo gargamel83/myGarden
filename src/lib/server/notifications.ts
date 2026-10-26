@@ -1,5 +1,5 @@
 import { db } from './db';
-import { notifications, plants, plantations, gardenBeds } from './db/schema';
+import { notifications, plants, plantations, gardenBeds, plantHealthRecords } from './db/schema';
 import { eq, inArray, and, sql } from 'drizzle-orm';
 import { getRotationAlerts } from './rotation';
 
@@ -112,6 +112,30 @@ export async function generateNotifications(userId: number): Promise<void> {
 				createdAt: now
 			});
 		}
+	}
+
+	// 5. Unresolved health issues detected more than 7 days ago
+	const healthRecords = db.select().from(plantHealthRecords)
+		.where(eq(plantHealthRecords.userId, userId))
+		.all();
+	const plantationById = new Map(allPlantations.map(p => [p.id, p]));
+	for (const record of healthRecords) {
+		if (record.resolvedAt) continue;
+		const detected = new Date(record.detectedAt).getTime();
+		if (Number.isNaN(detected)) continue;
+		const days = Math.floor((today.getTime() - detected) / 86400000);
+		if (days <= 7) continue;
+		const key = `health-${record.id}`;
+		if (existing.has(key)) continue;
+		const plantation = plantationById.get(record.plantationId);
+		toInsert.push({
+			userId,
+			type: 'health',
+			key,
+			message: `Unresolved ${record.type} on ${plantation?.plantName || 'plant'} for ${days} days`,
+			link: '/plantations',
+			createdAt: now
+		});
 	}
 
 	// Batch insert all new notifications

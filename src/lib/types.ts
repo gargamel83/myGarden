@@ -1,5 +1,13 @@
 export type PlantStatus = 'planned' | 'sown' | 'planted' | 'harvested' | 'cancelled';
 
+export type HealthIssueType = 'disease' | 'pest' | 'deficiency' | 'other';
+
+export type HealthSeverity = 'low' | 'medium' | 'high';
+
+export const HEALTH_ISSUE_TYPES: HealthIssueType[] = ['disease', 'pest', 'deficiency', 'other'];
+
+export const HEALTH_SEVERITIES: HealthSeverity[] = ['low', 'medium', 'high'];
+
 export type SunExposure = 'plein_soleil' | 'mi_ombre' | 'ombre';
 
 export type SoilType = 'riche' | 'meuble' | 'lourd' | 'léger';
@@ -54,4 +62,23 @@ export const WATERING_LABELS: Record<Watering, string> = {
 	faible: '💧 Low',
 	moyen: '💧💧 Medium',
 	élevé: '💧💧💧 High'
+};
+
+export const HEALTH_ISSUE_LABELS: Record<HealthIssueType, string> = {
+	disease: '🦠 Disease',
+	pest: '🐛 Pest',
+	deficiency: '🧪 Deficiency',
+	other: '❔ Other'
+};
+
+export const HEALTH_SEVERITY_LABELS: Record<HealthSeverity, string> = {
+	low: 'Low',
+	medium: 'Medium',
+	high: 'High'
+};
+
+export const HEALTH_SEVERITY_COLORS: Record<HealthSeverity, string> = {
+	low: 'bg-amber-100 text-amber-700',
+	medium: 'bg-orange-100 text-orange-700',
+	high: 'bg-red-100 text-red-700'
 };
