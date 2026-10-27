@@ -1,9 +1,8 @@
 {
   "version": "6",
   "dialect": "sqlite",
-<<<<<<< HEAD
-  "id": "01af2b60-7b3c-482c-9a67-86c6312317cd",
-  "prevId": "4d08f75f-96ec-478d-8930-2d2a7050aa5f",
+  "id": "573d5219-7f34-4f2e-9079-3145c5df593c",
+  "prevId": "1ecd1464-9466-49e0-9ba8-c51e71764498",
   "tables": {
     "diseases": {
       "name": "diseases",
@@ -107,11 +106,6 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
-=======
-  "id": "f5a8f9b6-da12-43ea-b20d-ad7a3174b6f8",
-  "prevId": "4d08f75f-96ec-478d-8930-2d2a7050aa5f",
-  "tables": {
->>>>>>> feature/groupe-c-conseils-agro
     "garden_beds": {
       "name": "garden_beds",
       "columns": {
@@ -316,8 +310,6 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
-<<<<<<< HEAD
-=======
     "garden_tasks": {
       "name": "garden_tasks",
       "columns": {
@@ -421,7 +413,6 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
->>>>>>> feature/groupe-c-conseils-agro
     "harvest_records": {
       "name": "harvest_records",
       "columns": {
@@ -714,7 +705,6 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
-<<<<<<< HEAD
     "plant_health_records": {
       "name": "plant_health_records",
       "columns": {
@@ -846,8 +836,6 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
-=======
->>>>>>> feature/groupe-c-conseils-agro
     "plantations": {
       "name": "plantations",
       "columns": {
@@ -1176,8 +1164,6 @@
           "notNull": false,
           "autoincrement": false
         },
-<<<<<<< HEAD
-=======
         "care_tips": {
           "name": "care_tips",
           "type": "text",
@@ -1185,7 +1171,6 @@
           "notNull": false,
           "autoincrement": false
         },
->>>>>>> feature/groupe-c-conseils-agro
         "created_at": {
           "name": "created_at",
           "type": "text",
