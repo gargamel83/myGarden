@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, real, index, uniqueIndex } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, integer, real, index, uniqueIndex, primaryKey } from 'drizzle-orm/sqlite-core';
 
 export const users = sqliteTable('users', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
@@ -182,3 +182,26 @@ export const gardenPhotos = sqliteTable('garden_photos', {
 	height: integer('height'),
 	createdAt: text('created_at').notNull().$default(() => new Date().toISOString())
 });
+
+export const plantMedia = sqliteTable('plant_media', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	plantId: integer('plant_id').notNull().references(() => plants.id),
+	userId: integer('user_id').references(() => users.id),
+	url: text('url').notNull(),
+	type: text('type').notNull().default('gallery'), // 'gallery' | 'disease' | 'growth'
+	diseaseId: integer('disease_id').references(() => diseases.id),
+	caption: text('caption'),
+	createdAt: text('created_at').notNull().$default(() => new Date().toISOString())
+}, (table) => ({
+	plantIdIdx: index('idx_plant_media_plant_id').on(table.plantId),
+	diseaseIdIdx: index('idx_plant_media_disease_id').on(table.diseaseId)
+}));
+
+export const diseasePlants = sqliteTable('disease_plants', {
+	diseaseId: integer('disease_id').notNull().references(() => diseases.id),
+	plantId: integer('plant_id').notNull().references(() => plants.id)
+}, (table) => ({
+	pk: primaryKey({ columns: [table.diseaseId, table.plantId] }),
+	diseaseIdIdx: index('idx_disease_plants_disease_id').on(table.diseaseId),
+	plantIdIdx: index('idx_disease_plants_plant_id').on(table.plantId)
+}));
