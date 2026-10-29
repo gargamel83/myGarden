@@ -12,11 +12,10 @@ export function buildProfitGraph(plantations: any[], harvestRecords: any[], plan
 	const byPlant = new Map(plantations.map(p => [p.plantId, p]));
 	const plantMap = new Map(plants.map(p => [p.id, p.commonName]));
 
-	const byYear: Record<number, { kg: number; qty: number }> = {};
+	const byYear: Record<string, { kg: number; qty: number }> = {};
 
 	for (const hr of harvestRecords) {
-		const year = new Date(hr.harvestedAt).getFullYear();
-		const pid = hr.plantationId;
+		const year = new Date(hr.harvestedAt).getFullYear().toString();
 		const kg = hr.weightKg ?? 0;
 		const qty = hr.quantity ?? 0;
 		byYear[year] = byYear[year] ?? { kg: 0, qty: 0 };
@@ -25,13 +24,14 @@ export function buildProfitGraph(plantations: any[], harvestRecords: any[], plan
 	}
 
 	const result: ProfitEntry[] = [];
-	for (const [year, data] of Object.entries(byYear)) {
-		const pid = Number(Object.keys(byYear).find(k => byYear[k] === data) || '0'); // simplified
+	for (const [yearStr, data] of Object.entries(byYear)) {
+		const year = Number(yearStr);
+		const pid = Number(Object.keys(byYear).find(k => byYear[k] === data) || '0');
 		result.push({
-			plantId: 0, // placeholder
-			plantName: plantMap.get(0) || 'Global',
+			plantId: pid,
+			plantName: plantMap.get(pid) || 'Global',
 			bedName: null,
-			year: Number(year),
+			year,
 			harvestedKg: data.kg,
 			harvestedQty: data.qty
 		});

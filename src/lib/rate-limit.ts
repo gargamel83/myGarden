@@ -16,7 +16,7 @@ export function checkRateLimit(ip: string, action: 'login' | 'register'): { allo
 	const timestamps = key.get(action) ?? [];
 
 	// Remove timestamps outside the window
-	const valid = timestamps.filter(t => now - t < LIMITS.window);
+	const valid = timestamps.filter((t: number) => now - t < LIMITS.window);
 	const current = valid.length;
 
 	const allowed = current < LIMITS[action];
@@ -35,7 +35,7 @@ export function getRateLimitInfo(ip: string, action: 'login' | 'register') {
 	const now = Date.now();
 	const key = attempts.get(ip) ?? new Map();
 	const timestamps = key.get(action) ?? [];
-	const valid = timestamps.filter(t => now - t < LIMITS.window);
+	const valid = timestamps.filter((t: number) => now - t < LIMITS.window);
 	const current = valid.length;
-	return { remaining: Math.max(0, LIMITS[action] - current), resetAt: now + LIMITS.window };
+	return { allowed: current < LIMITS[action], remaining: Math.max(0, LIMITS[action] - current), resetAt: now + LIMITS.window };
 }

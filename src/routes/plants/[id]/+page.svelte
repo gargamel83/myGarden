@@ -97,8 +97,6 @@
 	{/each}
 				{/if}
 
-				<!-- Upload form -->
-				{#if uploading}
 					<p class="text-sm text-gray-500">Upload en cours…</p>
 				{:else}
 					<form method="POST" action="?/uploadPhoto" use:enhance class="mt-4">
