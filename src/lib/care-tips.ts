@@ -1,4 +1,4 @@
-export const CARE_TIP_KEYS = ['watering', 'fertilizing', 'pruning', 'harvest', 'misc'] as const;
+export const CARE_TIP_KEYS = ['watering', 'fertilizing', 'pruning', 'harvest', 'misc', 'mulching', 'staking', 'thinning', 'storage'] as const;
 
 export type CareTipKey = (typeof CARE_TIP_KEYS)[number];
 
@@ -45,3 +45,4 @@ export function serializeCareTips(tips: CareTips | null | undefined): string {
 export function hasCareTips(tips: CareTips | null | undefined): boolean {
 	return CARE_TIP_KEYS.some((key) => typeof tips?.[key] === 'string' && !!tips[key]?.trim());
 }
+
